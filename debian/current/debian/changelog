@@ -5,6 +5,7 @@ xosd (2.2.9.0-1) unstable; urgency=medium
     - 35_synchronous.diff: Work on tpb related #265757.
   * Urgency medium because of grave #252170.
   * 36_string_with.diff: Fix alignment problem (#265561)
+  * 37_setlocale.diff: Re-add setlocale() in osd_cat (closes: #268182)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu, 26 Aug 2004 20:42:50 +0200
 
