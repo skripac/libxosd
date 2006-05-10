@@ -43,14 +43,14 @@ static void save_previous_title ( gchar * title );
 
 GeneralPlugin gp =
   {
-    NULL,		/* handle */
-    NULL,		/* filename */
-    -1,			/* xmms_session */
-    "On Screen Display",	/* Description */
-    init,
-    NULL,
-    configure,                /* Configure */
-    cleanup,
+    .handle = NULL,
+    .filename = NULL,
+    .xmms_session = -1,
+    .description = "On Screen Display",
+    .init = init,
+    .about = NULL,
+    .configure = configure,
+    .cleanup = cleanup,
   };
 
 static xosd *osd=NULL;
