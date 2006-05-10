@@ -76,6 +76,7 @@ struct xosd
    int y;
    xosd_pos pos;
    int offset;
+   int shadow_offset;
       
    int mapped;
    int done;
@@ -173,6 +174,23 @@ static void expose (xosd *osd)
 			   osd->bitmap_gc, x, y,
 			   text, len);
 
+	    if (osd->shadow_offset)
+	       {
+	       XSetForeground (osd->display, osd->gc, 
+			       BlackPixel(osd->display, osd->screen));
+
+	       XmbDrawString (osd->display, osd->bitmap, osd->fontset,
+			      osd->bitmap_gc, x + osd->shadow_offset, 
+			      y + osd->shadow_offset,
+			      text, len);
+	       XmbDrawString (osd->display, osd->window, osd->fontset,
+			      osd->gc, x + osd->shadow_offset, 
+			      y + osd->shadow_offset,
+			      text, len);
+	       }
+
+	    XSetForeground (osd->display, osd->gc, osd->pixel);
+	    
 	    XmbDrawString (osd->display, osd->window, osd->fontset,
 			   osd->gc, x, y,
 			   text, len);
@@ -183,6 +201,20 @@ static void expose (xosd *osd)
 	    {
 	    draw_percentage (osd, osd->bitmap, osd->bitmap_gc, x, y, 
 			     osd->lines[line].percentage);
+	    
+	    if (osd->shadow_offset)
+	       {
+	       XSetForeground (osd->display, osd->gc, 
+			       BlackPixel(osd->display, osd->screen));
+	       draw_percentage (osd, osd->bitmap, osd->bitmap_gc, 
+				x + osd->shadow_offset, y + osd->shadow_offset,
+				osd->lines[line].percentage);
+	       draw_percentage (osd, osd->window, osd->gc, 
+				x + osd->shadow_offset, y + osd->shadow_offset,
+				osd->lines[line].percentage);
+	       }
+	    
+	    XSetForeground (osd->display, osd->gc, osd->pixel);
 	    draw_percentage (osd, osd->window, osd->gc, x, y,
 			     osd->lines[line].percentage);
 	    break;
@@ -386,7 +418,7 @@ static int set_font (xosd *osd, char *font)
    osd->bitmap = XCreatePixmap (osd->display, osd->window,
 				osd->width, osd->height,
 				1);
-   
+
    MUTEX_RELEASE ();
    
    return 0;
@@ -434,7 +466,8 @@ static int set_timeout (xosd *osd, int timeout)
    return 0;
    }
 
-xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset)
+xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset,
+		 int shadow_offset)
    {
    xosd *osd;
    int event_basep, error_basep, inputmask, i;
@@ -544,6 +577,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    
    osd->mapped = 0;
    osd->done = 0;
+   osd->shadow_offset = shadow_offset;
 
    for (i = 0; i < NLINES; i++)
       {
@@ -667,6 +701,15 @@ static void xosd_update_pos (xosd *osd)
       osd->y = osd->offset;
 
    XMoveWindow (osd->display, osd->window, osd->x, osd->y);
+   }
+
+int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
+   {
+   assert (osd);
+   
+   osd->shadow_offset = shadow_offset;
+   
+   return 0;
    }
 
 int xosd_set_offset (xosd *osd, int offset)

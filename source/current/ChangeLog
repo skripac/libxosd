@@ -7,6 +7,9 @@
 	Added GPL to the top of xmms_osd.c
 	Moved some files around to be more GNU style compliant (Added empty
 		file NEWS)
+	Added Drop Shadows, as well as new function to set them (NOTE: This
+		changes the number of args xosd_init takes, so old programs 
+		will be incompatible. Sorry)
 
 0.6.1:  Fixed bug on non-Gnome compliant window managers
 

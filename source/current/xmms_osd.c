@@ -59,10 +59,11 @@ gchar *font;
 gchar *colour;
 gint timeout;
 gint offset;
+gint shadow_offset;
 gint pos;
-GtkObject *timeout_obj, *offset_obj;
+GtkObject *timeout_obj, *offset_obj, *shadow_obj;
 GtkWidget *configure_win, *font_entry, *colour_entry, 
-   *timeout_spin, *offset_spin, *pos_top, *pos_bottom;
+   *timeout_spin, *offset_spin, *pos_top, *pos_bottom, *shadow_spin;
 
 GeneralPlugin *get_gplugin_info(void)
    {
@@ -83,7 +84,7 @@ static void init(void)
    previous_volume = previous_length = previous_song = 
       0;   
 
-   osd = xosd_init (font, colour, timeout, pos, offset);
+   osd = xosd_init (font, colour, timeout, pos, offset, shadow_offset);
    if (osd)
       timeout_tag = gtk_timeout_add (100, timeout_func, NULL);
    }
@@ -114,6 +115,7 @@ static void read_config (void)
    font = NULL;
    timeout = 3;
    offset = 50;
+   shadow_offset = 1;
    pos = XOSD_bottom;
    
    if ((cfgfile = xmms_cfg_open_default_file ()) != NULL)
@@ -123,6 +125,7 @@ static void read_config (void)
       xmms_cfg_read_int (cfgfile, "osd", "timeout", &timeout);
       xmms_cfg_read_int (cfgfile, "osd", "offset", &offset);
       xmms_cfg_read_int (cfgfile, "osd", "pos", &pos);
+      xmms_cfg_read_int (cfgfile, "osd", "shadow_offset", &shadow_offset);
       xmms_cfg_free(cfgfile);
       }
    
@@ -145,6 +148,7 @@ static void configure_apply_cb (gpointer data)
    font = g_strdup (gtk_entry_get_text (GTK_ENTRY (font_entry)));
    timeout = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (timeout_spin));
    offset = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (offset_spin));
+   shadow_offset = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (shadow_spin));
    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pos_top)))
       pos = XOSD_top;
    else
@@ -156,6 +160,7 @@ static void configure_apply_cb (gpointer data)
       xosd_set_font (osd, font);
       xosd_set_timeout (osd, timeout);
       xosd_set_offset (osd, offset);
+      xosd_set_shadow_offset (osd, shadow_offset);
       xosd_set_pos (osd, pos);
       }
 
@@ -164,6 +169,7 @@ static void configure_apply_cb (gpointer data)
    xmms_cfg_write_string(cfgfile, "osd", "font", font);
    xmms_cfg_write_int(cfgfile, "osd", "timeout", timeout);
    xmms_cfg_write_int(cfgfile, "osd", "offset", offset);
+   xmms_cfg_write_int(cfgfile, "osd", "shadow_offset", shadow_offset);
    xmms_cfg_write_int(cfgfile, "osd", "pos", pos);
    xmms_cfg_write_default_file(cfgfile);
    xmms_cfg_free(cfgfile);
@@ -388,6 +394,20 @@ static void configure (void)
       gtk_spin_button_set_value (GTK_SPIN_BUTTON (offset_spin),
 				 (gfloat) offset);
    gtk_box_pack_start (GTK_BOX (hbox), offset_spin, FALSE, FALSE, 0);   
+   unit_label = gtk_label_new ("pixels");
+   gtk_box_pack_start (GTK_BOX (hbox), unit_label, FALSE, FALSE, 0);   
+   
+   hbox = gtk_hbox_new (FALSE, 5);
+   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+   label = gtk_label_new ("Shadow Offset:");
+   gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+   shadow_obj = gtk_adjustment_new (timeout, 0, 60, 1, 1, 1);
+   shadow_spin = gtk_spin_button_new (GTK_ADJUSTMENT (shadow_obj), 1.0, 0);
+   gtk_spin_button_set_value (GTK_SPIN_BUTTON (shadow_spin),
+			      (gfloat) shadow_offset);
+   gtk_box_pack_start (GTK_BOX (hbox), shadow_spin, FALSE, FALSE, 0);   
+   unit_label = gtk_label_new ("pixels");
+   gtk_box_pack_start (GTK_BOX (hbox), unit_label, FALSE, FALSE, 0);      
    
    hbox = gtk_hbox_new (FALSE, 5);
    gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
