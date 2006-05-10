@@ -3,7 +3,7 @@
 	Makefile patches (Philipp Matthias Hahn)
         flickering fix for osd_cat (Michael Stuermer)
 	Change underscores to spaces if xmms config variable is set (James Roberts-Thomson)      
-	Xinerama code fixes (Tim Wright, Stian Jordet)
+	Xinerama code fixes (Tim Wright, Philipp Matthias Hahn, Stian Jordet)
 	
 2.1.3:
        configureable pixmap directory (Philipp Matthias Hahn)

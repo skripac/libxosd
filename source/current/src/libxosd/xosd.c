@@ -99,6 +99,7 @@ struct xosd
 
 	int screen_width;
 	int screen_height;
+  int screen_xpos;
   int height;
   int line_height;
   int x;
@@ -721,11 +722,13 @@ xosd *xosd_create (int number_lines)
 		XineramaIsActive(osd->display)) {
 		osd->screen_width = screeninfo[0].width;
 		osd->screen_height = screeninfo[0].height;
+		osd->screen_xpos = screeninfo[0].x_org;
 	} else
 #endif
 	{
 		osd->screen_width = XDisplayWidth (osd->display, osd->screen); 
 		osd->screen_height = XDisplayHeight (osd->display, osd->screen); 
+		osd->screen_xpos = 0;
 	}
 #ifdef HAVE_XINERAMA
 	if (screeninfo) XFree(screeninfo);
@@ -1017,15 +1020,15 @@ static void update_pos (xosd *osd) /* Requires mutex lock. */
 
   switch (osd->align) {
     case XOSD_left:
-      osd->x = osd->hoffset;
+      osd->x = osd->hoffset + osd->screen_xpos;
       break;
     case XOSD_center:
-      osd->x = osd->hoffset;
+      osd->x = osd->hoffset + osd->screen_xpos;
       /* which direction should this default to, left or right offset */
       break;
     case XOSD_right:
       // osd->x = XDisplayWidth (osd->display, osd->screen) - osd->width - osd->hoffset; 
-      osd->x = -(osd->hoffset); 
+      osd->x = -(osd->hoffset) + osd->screen_xpos; 
       /* neither of these work right, I want the offset to flip so
        * +offset is to the left instead of to the right when aligned right */
       break;
