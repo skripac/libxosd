@@ -1,3 +1,12 @@
+xosd (2.2.14-1) unstable; urgency=medium
+
+  * New upstream version.
+    - Applied my 5[123] patches. (closes: #281190)
+  * Urgency medium because prior versions are buggy and a lot of packages need
+    a working version.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 17 Nov 2004 22:45:15 +0100
+
 xosd (2.2.13-2) experimental; urgency=low
 
   * 51_timeout.diff: Fix timeout code again.
