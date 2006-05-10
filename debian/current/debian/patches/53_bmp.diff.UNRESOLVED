@@ -1,3 +1,4 @@
+#DPATCHLEVEL=0
 --- xmms_plugin/dlg_colour.c	2004-08-20 00:39:31.000000000 +0200
 +++ bmp_plugin/dlg_colour.c	2004-11-08 21:03:23.000000000 +0100
 @@ -19,7 +19,7 @@ Foundation, Inc., 675 Mass Ave, Cambridg
