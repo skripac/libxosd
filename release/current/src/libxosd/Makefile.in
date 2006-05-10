@@ -248,7 +248,6 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-xosd.lo xosd.o : xosd.c ../xosd.h
 
 info-am:
 info: info-am
