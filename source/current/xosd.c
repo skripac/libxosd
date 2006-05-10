@@ -376,6 +376,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    int nmissing;
    char *defstr;
    XFontSetExtents *extents;
+   Atom a;
 
    
    /* fprintf(stderr, "Hello!\n"); */
@@ -459,14 +460,18 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
 
    
    data = 6;
-   XChangeProperty (osd->display,
-		    osd->window,
-		    XInternAtom (osd->display, "_WIN_LAYER", False),
-		    XA_CARDINAL, 
-		    32, 
-		    PropModeReplace, 
-		    (unsigned char *)&data,
-		    1);
+   a = XInternAtom (osd->display, "_WIN_LAYER", True);
+   if (a != None)
+      {
+      XChangeProperty (osd->display,
+		       osd->window,
+		       XInternAtom (osd->display, "_WIN_LAYER", True),
+		       XA_CARDINAL, 
+		       32, 
+		       PropModeReplace, 
+		       (unsigned char *)&data,
+		       1);
+      }
    
    osd->mapped = 0;
    osd->done = 0;
