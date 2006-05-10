@@ -950,7 +950,10 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
 
   /* Wait for update */
   pthread_mutex_lock(&osd->mutex_sync);
-  pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
+  while (!osd->mapped) {
+    DEBUG(Dtrace, "waiting %d", osd->mapped);
+    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
+  }
   pthread_mutex_unlock(&osd->mutex_sync);
 
 error:
@@ -1272,7 +1275,10 @@ xosd_show(xosd * osd)
 
     /* Wait for update */
     pthread_mutex_lock(&osd->mutex_sync);
-    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
+    while (!osd->mapped) {
+      DEBUG(Dtrace, "waiting %d", osd->mapped);
+      pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
+    }
     pthread_mutex_unlock(&osd->mutex_sync);
     return 0;
   }
