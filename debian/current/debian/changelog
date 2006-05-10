@@ -1,3 +1,9 @@
+xosd (0.7.0-4) unstable; urgency=low
+
+  * Make libxosd-dev depend on xlibs-dev (closes: #123160) 
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Mon, 10 Dec 2001 08:26:33 +0100
+
 xosd (0.7.0-3) unstable; urgency=low
 
   * Fix the "font doesn't exists" segfault (Closes: #94935)
