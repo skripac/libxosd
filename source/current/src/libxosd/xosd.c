@@ -36,6 +36,7 @@
 
 #include "xosd.h"
 
+#define DEBUG(args...) /*fprintf (stderr, "%s: %s: %d: "__FILE__, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, args); fprintf(stderr, "\n") */
 
 //#ifdef X_HAVE_UTF8_STRING
 //#define XDRAWSTRING Xutf8DrawString
@@ -149,6 +150,8 @@ static void expose_line(xosd *osd, int line)
   int y = osd->line_height * line;
   xosd_line *l = &osd->lines[line];
 
+  /* don't need to lock here because functions that call expose_line should
+     have already locked the mutex */
   XFillRectangle (osd->display, osd->mask_bitmap, osd->mask_gc_back,
                   0, y, osd->width, osd->line_height);
 
@@ -194,9 +197,14 @@ static void *event_loop (void *osdv)
   XEvent report;
   int line, y;
 
+  DEBUG("event thread started");
+  usleep (500);
+
   while (!osd->done) {
     pthread_mutex_lock (&osd->mutex);
+    //DEBUG("checking window event");
     if (!XCheckWindowEvent (osd->display, osd->window, ExposureMask, &report)) {
+      //DEBUG("no window event");
       pthread_mutex_unlock (&osd->mutex);
       usleep (500);
       continue;
@@ -207,6 +215,7 @@ static void *event_loop (void *osdv)
 
     switch (report.type) {
       case Expose:
+	DEBUG("expose");
         if (report.xexpose.count == 0) {
           pthread_mutex_lock (&osd->mutex);
           for (line = 0; line < osd->number_lines; line++) {
@@ -274,7 +283,9 @@ static int display_string (xosd *osd, xosd_line *l, char *string)
     l->text[0] = '\0';
     l->length = 0;
   }
+  pthread_mutex_lock (&osd->mutex);
   XmbTextExtents(osd->fontset, l->text, l->length, NULL, &rect);
+  pthread_mutex_unlock (&osd->mutex);
   l->width = rect.width;
 
   return 0;
@@ -375,6 +386,7 @@ static int set_font (xosd *osd, char *font)
 static void resize(xosd *osd)
 {
   pthread_mutex_lock (&osd->mutex);
+
   XResizeWindow (osd->display, osd->window, osd->width, osd->height);
   XFreePixmap (osd->display, osd->mask_bitmap);
   osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, osd->height, 1);
@@ -466,7 +478,9 @@ static void gnome_stay_on_top(Display *dpy, Window win)
   xev.message_type = gnome_layer;
   xev.format = 32;
   xev.data.l[0] = WIN_LAYER_ONTOP;
+
   XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, (XEvent *)&xev);
+
 }
 
 /* ------------------------------------------------------------------------ */
@@ -515,14 +529,17 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   long data;
   Atom a;
 
+  DEBUG("getting display");
   display = getenv ("DISPLAY");
   if (!display) {
     xosd_error= "No display";
     return NULL;
   }
 
+  DEBUG("setting locale");
   setlocale(LC_ALL, "");
 
+  DEBUG("Mallocing osd");
   osd = malloc (sizeof (xosd));
   if (osd == NULL)
     {
@@ -530,9 +547,12 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
       return NULL;
     }
 
+  DEBUG("initializing mutex");
   pthread_mutex_init (&osd->mutex, NULL);
+  DEBUG("initializing condition");
   pthread_cond_init (&osd->cond, NULL);
 
+  DEBUG("initializing number lines");
   osd->number_lines=number_lines;
   osd->lines=malloc(sizeof(xosd_line) * osd->number_lines);
   if (osd->lines == NULL)
@@ -542,6 +562,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
       return NULL;
     }
 
+  DEBUG("misc osd variable initialization");
   osd->mapped = 0;
   osd->done = 0;
   osd->align = XOSD_left;
@@ -549,12 +570,14 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->display = XOpenDisplay (display);
   osd->screen = XDefaultScreen (osd->display);
 
+  DEBUG("Display query");
   if (!osd->display) {
     xosd_error="Cannot open display";
     free(osd);
     return NULL;
   }
 
+  DEBUG("x shape extension query");
   if (!XShapeQueryExtension (osd->display, &event_basep, &error_basep)) {
     xosd_error="X-Server does not support shape extension";
     free(osd);
@@ -564,6 +587,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->visual = DefaultVisual (osd->display, osd->screen);
   osd->depth = DefaultDepth (osd->display, osd->screen);
 
+  DEBUG("font selection info");
   osd->fontset=NULL;
   if (set_font (osd, font)) {
     /* If we didn't get a fontset, default to default font */
@@ -577,9 +601,11 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
     return NULL;
   }
 
+  DEBUG("width and height initialization");
   osd->width = XDisplayWidth (osd->display, osd->screen);
   osd->height = osd->line_height * osd->number_lines;
 
+  DEBUG("creating X Window");
   setwinattr.override_redirect = 1;
   osd->window = XCreateWindow (osd->display,
       XRootWindow (osd->display, osd->screen),
@@ -614,6 +640,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   inputmask = ExposureMask ;
   XSelectInput (osd->display, osd->window, inputmask);
 
+  DEBUG("stay on top");
   stay_on_top(osd->display, osd->window);
 
   for (i = 0; i < osd->number_lines; i++) {
@@ -621,18 +648,25 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
     osd->lines[i].text = NULL;
   }
 
+ 
+  DEBUG("initializing event thread");
   pthread_create (&osd->event_thread, NULL, event_loop, osd);
-  pthread_create (&osd->timeout_thread, NULL, timeout_loop, osd);
 
+  DEBUG("initializing timeout thread");
+  pthread_create (&osd->timeout_thread, NULL, timeout_loop, osd);
+  
   return osd;
 }
 
 int xosd_uninit (xosd *osd)
 {
   int i;
+  
+  DEBUG("start");
 
   if (osd == NULL) return -1;
 
+  DEBUG("waiting for threads to exit");
   pthread_mutex_lock (&osd->mutex);
   osd->done = 1;
   pthread_mutex_unlock (&osd->mutex);
@@ -641,22 +675,30 @@ int xosd_uninit (xosd *osd)
   pthread_join (osd->timeout_thread, NULL);
 
   XFreePixmap (osd->display, osd->mask_bitmap);
+  DEBUG("freeing X resources");
+
   XFreePixmap (osd->display, osd->line_bitmap);
   XFreeFontSet (osd->display, osd->fontset);
   XDestroyWindow (osd->display, osd->window);
 
 
+  DEBUG("freeing lines");
   for (i = 0; i < osd->number_lines; i++) {
     if (osd->lines[i].text)
       free (osd->lines[i].text);
   }
-
   free(osd->lines);
+
+  DEBUG("destroying condition and mutex");
 
   pthread_cond_destroy (&osd->cond);
   pthread_mutex_destroy (&osd->mutex);
 
+  DEBUG("freeing osd structure");
+
   free (osd);
+
+  DEBUG("done");
 
   return 0;
 }
@@ -774,12 +816,14 @@ int xosd_set_font (xosd *osd, char *font)
 static void xosd_update_pos (xosd *osd)
 {
   osd->x = 0;
+  pthread_mutex_lock (&osd->mutex);
   if (osd->pos == XOSD_bottom)
     osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->offset;
   else
     osd->y = osd->offset;
 
   XMoveWindow (osd->display, osd->window, osd->x, osd->y);
+  pthread_mutex_unlock (&osd->mutex);
 }
 
 int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
@@ -880,6 +924,7 @@ int xosd_scroll(xosd *osd, int lines)
 
   if (osd == NULL) return -1;
 
+  pthread_mutex_lock (&osd->mutex);
   assert(lines > 0 && lines <= osd->number_lines);
 
   /* First free everything no longer needed */
@@ -902,7 +947,7 @@ int xosd_scroll(xosd *osd, int lines)
     osd->lines[new_line].type = LINE_blank;
     new_line++;
   }
-
+  pthread_mutex_unlock (&osd->mutex);
   force_redraw (osd, -1);
   return 0;
 }
