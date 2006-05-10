@@ -1,3 +1,9 @@
+xosd (2.2.4-3) unstable; urgency=low
+
+  * Rework debian/patches/02_libxosd_draw_bar. (closes: #212599)
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu, 25 Sep 2003 14:09:41 +0200
+
 xosd (2.2.4-2) unstable; urgency=low
 
   * Ack NMU.
