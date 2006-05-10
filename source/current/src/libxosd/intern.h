@@ -86,8 +86,8 @@ struct xosd
   pthread_cond_t cond_wait;     /* CONST signal X11 done */
   int pipefd[2];                /* CONST signal X11 needed */
 
-  pthread_mutex_t mutex_hide;   /* CONST mutual exclusion for show/hide */
-  pthread_cond_t cond_hide;     /* CONST signal hide events */
+  pthread_mutex_t mutex_sync;   /* CONST mutual exclusion event notify */
+  pthread_cond_t cond_sync;     /* CONST signal events */
 
   Display *display;             /* CONST x11 */
   int screen;                   /* CONST x11 */

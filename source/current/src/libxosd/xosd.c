@@ -67,7 +67,6 @@ static /*inline*/ void _xosd_unlock(xosd *osd) {
   read(osd->pipefd[0], &c, sizeof(c));
   pthread_cond_signal(&osd->cond_wait);
   pthread_mutex_unlock(&osd->mutex);
-  if (osd->update & UPD_show) pthread_yield();
   FUNCTION_END(Dlocking);
 }
 /* }}} */
@@ -343,10 +342,7 @@ event_loop(void *osdv)
       DEBUG(Dupdate, "UPD_hide");
       if (osd->mapped) {
         XUnmapWindow(osd->display, osd->window);
-        pthread_mutex_lock(&osd->mutex_hide);
         osd->mapped = 0;
-        pthread_cond_broadcast(&osd->cond_hide);
-        pthread_mutex_unlock(&osd->mutex_hide);
       }
     }
     /* Flush all pennding X11 requests, if any. */
@@ -377,6 +373,11 @@ event_loop(void *osdv)
         continue; /* Hide the window first and than restart the loop */
       }
     }
+
+    /* Signal update */
+    pthread_mutex_lock(&osd->mutex_sync);
+    pthread_cond_broadcast(&osd->cond_sync);
+    pthread_mutex_unlock(&osd->mutex_sync);
 
     /* Wait for the next X11 event or an API request via the pipe. */
     retval = select(max+1, &readfds, NULL, NULL, tvp);
@@ -608,10 +609,10 @@ xosd_create(int number_lines)
 
   DEBUG(Dtrace, "initializing mutex");
   pthread_mutex_init(&osd->mutex, NULL);
-  pthread_mutex_init(&osd->mutex_hide, NULL);
+  pthread_mutex_init(&osd->mutex_sync, NULL);
   DEBUG(Dtrace, "initializing condition");
   pthread_cond_init(&osd->cond_wait, NULL);
-  pthread_cond_init(&osd->cond_hide, NULL);
+  pthread_cond_init(&osd->cond_sync, NULL);
 
   DEBUG(Dtrace, "initializing number lines");
   osd->number_lines = number_lines;
@@ -739,9 +740,9 @@ error3:
 error2:
   free(osd->lines);
 error1:
-  pthread_cond_destroy(&osd->cond_hide);
+  pthread_cond_destroy(&osd->cond_sync);
   pthread_cond_destroy(&osd->cond_wait);
-  pthread_mutex_destroy(&osd->mutex_hide);
+  pthread_mutex_destroy(&osd->mutex_sync);
   pthread_mutex_destroy(&osd->mutex);
   close(osd->pipefd[0]);
   close(osd->pipefd[1]);
@@ -798,9 +799,9 @@ xosd_destroy(xosd * osd)
   free(osd->lines);
 
   DEBUG(Dtrace, "destroying condition and mutex");
-  pthread_cond_destroy(&osd->cond_hide);
+  pthread_cond_destroy(&osd->cond_sync);
   pthread_cond_destroy(&osd->cond_wait);
-  pthread_mutex_destroy(&osd->mutex_hide);
+  pthread_mutex_destroy(&osd->mutex_sync);
   pthread_mutex_destroy(&osd->mutex);
 
   DEBUG(Dtrace, "freeing osd structure");
@@ -904,6 +905,11 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
   osd->update |= UPD_content | UPD_timer | UPD_show;
   _xosd_unlock(osd);
 
+  /* Wait for update */
+  pthread_mutex_lock(&osd->mutex_sync);
+  pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
+  pthread_mutex_unlock(&osd->mutex_sync);
+
 error:
   va_end(a);
   return ret;
@@ -929,12 +935,12 @@ xosd_wait_until_no_display(xosd * osd)
   if (osd == NULL)
     return -1;
 
-  pthread_mutex_lock(&osd->mutex_hide);
+  pthread_mutex_lock(&osd->mutex_sync);
   while (osd->mapped) {
     DEBUG(Dtrace, "waiting %d", osd->mapped);
-    pthread_cond_wait(&osd->cond_hide, &osd->mutex_hide);
+    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
   }
-  pthread_mutex_unlock(&osd->mutex_hide);
+  pthread_mutex_unlock(&osd->mutex_sync);
 
   FUNCTION_END(Dfunction);
   return 0;
@@ -1204,6 +1210,11 @@ xosd_show(xosd * osd)
     _xosd_lock(osd);
     osd->update |= (osd->update & ~UPD_hide) | UPD_show | UPD_timer;
     _xosd_unlock(osd);
+
+    /* Wait for update */
+    pthread_mutex_lock(&osd->mutex_sync);
+    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
+    pthread_mutex_unlock(&osd->mutex_sync);
     return 0;
   }
   return -1;
