@@ -84,11 +84,17 @@ static GtkToggleButton
   *stop_on,  *repeat_on,
   *shuffle_on;
 
+/*
+ * Return plugin structure.
+ */
 GeneralPlugin *get_gplugin_info(void)
 {
   return &gp;
 }
 
+/*
+ * Initialize plugin.
+ */
 static void init(void)
 {
   /* font = "-ttf-lucida console-*-r-*-*-60-*-*-*-*-*-*-*"; */
@@ -118,6 +124,9 @@ static void init(void)
     timeout_tag = gtk_timeout_add (100, timeout_func, NULL);
 }
 
+/*
+ * Free memory and release resources.
+ */
 static void cleanup(void)
 {
   DEBUG("cleanup");
@@ -143,6 +152,9 @@ static void cleanup(void)
   osd=NULL;
 }
 
+/*
+ * Read configuration and initialize variables.
+ */
 static void read_config (void)
 {
 
@@ -190,12 +202,17 @@ static void read_config (void)
     colour = g_strdup ("green");
 }
 
+/*
+ * Return state of check button.
+ */
 static gboolean isactive(GtkToggleButton *item) {
   return gtk_toggle_button_get_active (item)? 1 : 0;
 }
 
+/*
+ * Apply changed from configuration dialog.
+ */
 static void configure_apply_cb (gpointer data)
-
 {
 
   ConfigFile *cfgfile;
@@ -257,6 +274,9 @@ static void configure_apply_cb (gpointer data)
   xmms_cfg_free(cfgfile);
 }
 
+/*
+ * Apply changes and close configuration dialog.
+ */
 static void configure_ok_cb (gpointer data)
 {
   DEBUG("configure_ok_cb");
@@ -266,6 +286,9 @@ static void configure_ok_cb (gpointer data)
   configure_win = NULL;
 }
 
+/*
+ * Apply font change and close dialog.
+ */
 static int font_dialog_ok (GtkButton *button, gpointer user_data)
 {
   GtkWidget *font_dialog = user_data;
@@ -284,6 +307,9 @@ static int font_dialog_ok (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Apply changes to font selection.
+ */
 static int font_dialog_apply (GtkButton *button, gpointer user_data)
 {
   GtkWidget *font_dialog = user_data;
@@ -300,6 +326,9 @@ static int font_dialog_apply (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Create dialog window for font selection.
+ */
 static int font_dialog_window (GtkButton *button, gpointer user_data)
 {
   GtkWidget *font_dialog;
@@ -344,6 +373,9 @@ static int font_dialog_window (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Apply colour changes and close window.
+ */
 static int colour_dialog_ok (GtkButton *button, gpointer user_data)
 {
   GtkWidget *colour_dialog = user_data;
@@ -367,6 +399,9 @@ static int colour_dialog_ok (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Create dialog window for colour selection.
+ */
 static int colour_dialog_window (GtkButton *button, gpointer user_data)
 {
   GtkWidget *colour_dialog;
@@ -407,6 +442,9 @@ static int colour_dialog_window (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Create dialog window for configuration.
+ */
 static void configure (void)
 {
   GtkWidget *vbox, *bbox, *ok, *cancel, *apply, *hbox, *label, 
@@ -605,6 +643,9 @@ static void save_previous_title ( gchar * title ) {
   previous_title = title;
 }
 
+/*
+ * Convert hexcode to ASCII.
+ */
 static void replace_hexcodes (gchar *text)
 {
   gchar hex_number[] = "FF";
@@ -633,6 +674,9 @@ static void replace_hexcodes (gchar *text)
 
 }
 
+/*
+ * Callback funtion to handle delayed display.
+ */
 static gint timeout_func(gpointer data)
 {
   gint pos, volume, balance;
@@ -768,7 +812,10 @@ static gint timeout_func(gpointer data)
   return TRUE;
 }
 
-show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on)
+/*
+ * Add item to configuration dialog.
+ */
+static show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on)
 {
   //GtkWidget  *hbox, *label;
   //GSList *group = NULL;
@@ -793,6 +840,4 @@ show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButto
   */
   
   gtk_toggle_button_set_active (*on, selected);
-
-  
 }
