@@ -20,7 +20,7 @@ Description: X On-Screen Display library - runtime
 Package: libxosd-dev
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends}, xlibs-dev, xlibs-pic, libxosd2 (= ${Source-Version})
+Depends: libxosd2 (= ${Source-Version}), xlibs-dev, xlibs-pic, ${shlibs:Depends}
 Conflicts: libxosd
 Description: X On-Screen Display library - development
  A library for displaying a TV-like on-screen display in X.
@@ -41,7 +41,7 @@ Description: X On-Screen Display library - binary files
 Package: xmms-osd-plugin
 Section: sound
 Architecture: any
-Depends: ${shlibs:Depends}, xmms (>= 1.2.0)
+Depends: xmms (>= 1.2.0), ${shlibs:Depends}
 Description: XMMS plugin using xosd
  An XMMS plugin which displays volume and track information like
  on-screen displays on TVs and monitors. 

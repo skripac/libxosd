@@ -1,3 +1,9 @@
+xosd (2.2.4-2) unstable; urgency=low
+
+  * Ack NMU.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Mon, 22 Sep 2003 16:49:23 +0200
+
 xosd (2.2.4-1.3) unstable; urgency=low
 
   * NMU 
@@ -16,6 +22,7 @@ xosd (2.2.4-1.2) unstable; urgency=low
 
 xosd (2.2.4-1.1) unstable; urgency=low
 
+  * NMU.
   * debian/control
     + Added ${shlibs:Depend} to Depends (Closes: #206954)
   * Bump standards to 3.6.1.0
@@ -220,7 +227,7 @@ xosd (1.0.1-1) unstable; urgency=low
 
 xosd (0.7.0-4) unstable; urgency=low
 
-  * Make libxosd-dev depend on xlibs-dev (closes: #123160) 
+  * Make libxosd-dev depend on xlibs-dev (closes: #123160)
 
  -- Martijn van de Streek <martijn@foodfight.org>  Mon, 10 Dec 2001 08:26:33 +0100
 
@@ -240,7 +247,7 @@ xosd (0.7.0-1) unstable; urgency=low
 
   * New upstream release
   * Added '-s' option to osd_cat to set shadow offset
-  
+
  -- Martijn van de Streek <martijn@foodfight.org>  Mon, 26 Mar 2001 19:49:54 +0200
 
 xosd (0.6.1-3) unstable; urgency=low
@@ -273,7 +280,7 @@ xosd (0.6.0-1) unstable; urgency=low
 
 xosd (0.5.0-2) unstable; urgency=low
 
-  * New binary package: xosd-bin which closes: #80803 
+  * New binary package: xosd-bin which closes: #80803
     (thanks Philipp Matthias Hahn <pmhahn@titan.lahn.de>)
   * Makefile and manpage cleanups (thanks again :)
 
@@ -308,7 +315,7 @@ xosd (0.4.0-1) unstable; urgency=low
     - Better error reporting if the SHAPE is missing
     - New configuration dialog
 
- -- Martijn van de Streek <martijn@foodfight.org>  Wed, 27 Dec 2000 19:48:29 +0100 
+ -- Martijn van de Streek <martijn@foodfight.org>  Wed, 27 Dec 2000 19:48:29 +0100
 
 xosd (0.3.0-3) unstable; urgency=low
 
