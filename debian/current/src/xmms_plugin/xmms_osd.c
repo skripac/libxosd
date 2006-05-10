@@ -200,7 +200,7 @@ static void read_config (void)
     }
 
   if (font == NULL)
-    font = g_strdup ("fixed");
+    font = g_strdup ("-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*");
   if (colour == NULL)
     colour = g_strdup ("green");
 }

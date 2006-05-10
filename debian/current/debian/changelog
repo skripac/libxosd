@@ -3,6 +3,7 @@ xosd (1.0.3-1) unstable; urgency=low
   * New upstream version.
     - Fix more memory leaks.
     - Plugin segfault fix on disable.
+  * Change default font to fix FontSet creation.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 30 Aug 2002 09:21:49 +0200
 
