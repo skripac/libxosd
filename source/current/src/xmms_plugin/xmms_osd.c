@@ -38,7 +38,7 @@ static void cleanup(void);
 static gint timeout_func(gpointer);
 static void read_config (void);
 static void configure (void);
-static show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on);
+static void show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on);
 static void save_previous_title ( gchar * title );
 
 GeneralPlugin gp =
@@ -99,8 +99,8 @@ GeneralPlugin *get_gplugin_info(void)
 static void init(void)
 {
   /* font = "-ttf-lucida console-*-r-*-*-60-*-*-*-*-*-*-*"; */
-  // font = osd_default_font;
-  // font = "-misc-fixed-*-*-*-*-40-*-*-*-*-*-*-*";
+  /* font = osd_default_font; */
+  /* font = "-misc-fixed-*-*-*-*-40-*-*-*-*-*-*-*"; */
   /* colour = "green"; */
 
   DEBUG("init");
@@ -120,9 +120,10 @@ static void init(void)
   previous_title = 0;
 
   DEBUG("calling osd init function");
+
   osd = xosd_init (font, colour, timeout, pos, offset, shadow_offset, 2);
 
-  DEBUG("osd initialized");
+ DEBUG("osd initialized");
   if (osd)
     timeout_tag = gtk_timeout_add (100, timeout_func, NULL);
 }
@@ -254,6 +255,7 @@ static void configure_apply_cb (gpointer data)
   timeout = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (timeout_spin));
   offset = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (offset_spin));
   shadow_offset = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (shadow_spin));
+
   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pos_top)))
     pos = XOSD_top;
   else
@@ -467,9 +469,11 @@ static void configure (void)
 {
   GtkWidget *vbox, *bbox, *ok, *cancel, *apply, *hbox, *label,
     *button, *unit_label, *hbox2, *vbox2, *sep;
-
+  
+  GtkWidget *table;
 
   GSList *group = NULL;
+  GSList *group2 = NULL;
 
   DEBUG("configure");
   if (configure_win)
@@ -485,42 +489,60 @@ static void configure (void)
   gtk_window_set_title (GTK_WINDOW (configure_win),
 			"OSD " XOSD_VERSION " Configuration");
 
-  vbox = gtk_vbox_new (FALSE, 10);
+  vbox = gtk_vbox_new (FALSE, 12);
   gtk_container_add (GTK_CONTAINER (configure_win), vbox);
-  gtk_container_set_border_width (GTK_CONTAINER (configure_win), 5);
+  gtk_container_set_border_width (GTK_CONTAINER (configure_win), 12);
 
-  hbox = gtk_hbox_new (FALSE, 5);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  /* --=mjs=-- The Main table to pack everything into */
+  table = gtk_table_new (6, 3, FALSE);
+  gtk_table_set_row_spacings(GTK_TABLE(table), 12);
+  gtk_table_set_col_spacings(GTK_TABLE(table), 12);
+  gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
+
+  /* Font selector. */
   label = gtk_label_new ("Font:");
-  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment(GTK_MISC (label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1, 
+		    GTK_FILL, GTK_FILL, 0, 0);
   font_entry = gtk_entry_new ();
   if (font)
     gtk_entry_set_text (GTK_ENTRY (font_entry), font);
-  gtk_box_pack_start (GTK_BOX (hbox), font_entry, TRUE, TRUE, 0);
-  button = gtk_button_new_with_label ("Set");
+  gtk_table_attach (GTK_TABLE (table), font_entry, 1, 2, 0, 1, 
+		    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+
+  button = gtk_button_new_with_label ("Set...");
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (font_dialog_window), NULL);
-  gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+  gtk_table_attach (GTK_TABLE (table), button, 2, 3, 0, 1, 
+		    GTK_FILL,  GTK_FILL, 0, 0);
 
-
-  hbox = gtk_hbox_new (FALSE, 5);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  /* Colour Selector */
   label = gtk_label_new ("Colour:");
-  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment(GTK_MISC (label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 1, 2, 
+		    GTK_FILL, GTK_FILL, 0, 0);
   colour_entry = gtk_entry_new ();
   if (colour)
     gtk_entry_set_text (GTK_ENTRY (colour_entry), colour);
-  gtk_box_pack_start (GTK_BOX (hbox), colour_entry, TRUE, TRUE, 0);
-  button = gtk_button_new_with_label ("Set");
+  gtk_table_attach (GTK_TABLE (table), colour_entry, 1, 2, 1, 2, 
+		    GTK_EXPAND | GTK_FILL, GTK_FILL, 0, 0);
+  button = gtk_button_new_with_label ("Set...");
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (colour_dialog_window), NULL);
-  gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+  gtk_table_attach (GTK_TABLE (table), button, 2, 3, 1, 2, 
+		    GTK_FILL, GTK_FILL, 0, 0);
 
-
-  hbox = gtk_hbox_new (FALSE, 5);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  /* Timeout */
   label = gtk_label_new ("Timeout:");
-  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment(GTK_MISC (label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 2, 3,
+		    GTK_FILL, GTK_FILL, 0, 0);
+  hbox = gtk_hbox_new (FALSE, 6);
+  gtk_table_attach (GTK_TABLE (table), hbox, 1, 2, 2, 3,
+		    GTK_FILL, GTK_FILL, 0, 0);
   timeout_obj = gtk_adjustment_new (timeout, -1, 60, 1, 1, 1);
   timeout_spin = gtk_spin_button_new (GTK_ADJUSTMENT (timeout_obj), 1.0, 0);
   if (timeout)
@@ -528,13 +550,19 @@ static void configure (void)
 			       (gfloat) timeout);
   gtk_box_pack_start (GTK_BOX (hbox), timeout_spin, FALSE, FALSE, 0);
   unit_label = gtk_label_new ("seconds");
+  gtk_misc_set_alignment(GTK_MISC (unit_label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (unit_label), GTK_JUSTIFY_LEFT);
   gtk_box_pack_start (GTK_BOX (hbox), unit_label, FALSE, FALSE, 0);
 
-
-  hbox = gtk_hbox_new (FALSE, 5);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  /* Vertical Offset */
   label = gtk_label_new ("Vertical Offset:");
-  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment(GTK_MISC (label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 3, 4,
+		    GTK_FILL, GTK_FILL, 0, 0);
+  hbox = gtk_hbox_new (FALSE, 6);
+  gtk_table_attach (GTK_TABLE (table), hbox, 1, 2, 3, 4,
+		    GTK_FILL, GTK_FILL, 0, 0);
   offset_obj = gtk_adjustment_new (timeout, 0, 60, 1, 1, 1);
   offset_spin = gtk_spin_button_new (GTK_ADJUSTMENT (offset_obj), 1.0, 0);
   if (offset)
@@ -542,35 +570,47 @@ static void configure (void)
 			       (gfloat) offset);
   gtk_box_pack_start (GTK_BOX (hbox), offset_spin, FALSE, FALSE, 0);
   unit_label = gtk_label_new ("pixels");
+  gtk_misc_set_alignment(GTK_MISC (unit_label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (unit_label), GTK_JUSTIFY_LEFT);
   gtk_box_pack_start (GTK_BOX (hbox), unit_label, FALSE, FALSE, 0);
 
-  hbox = gtk_hbox_new (FALSE, 5);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  /* Shadow Offset */
   label = gtk_label_new ("Shadow Offset:");
-  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-
+  gtk_misc_set_alignment(GTK_MISC (label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 4, 5,
+		    GTK_FILL, GTK_FILL, 0, 0);
+  hbox = gtk_hbox_new (FALSE, 6);
+  gtk_table_attach (GTK_TABLE (table), hbox, 1, 2, 4, 5,
+		    GTK_FILL, GTK_FILL, 0, 0);
   shadow_obj = gtk_adjustment_new (timeout, 0, 60, 1, 1, 1);
   shadow_spin = gtk_spin_button_new (GTK_ADJUSTMENT (shadow_obj), 1.0, 0);
   gtk_spin_button_set_value (GTK_SPIN_BUTTON (shadow_spin),
 			     (gfloat) shadow_offset);
   gtk_box_pack_start (GTK_BOX (hbox), shadow_spin, FALSE, FALSE, 0);
   unit_label = gtk_label_new ("pixels");
+  gtk_misc_set_alignment(GTK_MISC (unit_label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (unit_label), GTK_JUSTIFY_LEFT);
   gtk_box_pack_start (GTK_BOX (hbox), unit_label, FALSE, FALSE, 0);
 
-
-  hbox = gtk_hbox_new (FALSE, 5);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  /* Position */
   label = gtk_label_new ("Position:");
-  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment(GTK_MISC (label), 0.0, 0.0);
+  gtk_label_set_justify(GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 5, 6,
+		    GTK_FILL, GTK_FILL, 0, 0);
+  vbox2 = gtk_vbox_new (FALSE, 6);
+  gtk_table_attach (GTK_TABLE (table), vbox2, 1, 2, 5, 6,
+		    GTK_FILL, GTK_FILL, 0, 0);
   pos_top = gtk_radio_button_new_with_label (NULL, "Top");
   group = gtk_radio_button_group (GTK_RADIO_BUTTON (pos_top));
-  pos_bottom = gtk_radio_button_new_with_label (group, "Bottom");
-  gtk_box_pack_start (GTK_BOX (hbox), pos_top, FALSE, FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (hbox), pos_bottom, FALSE, FALSE, 0);
+  pos_bottom = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (pos_top), "Bottom");
+  gtk_box_pack_start (GTK_BOX (vbox2), pos_top, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox2), pos_bottom, FALSE, FALSE, 0);
 
   if (pos == XOSD_top)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pos_top), TRUE);
-  else
+  else 
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pos_bottom), TRUE);
 
 
@@ -677,7 +717,7 @@ static void replace_hexcodes (gchar *text)
   while ((tmp = strchr(text, '%')) != NULL)
     {
       DEBUG("replace_hexcodes loop");
-      // Make sure we're not at the end of the string
+      /* Make sure we're not at the end of the string */
       if ((tmp+1) && (tmp+2))
 	{
 	  tmp2 = tmp + 3;
@@ -839,14 +879,14 @@ static gint timeout_func(gpointer data)
 /*
  * Add item to configuration dialog.
  */
-show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on)
+void show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on)
 {
-  //GtkWidget  *hbox, *label;
-  //GSList *group = NULL;
+  /* GtkWidget  *hbox, *label;*/
+  /*GSList *group = NULL; */
 
-  //hbox = gtk_hbox_new (FALSE, 5);
+  /*hbox = gtk_hbox_new (FALSE, 5);*/
 
-  //gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  /*gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);*/
 
   DEBUG("show_item");
 

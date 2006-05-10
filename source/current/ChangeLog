@@ -1,3 +1,6 @@
+2.0.0: 
+        XMMS plugin configure patch (Michael JasonSmith)
+	
 1.1.1:
         X concurrency control patch (Tim Wright)
         misc bug fixes (Philipp Matthias Hahn)
