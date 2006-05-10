@@ -1,3 +1,9 @@
+xosd (0.4.0-3) unstable; urgency=low
+
+  * Oops. libxosd-dev should conflict with the old libxosd package
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Mon,  8 Jan 2001 20:07:56 +0100
+
 xosd (0.4.0-2) unstable; urgency=low
 
   * Modified build system to use a soname

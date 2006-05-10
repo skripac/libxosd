@@ -20,6 +20,7 @@ Package: libxosd-dev
 Section: devel
 Architecture: any
 Depends: libxosd0 (= ${Source-Version})
+Conflicts: libxosd
 Description: X On-Screen Display library - development
  A library for displaying a TV-like on-screen display in X.
  .
