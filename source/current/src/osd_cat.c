@@ -21,6 +21,7 @@ static struct option long_options[] = {
   {"age",    1, NULL, 'a'},
   {"lines",  1, NULL, 'l'},
   {"wait", 0, NULL, 'w'},
+  {"outline",1,NULL,'O'},
   {NULL,     0, NULL, 0}
 };
 
@@ -33,6 +34,7 @@ int main (int argc, char *argv[])
 
   char *font = (char*) osd_default_font;
   char *colour = "red";
+  int outline_offset=0;
   char* shadow_colour="black";
   int delay = 5;
   int forcewait=0;
@@ -49,7 +51,7 @@ int main (int argc, char *argv[])
   while (1)
     {
       int option_index = 0;
-      int c = getopt_long (argc, argv, "l:A:a:f:c:d:o:i:s:p:S:hw", long_options, &option_index);
+      int c = getopt_long (argc, argv, "l:A:a:f:c:d:o:i:s:p:O:S:hw", long_options, &option_index);
       if (c == -1) break;
       switch (c)
 	{
@@ -97,6 +99,10 @@ int main (int argc, char *argv[])
 	case 'o':
 	  voffset = atoi(optarg);
 	  break;
+	case 'O':
+	  outline_offset=atoi(optarg);
+	  break;
+
 	case 'S':
 	  shadow_colour=optarg;
 	  break;
@@ -129,6 +135,7 @@ int main (int argc, char *argv[])
 	  fprintf (stderr, "  -h, --help          Show this help\n");
 	  fprintf (stderr, "  -s, --shadow=SHADOW Offset of shadow, default is 0 which is no shadow\n");
 	  fprintf (stderr, "  -S, --shadowcolour=colour Colour of shadow, default is black\n");
+	  fprintf (stderr, "  -O, --outline=SHADOW Offset of outline, default is 0 which is no outline\n");
 	  fprintf (stderr, "  -w, --wait          Delay display even when new lines are ready\n");
 	  fprintf (stderr, "  -l, --lines=n       Scroll using n lines. Default is 5.\n");
 	  fprintf (stderr, "\nWith no FILE, or when FILE is -, read standard input.\n");
@@ -167,6 +174,7 @@ int main (int argc, char *argv[])
   xosd_set_horizontal_offset(osd, hoffset);
   xosd_set_shadow_offset(osd, shadow);
   xosd_set_shadow_colour(osd, shadow_colour);
+  xosd_set_outline_offset(osd, outline_offset);
   xosd_set_align(osd, align);
   /* Not really needed, but at least we aren't throwing around an unknown value */
   old_age.tv_sec=0;

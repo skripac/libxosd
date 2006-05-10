@@ -6,6 +6,9 @@
 	Xinerama code fixes (Tim Wright, Philipp Matthias Hahn, Stian Jordet)
 	Spell checked the changelog (Tim Wright)
 	Added support for setting the shadow colour (Tim Wright)
+	Added support for having an outline around the text (Andy Heroff)
+	  it acts strangely for outline widths greater than 2 or so. 
+	  looks cool, but strange.
 	
 2.1.3:
        configurable pixmap directory (Philipp Matthias Hahn)

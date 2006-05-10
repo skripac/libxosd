@@ -205,6 +205,21 @@ int xosd_set_align (xosd *osd, xosd_align align);
 */
 int xosd_set_shadow_offset (xosd *osd, int shadow_offset);
 
+/* xosd_set_outline_offset -- Change the offset of the text outline
+ *
+ * ARGUMENTS
+ *     osd            The xosd "object".
+ *     shadow_offset  The new outline offset in pixels.
+ *
+ *  The outline is drawn over the shadow.
+ *
+ * RETURNS
+ *   0 on success
+ *  -1 on failure
+*/
+int xosd_set_outline_offset (xosd *osd, int outline_offset);
+
+
 /* xosd_set_shadow_colour -- Change the colour of the shadow
  *
  * ARGUMENTS

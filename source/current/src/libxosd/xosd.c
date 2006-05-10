@@ -111,6 +111,7 @@ struct xosd
   int shadow_offset;
   XColor shadow_colour;
   unsigned int shadow_pixel;
+  int outline_offset;
   int bar_length; 
 
   int mapped;
@@ -262,6 +263,24 @@ static void expose_line(xosd *osd, int line)
           y,
           osd->shadow_offset - osd->extent->y );
 
+      }
+
+      if (osd->outline_offset) {
+        XSetForeground (osd->display, osd->gc, BlackPixel(osd->display, osd->screen));
+
+
+        draw_with_mask(osd, l, x + osd->outline_offset, y,
+          osd->outline_offset - osd->extent->y);
+
+        draw_with_mask(osd, l, x + osd->outline_offset, y,
+          - osd->outline_offset - osd->extent->y);
+
+
+        draw_with_mask(osd, l, x - osd->outline_offset, y,
+          - osd->outline_offset - osd->extent->y);
+
+        draw_with_mask(osd, l, x - osd->outline_offset, y,
+          osd->outline_offset - osd->extent->y);
       }
 
       XSetForeground (osd->display, osd->gc, osd->pixel);
@@ -1103,6 +1122,18 @@ int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
   pthread_mutex_unlock (&osd->mutex);
 
   return 0;
+}
+
+int xosd_set_outline_offset (xosd *osd, int outline_offset)
+{
+	if (osd == NULL) return -1;
+
+	pthread_mutex_lock (&osd->mutex);
+	osd->outline_offset = outline_offset;
+	force_redraw (osd, -1);
+	pthread_mutex_unlock (&osd->mutex);
+
+	return 0;
 }
 
 int xosd_set_vertical_offset (xosd *osd, int voffset)
