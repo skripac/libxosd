@@ -1,11 +1,16 @@
-xosd (1.0.4-0) experimental; urgency=low
+xosd (1.0.4-1) unstable; urgency=low
 
-  * PREBUILD
-  * New upstream version.
-    - Hopefully closes: #157702 CPU hog problem.
-  * Increment library version info (should have been 1.0.3)
+  * New upstream version:
+    - closes: #157702 100% CPU hog problem (Thanks Christian for debugging)
+    - closes: #139455 Var. bitrate problem can no longer be reproduced.
+  * Increment library version info (should have happend in 1.0.3)
+    (Upstream will follow in it's next release.)
+  * Standards-Version 3.5.7:
+    - Support DEB_BUILD_OPTIONS noopt instead of debug.
+    - Always build with -g.
+    - Build depend on debhelper (>= 4.1.0).
 
- -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 13 Sep 2002 09:30:57 +0200
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu, 19 Sep 2002 10:04:56 +0200
 
 xosd (1.0.3-1) unstable; urgency=low
 
