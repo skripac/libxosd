@@ -1,0 +1,14 @@
+#DPATCHLEVEL=0
+# Line width needs to be recalculated each time string changes
+--- src/libxosd/xosd.c~	2004-08-21 01:04:52.000000000 +0200
++++ src/libxosd/xosd.c	2004-08-26 11:10:49.000000000 +0200
+@@ -914,8 +914,8 @@ union xosd_line newline = { type:LINE_bl
+       } else {
+         ret = 0;
+         l->type = LINE_blank;
+-        l->width = -1;
+       }
++      l->width = -1;
+       break;
+     }
+ 
