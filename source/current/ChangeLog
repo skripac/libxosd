@@ -12,6 +12,7 @@
  	Base deprecated osd_create() on newer osd_init()
  	Free pthread_cond on failed init
  	Fix race in xosd_wait_until_no_display()
+ 	Remove double xosd_set_align()
 
 2.1.0:
         New xmms plugin! well, actually the plugin from 2.0.0 has been 

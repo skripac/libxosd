@@ -160,9 +160,6 @@ int main (int argc, char *argv[])
   xosd_set_horizontal_offset(osd, hoffset);
   xosd_set_shadow_offset(osd, shadow);
   xosd_set_align(osd, align);
-
-
-  xosd_set_align (osd, align);
   /* Not really needed, but at least we aren't throwing around an unknown value */
   old_age.tv_sec=0;
 
