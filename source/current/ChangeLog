@@ -1,5 +1,6 @@
 2.2.5:
         set font patch (Joachim "nomeata" Breitner)
+	cleanup "draw_bar" method patch (Philipp Matthias Hahn)
 	
 2.2.4:  outline/shadow cut fix (Tomas Janousek)
 	xmms_plugin: added outline (Ondrej Novy)
