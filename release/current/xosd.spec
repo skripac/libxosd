@@ -2,14 +2,14 @@
 %define	aclocaldir	%(aclocal --print-ac-dir)
 
 Name:		xosd
-Version:	2.1.3
+Version:	2.2.0
 Release:	1
 Vendor:		Andre Renaud <andre@ignavus.net>
 Copyright:	GPL
 Group:		System Environment/Libraries
 Packager:	Oron Peled <oron@actcom.co.il>
-Summary:	X On-Screen Display libray
-Source:		%name-2.1.3.tar.gz
+Summary:	X On-Screen Display library
+Source:		%name-2.2.0.tar.gz
 
 URL:		http://www.ignavus.net/software.html
 Buildroot:	%{_tmppath}/%{name}-%{version}-root
@@ -19,7 +19,7 @@ X On-Screen Display library. A library for displaying a TV-like on-screen
 display in X.
 
 %package devel
-Summary: X On-Screen Display libray (headers + static libs)
+Summary: X On-Screen Display library (headers + static libs)
 Group: Development/Libraries
 Requires: xosd = %{version}
 BuildRequires: xmms-devel
@@ -29,7 +29,7 @@ On-Screen Display library. A library for displaying a TV-like on-screen
 display in X.
 
 %package xmms
-Summary: X On-Screen Display libray (XMMS Plugin)
+Summary: X On-Screen Display library (XMMS Plugin)
 Group: Applications/Multimedia
 Requires: xosd = %{version}, xmms
 
@@ -37,7 +37,7 @@ Requires: xosd = %{version}, xmms
 A plugin for XMMS
 
 %prep
-%setup -n %{name}-2.1.3
+%setup -n %{name}-2.2.0
 
 %build
 
@@ -56,8 +56,8 @@ ldconfig
 
 %files
 %defattr(-, root, root)
-%{_libdir}/libxosd.so.2.1.3
-%{_libdir}/libxosd.so.3
+%{_libdir}/libxosd.so.2.2.0
+%{_libdir}/libxosd.so.4
 %{_libdir}/libxosd.so
 %{_bindir}/osd_cat
 %doc %{_mandir}/man1/osd_cat.1*

@@ -467,7 +467,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS LT_CURRENT LT_AGE LT_REVISION INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os ECHO RANLIB ac_ct_RANLIB CPP EGREP LIBTOOL X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS M4DATADIR GTK_CONFIG GTK_CFLAGS GTK_LIBS XMMS_PIXMAPDIR gdk_pixbuf_config_script xmms_config_script GDK_PIXBUF_CFLAGS GDK_PIXBUF_LIBS XMMS_CFLAGS XMMS_LIBS XMMS_PLUGIN_DIR SELECTED_PLUGINS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS LT_CURRENT LT_AGE LT_REVISION INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os ECHO RANLIB ac_ct_RANLIB CPP EGREP LIBTOOL X_CFLAGS X_PRE_LIBS X_LIBS X_EXTRA_LIBS M4DATADIR GTK_CONFIG GTK_CFLAGS GTK_LIBS XMMS_PIXMAPDIR gdk_pixbuf_config_script xmms_config_script GDK_PIXBUF_CFLAGS GDK_PIXBUF_LIBS XMMS_CFLAGS XMMS_LIBS XMMS_PLUGIN_DIR HAVE_XINERAMA_TRUE HAVE_XINERAMA_FALSE SELECTED_PLUGINS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1020,6 +1020,7 @@ Optional Features:
   --enable-fast-install=PKGS  optimize for fast installation default=yes
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --disable-gtktest       Do not try to compile and run a test GTK program
+  --disable-xinerama       disable use of Xinerama extension
   --disable-new-plugin          Disable new xmms plugin (enabled by default)
   --enable-old-plugin           Enable old xmms plugin (disabled by default)
 
@@ -1451,12 +1452,12 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 # version crud for libraries
-LT_CURRENT=3
-LT_AGE=1
-LT_REVISION=3
+LT_CURRENT=4
+LT_AGE=2
+LT_REVISION=0
 
 # version for tar file
-VERSION=2.1.3
+VERSION=2.2.0
 
 
 
@@ -4691,7 +4692,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 4694 "configure"' > conftest.$ac_ext
+  echo '#line 4695 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5220,7 +5221,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:5223: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:5224: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -5755,7 +5756,7 @@ else
 	allow_undefined_flag='${wl}-berok'
 	# This is a bit strange, but is similar to how AIX traditionally builds
 	# it's shared libraries.
-	archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname $libobjs $deplibs $compiler_flags ${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"' ~$AR -crlo $objdir/$libname$release.a $objdir/$soname'
+	archive_expsym_cmds="\$CC $shared_flag"' -o $output_objdir/$soname $libobjs $deplibs $compiler_flags ${allow_undefined_flag} '"\${wl}$no_entry_flag \${wl}$exp_sym_flag:\$export_symbols"' ~$AR -crlo $output_objdir/$libname$release.a $output_objdir/$soname'
       fi
     fi
     ;;
@@ -7065,7 +7066,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7068 "configure"
+#line 7069 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -7163,7 +7164,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7166 "configure"
+#line 7167 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10081,6 +10082,15 @@ fi
 done
 
 
+# nicked from the irmix project...
+disable_xinerama="no"
+# Check whether --enable-xinerama or --disable-xinerama was given.
+if test "${enable_xinerama+set}" = set; then
+  enableval="$enable_xinerama"
+  disable_xinerama="yes"
+fi;
+
+
 
 # Check whether --with-plugindir or --without-plugindir was given.
 if test "${with_plugindir+set}" = set; then
@@ -10257,6 +10267,85 @@ else
 fi
 fi
 
+if test x$disable_xinerama = "xno"
+then
+	echo "$as_me:$LINENO: checking for XineramaQueryExtension in -lXinerama" >&5
+echo $ECHO_N "checking for XineramaQueryExtension in -lXinerama... $ECHO_C" >&6
+if test "${ac_cv_lib_Xinerama_XineramaQueryExtension+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lXinerama $X_LIBS $X_PRE_LIBS -lXext $X_EXTRA_LIBS $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char XineramaQueryExtension ();
+int
+main ()
+{
+XineramaQueryExtension ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_Xinerama_XineramaQueryExtension=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_Xinerama_XineramaQueryExtension=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_Xinerama_XineramaQueryExtension" >&5
+echo "${ECHO_T}$ac_cv_lib_Xinerama_XineramaQueryExtension" >&6
+if test $ac_cv_lib_Xinerama_XineramaQueryExtension = yes; then
+  X_LIBS="$X_LIBS -lXinerama"
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_XINERAMA 1
+_ACEOF
+
+        ac_have_xinerama="yes"
+fi
+
+
+
+if test x$ac_have_xinerama = "xyes"; then
+  HAVE_XINERAMA_TRUE=
+  HAVE_XINERAMA_FALSE='#'
+else
+  HAVE_XINERAMA_TRUE='#'
+  HAVE_XINERAMA_FALSE=
+fi
+
+fi
+
+
 
 
 
@@ -10410,6 +10499,13 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_XINERAMA_TRUE}" && test -z "${HAVE_XINERAMA_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_XINERAMA\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_XINERAMA\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -11020,6 +11116,8 @@ s,@GDK_PIXBUF_LIBS@,$GDK_PIXBUF_LIBS,;t t
 s,@XMMS_CFLAGS@,$XMMS_CFLAGS,;t t
 s,@XMMS_LIBS@,$XMMS_LIBS,;t t
 s,@XMMS_PLUGIN_DIR@,$XMMS_PLUGIN_DIR,;t t
+s,@HAVE_XINERAMA_TRUE@,$HAVE_XINERAMA_TRUE,;t t
+s,@HAVE_XINERAMA_FALSE@,$HAVE_XINERAMA_FALSE,;t t
 s,@SELECTED_PLUGINS@,$SELECTED_PLUGINS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
