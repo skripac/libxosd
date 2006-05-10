@@ -105,6 +105,8 @@ dnl Pass the "data" ditectory as a #define symbol, so we can find the
 dnl pixmaps (--=mjs=-- thanks Julien Blache).
 CFLAGS="${CFLAGS} -DPIXMAPDIR=\\\"\$(datadir)/xosd\\\""
 
+EXTRA_DIST=xosd.spec
+
 dnl Produce Output files
 
 AC_OUTPUT([
@@ -120,3 +122,4 @@ script/xosd-config
 xosd.spec
 ],
 [chmod +x script/xosd-config])
+
