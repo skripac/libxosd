@@ -191,6 +191,7 @@ static void expose_line(xosd *osd, int line)
       XSetForeground (osd->display, osd->gc, osd->pixel);
       XDRAWSTRING (osd->display, osd->line_bitmap, osd->fontset, osd->gc,
           x, -osd->extent->y, l->text, l->length);
+
       XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
           osd->width, osd->line_height, 0, y);
       break;
@@ -583,8 +584,6 @@ xosd *xosd_create (int number_lines)
   int event_basep, error_basep, inputmask, i;
   char *display;
   XSetWindowAttributes setwinattr;
-  long data;
-  Atom a;
 
   DEBUG("getting display");
   display = getenv ("DISPLAY");
@@ -912,14 +911,15 @@ static void xosd_update_pos (xosd *osd)
     osd->y = osd->voffset;
   }
 
-  if (osd->align == XOSD_left)
+  if (osd->align == XOSD_left) {
     osd->x = osd->hoffset;
-  else if (osd->align == XOSD_center)
+  } else if (osd->align == XOSD_center) {
     osd->x = osd->hoffset; /* which direction should this default to, left or right offset */
-  else if (osd->align = XOSD_right)
+  } else if (osd->align == XOSD_right) {
     /*  		osd->x = XDisplayWidth (osd->display, osd->screen) - osd->width - osd->hoffset; */
     osd->x = (osd->hoffset); /* neither of these work right, I want the offset to flip so
 			     * +offset is to the left instead of to the right when aligned right */
+  }
 
   XMoveWindow (osd->display, osd->window, osd->x, osd->y);
   pthread_mutex_unlock (&osd->mutex);

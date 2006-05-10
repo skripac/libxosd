@@ -2,6 +2,7 @@
 	xosd.h header file patch (Tim Wright)
 	set_font patch (Jan Starzynski)
 	-Wall compiler flag (Tim Wright)
+	fixed bugs that -Wall indicated were potential bugs (Tim Wright)
 	
 2.0.0: 
         XMMS plugin configure patch (Michael JasonSmith)
