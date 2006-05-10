@@ -1,3 +1,9 @@
+xosd (2.2.8-6) unstable; urgency=low
+
+  * 29_flicker_fix.diff
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 13 Aug 2004 08:26:08 +0200
+
 xosd (2.2.8-5) unstable; urgency=low
 
   * 28_shadow_text_fix.diff
