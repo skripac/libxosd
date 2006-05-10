@@ -7,7 +7,7 @@
 	Better error reporting for osd_cat (Tim Wright)
 	More features in the xmms plugin (Tim Wright)
 	osd_cat alignment option: -A (Tim Wright)
-
+	
 1.0.0:
 	Applied proper xosd-multiline patch (Damien Elmes)
 	Modified xosd_init to take an extra param (the number of lines)
