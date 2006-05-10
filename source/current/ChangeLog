@@ -3,6 +3,7 @@
 	Many Autoconf and automake patches (Philipp Matthias Hahn)
 	better default font for osd_cat and xosd (Tim Wright with hints from 
 	  Philipp Matthias Hahn)
+	xmms plugin segfault bugfix (Philipp Matthias Hahn)
 
 1.0.2: 
        Autoconf fixes:
