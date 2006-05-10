@@ -1,0 +1,31 @@
+#DPATCHLEVEL=0
+# Fix potential buffer overflow: "%" followed by no, only one or
+# none-hex-digits puts head after the end of the buffer.
+--- src/xmms_plugin/xmms_osd.c.orig	2004-11-03 14:42:48.000000000 +0100
++++ src/xmms_plugin/xmms_osd.c	2004-11-03 15:45:52.000000000 +0100
+@@ -17,6 +17,7 @@ along with this program; if not, write t
+ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
++#include <ctype.h>
+ #include <gtk/gtk.h>
+ 
+ #include "xmms_osd.h"
+@@ -287,14 +288,15 @@ replace_hexcodes(gchar * text)
+     xmms_cfg_free(cfgfile);
+   }
+ 
+-  for (head = tail = text; *tail; head++, tail++) {
++  for (head = tail = text; *head; head++, tail++) {
+     /* replace underscors with spaces if necessary */
+     if (conv_underscore && *head == '_') {
+       *tail = ' ';
+       continue;
+     }
+     /* replace hex with character if necessary */
+-    if (*head == '%' && sscanf(head + 1, "%2x", &c)) {
++    if (*head == '%' && isxdigit(head[1]) && isxdigit(head[2])) {
++      sscanf(head + 1, "%2x", &c);
+       *tail = (char) c;
+       head += 2;
+       continue;
