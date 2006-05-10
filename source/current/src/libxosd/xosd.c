@@ -60,6 +60,12 @@
 #define SLIDER_SCALE 0.8
 #define SLIDER_SCALE_ON 0.7
 
+//draw mask constants
+#define FILL_NONE    0
+#define FILL_OUTLINE 1
+#define FILL_SHADOW  2
+#define FILL_FACE    4
+
 const char *osd_default_font =
   "-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
 static const char *osd_default_colour = "green";
@@ -138,6 +144,8 @@ struct xosd
 
   int timeout;                  /* delta time */
   struct timespec timeout_time; /* Next absolute timeout */
+
+  int fill_mask;
 };
 
 /** Global error string. */
@@ -154,7 +162,7 @@ static void update_pos(xosd * osd);
 
 static void
 draw_bar(xosd * osd, Drawable d, GC gc, int x, int y,
-         int percent, int is_slider, int set_color)
+         int percent, int is_slider, int set_color, int draw_all)
 {
   int barw, barh, nbars;
   int on, i, xx;
@@ -205,7 +213,7 @@ draw_bar(xosd * osd, Drawable d, GC gc, int x, int y,
   /*
    * Outline 
    */
-  if (osd->outline_offset) {
+  if (osd->outline_offset && (draw_all || !(osd->fill_mask & FILL_OUTLINE))) {
     if (set_color)
       XSetForeground(osd->display, gc, osd->outline_pixel);
     for (xx = x, i = 0; i < nbars; xx += barw, i++) {
@@ -220,7 +228,7 @@ draw_bar(xosd * osd, Drawable d, GC gc, int x, int y,
 /*
  * Shadow 
  */
-  if (osd->shadow_offset) {
+  if (osd->shadow_offset && (draw_all || !(osd->fill_mask & FILL_SHADOW))) {
     if (set_color)
       XSetForeground(osd->display, gc, osd->shadow_pixel);
     for (xx = x, i = 0; i < nbars; xx += barw, i++) {
@@ -233,25 +241,30 @@ draw_bar(xosd * osd, Drawable d, GC gc, int x, int y,
   /*
    * Bar/Slider 
    */
-  if (set_color)
-    XSetForeground(osd->display, gc, osd->pixel);
-  for (xx = x, i = 0; i < nbars; xx += barw, i++) {
-    struct bar *b = &(bar[is_slider ? (i == on) : (i < on)]);
-    XFillRectangle(osd->display, d, gc, xx, b->y, b->w, b->h);
+  if (draw_all || !(osd->fill_mask & FILL_FACE)) {
+    if (set_color)
+      XSetForeground(osd->display, gc, osd->pixel);
+    for (xx = x, i = 0; i < nbars; xx += barw, i++) {
+      struct bar *b = &(bar[is_slider ? (i == on) : (i < on)]);
+      XFillRectangle(osd->display, d, gc, xx, b->y, b->w, b->h);
+    }
   }
 }
 
 static void
-draw_with_mask(xosd * osd, xosd_line * l, int inX, int inPlace, int inY)
+draw_with_mask(xosd * osd, xosd_line * l, int inX, int inPlace, int inY,
+               int draw_line_bitmap)
 {
   FUNCTION_START;
   XDRAWSTRING(osd->display,
               osd->mask_bitmap,
               osd->fontset,
               osd->mask_gc, inX, inPlace + inY, l->text, l->length);
-  XDRAWSTRING(osd->display,
-              osd->line_bitmap,
-              osd->fontset, osd->gc, inX, inY, l->text, l->length);
+  if (draw_line_bitmap) {
+    XDRAWSTRING(osd->display,
+                osd->line_bitmap,
+                osd->fontset, osd->gc, inX, inY, l->text, l->length);
+  }
 }
 
 static void
@@ -263,6 +276,35 @@ expose_line(xosd * osd, int line)
   xosd_line *l = &osd->lines[line];
   assert(osd);
   FUNCTION_START;
+
+  osd->fill_mask = FILL_NONE;
+  if (!osd->shadow_offset && !osd->outline_offset) {
+    osd->fill_mask = FILL_FACE;
+  } else {
+    if (osd->shadow_offset && !osd->outline_offset) {
+      osd->fill_mask = FILL_SHADOW;
+    } else {
+      if (osd->outline_offset)
+        osd->fill_mask = FILL_OUTLINE;
+    }
+  }
+
+  switch (osd->fill_mask) {
+  case FILL_FACE:
+    XSetForeground(osd->display, osd->gc, osd->pixel);
+    break;
+  case FILL_SHADOW:
+    XSetForeground(osd->display, osd->gc, osd->shadow_pixel);
+    break;
+  case FILL_OUTLINE:
+    XSetForeground(osd->display, osd->gc, osd->outline_pixel);
+    break;
+  }
+
+  if (osd->fill_mask != FILL_NONE) {
+    XFillRectangle(osd->display, osd->line_bitmap, osd->gc,
+                   0, 0, osd->screen_width, osd->line_height);
+  }
 
   /*
    * don't need to lock here because functions that call expose_line
@@ -303,40 +345,48 @@ expose_line(xosd * osd, int line)
 
       draw_with_mask(osd, l,
                      x + osd->shadow_offset,
-                     y, osd->shadow_offset - osd->extent->y);
+                     y, osd->shadow_offset - osd->extent->y,
+                     !(osd->fill_mask & FILL_SHADOW));
 
     }
 
     if (osd->outline_offset) {
       XSetForeground(osd->display, osd->gc, osd->outline_pixel);
+      int draw_line_bitmap = !(osd->fill_mask & FILL_OUTLINE);
 
       for (i = 1; i <= osd->outline_offset; i++) {
-        draw_with_mask(osd, l, x + i, y, i - osd->extent->y);
+        draw_with_mask(osd, l, x + i, y, i - osd->extent->y,
+                       draw_line_bitmap);
 
-        draw_with_mask(osd, l, x + i, y, -i - osd->extent->y);
-
-
-        draw_with_mask(osd, l, x - i, y, -i - osd->extent->y);
-
-        draw_with_mask(osd, l, x - i, y, i - osd->extent->y);
+        draw_with_mask(osd, l, x + i, y, -i - osd->extent->y,
+                       draw_line_bitmap);
 
 
+        draw_with_mask(osd, l, x - i, y, -i - osd->extent->y,
+                       draw_line_bitmap);
 
-        draw_with_mask(osd, l, x, y, i - osd->extent->y);
+        draw_with_mask(osd, l, x - i, y, i - osd->extent->y,
+                       draw_line_bitmap);
 
-        draw_with_mask(osd, l, x, y, -i - osd->extent->y);
 
 
-        draw_with_mask(osd, l, x + i, y, -osd->extent->y);
+        draw_with_mask(osd, l, x, y, i - osd->extent->y, draw_line_bitmap);
 
-        draw_with_mask(osd, l, x - i, y, -osd->extent->y);
+        draw_with_mask(osd, l, x, y, -i - osd->extent->y, draw_line_bitmap);
+
+
+        draw_with_mask(osd, l, x + i, y, -osd->extent->y, draw_line_bitmap);
+
+        draw_with_mask(osd, l, x - i, y, -osd->extent->y, draw_line_bitmap);
       }
     }
 
     XSetForeground(osd->display, osd->gc, osd->pixel);
 
-    draw_with_mask(osd, l, x, y, -osd->extent->y);
     osd->extent->y += osd->outline_offset;
+
+    draw_with_mask(osd, l, x, y, -osd->extent->y,
+                   !(osd->fill_mask & FILL_FACE));
     XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
               osd->screen_width, osd->line_height, 0, y);
     break;
@@ -358,14 +408,12 @@ expose_line(xosd * osd, int line)
     }
 
     draw_bar(osd, osd->mask_bitmap, osd->mask_gc, x, y, l->percentage,
-             l->type == LINE_slider, 0);
-    draw_bar(osd, osd->window, osd->gc, x, y, l->percentage,
-             l->type == LINE_slider, 1);
+             l->type == LINE_slider, 0, 1);
+    draw_bar(osd, osd->line_bitmap, osd->gc, x, 0, l->percentage,
+             l->type == LINE_slider, 1, 0);
 
-    /*
-       draw_bar(osd, osd->mask_bitmap, osd->mask_gc, x, y, l->percentage, l->type == LINE_slider, 0);
-       draw_bar(osd, osd->window, osd->gc, x, y, l->percentage, l->type == LINE_slider, 1);
-     */
+    XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
+              osd->screen_width, osd->line_height, 0, y);
 
     break;
   }

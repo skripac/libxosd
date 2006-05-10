@@ -4,6 +4,7 @@
 	    indent -br -ce -bap -bbo -npcs -nprs -nsob -nut xosd.c
 	  (the program indent.sh should indent everything:) (Tim Wright)
 	new version of osd_cat that can do percentage and slider bars (phil gees)
+	speed optimisation (Piotr Chmura)
 	
 2.2.7:
 	Complete rewrite of timeout_func to avoid sending
