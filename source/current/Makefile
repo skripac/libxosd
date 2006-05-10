@@ -24,7 +24,7 @@ xmms_osd.o: xmms_osd.c
 	$(CC) -c -o $@ xmms_osd.c `gtk-config --cflags` `xmms-config --cflags` $(CFLAGS)
 
 libxmms_osd.so: xmms_osd.o 
-	$(CC) -shared -o $@ $+ `gtk-config --libs` $(LFLAGS)
+	$(CC) -shared -o $@ $+ $(LFLAGS) `gtk-config --libs`
 
 osd_cat: libxosd.so osd_cat.o
 	$(CC) -o $@ osd_cat.o $(LFLAGS)
