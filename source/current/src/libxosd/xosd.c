@@ -291,14 +291,13 @@ event_loop(void *osdv)
               y, osd->screen_width, osd->line_height);
         }
         switch (osd->lines[line].type) {
-          case LINE_blank:
-            continue;
           case LINE_text:
             draw_text(osd, line);
             break;
           case LINE_percentage:
           case LINE_slider:
             draw_bar(osd, line);
+          case LINE_blank:
             break;
         }
 #if 1 /* Turn off for debugging */
