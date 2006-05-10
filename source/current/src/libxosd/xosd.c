@@ -23,6 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <time.h>
 
 #include <assert.h>
 #include <pthread.h>
@@ -71,7 +72,8 @@ struct xosd
   pthread_t timeout_thread;
 
   pthread_mutex_t mutex;
-  pthread_cond_t cond;
+  pthread_cond_t cond_hide;
+  pthread_cond_t cond_time;
 
   Display *display;
   int screen;
@@ -111,7 +113,7 @@ struct xosd
   int number_lines;
 
   int timeout;
-  int timeout_time;
+  struct timespec timeout_time;
 };
 
 char* xosd_error;
@@ -253,15 +255,9 @@ static void *event_loop (void *osdv)
   usleep (500);
 
   while (!osd->done) {
-    pthread_mutex_lock (&osd->mutex);
     //DEBUG("checking window event");
-    if (!XCheckWindowEvent (osd->display, osd->window, ExposureMask, &report)) {
-      //DEBUG("no window event");
-      pthread_mutex_unlock (&osd->mutex);
-      usleep (500);
-      continue;
-    }
-    pthread_mutex_unlock (&osd->mutex);
+    XWindowEvent (osd->display, osd->window, ExposureMask, &report);
+    if (osd->done) break;
 
     report.type &= 0x7f; /* remove the sent by server/manual send flag */
 
@@ -287,7 +283,7 @@ static void *event_loop (void *osdv)
         break;
 
       default:
-        //printf ("%d\n", report.type);
+        //fprintf (stderr, "%d\n", report.type);
         break;
     }
   }
@@ -303,11 +299,16 @@ static void *timeout_loop (void *osdv)
   if (osdv == NULL) return NULL;
 
   while (!osd->done) {
-    usleep (1000);
     pthread_mutex_lock (&osd->mutex);
-    if (osd->timeout != -1 && osd->mapped && osd->timeout_time <= time(NULL)) {
+    /* Wait for timeout or change of timeout */
+    int cond = osd->timeout_time.tv_sec
+      ? pthread_cond_timedwait (&osd->cond_time, &osd->mutex, &osd->timeout_time)
+      : pthread_cond_wait (&osd->cond_time, &osd->mutex);
+    /* If it was a timeout, hide output */
+    if (cond && osd->timeout_time.tv_sec && osd->mapped) {
       pthread_mutex_unlock (&osd->mutex);
       //printf ("timeout_loop: hiding\n");
+      osd->timeout_time.tv_sec = 0;
       xosd_hide (osd);
     }
     else
@@ -497,8 +498,13 @@ static int set_colour (xosd *osd, const char *colour)
 
 static void set_timeout (xosd *osd, int timeout)
 {
+  pthread_mutex_lock (&osd->mutex);
   osd->timeout = timeout;
-  osd->timeout_time = time (NULL) + timeout;
+  osd->timeout_time.tv_sec = (osd->timeout > 0)
+    ? osd->timeout_time.tv_sec = time (NULL) + osd->timeout
+    : 0;
+  pthread_cond_signal (&osd->cond_time);
+  pthread_mutex_unlock (&osd->mutex);
 }
 
 static Atom net_wm;
@@ -651,8 +657,8 @@ xosd *xosd_create (int number_lines)
   DEBUG("initializing mutex");
   pthread_mutex_init (&osd->mutex, NULL);
   DEBUG("initializing condition");
-  pthread_cond_init (&osd->cond, NULL);
-
+  pthread_cond_init (&osd->cond_hide, NULL);
+  pthread_cond_init (&osd->cond_time, NULL);
 
   DEBUG("initializing number lines");
   osd->number_lines=number_lines;
@@ -794,13 +800,31 @@ int xosd_destroy (xosd *osd)
   DEBUG("waiting for threads to exit");
   pthread_mutex_lock (&osd->mutex);
   osd->done = 1;
+  /* Send signal to timeout-thread, will quit. */
+  pthread_cond_signal (&osd->cond_time);
   pthread_mutex_unlock (&osd->mutex);
 
+  /* Send fake XExpose-event to event-thread, will quit. */
+  DEBUG("Send fake expose");
+  {
+    XEvent event = {
+      .xexpose = {
+        .type = Expose,
+        .send_event = True,
+        .display = osd->display,
+        .window = osd->window,
+        .count = 0,
+      }
+    };
+    XSendEvent (osd->display, osd->window, False, ExposureMask, &event);
+    XFlush (osd->display);
+  }
+
+  DEBUG("join threads");
   pthread_join (osd->event_thread, NULL);
   pthread_join (osd->timeout_thread, NULL);
 
   DEBUG("freeing X resources");
-
   XFreeGC (osd->display, osd->gc);
   XFreeGC (osd->display, osd->mask_gc);
   XFreeGC (osd->display, osd->mask_gc_back);
@@ -820,15 +844,14 @@ int xosd_destroy (xosd *osd)
 
   DEBUG("destroying condition and mutex");
 
-  pthread_cond_destroy (&osd->cond);
+  pthread_cond_destroy (&osd->cond_time);
+  pthread_cond_destroy (&osd->cond_hide);
   pthread_mutex_destroy (&osd->mutex);
 
   DEBUG("freeing osd structure");
-
   free (osd);
 
   DEBUG("done");
-
   return 0;
 }
 
@@ -861,8 +884,6 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
     xosd_error="xosd_display: Invalid Line Number";
     return -1;
   }
-
-  osd->timeout_time = time(NULL) + osd->timeout;
 
   va_start (a, command);
   switch (command) {
@@ -909,6 +930,7 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
   va_end (a);
 
   force_redraw (osd, line);
+  set_timeout (osd, osd->timeout);
 
   return len;
 }
@@ -925,7 +947,7 @@ int xosd_wait_until_no_display(xosd* osd)
 
   while (xosd_is_onscreen(osd)) {
     pthread_mutex_lock (&osd->mutex);
-    pthread_cond_wait(&osd->cond, &osd->mutex);
+    pthread_cond_wait(&osd->cond_hide, &osd->mutex);
     pthread_mutex_unlock (&osd->mutex);
   }
 
@@ -1070,7 +1092,7 @@ int xosd_hide (xosd *osd)
     osd->mapped = 0;
     XUnmapWindow (osd->display, osd->window);
     XFlush (osd->display);
-    pthread_cond_broadcast(&osd->cond);
+    pthread_cond_broadcast(&osd->cond_hide);
     pthread_mutex_unlock (&osd->mutex);
     return 0;
   }
