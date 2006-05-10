@@ -536,18 +536,16 @@ event_loop(void *osdv)
         /* http://x.holovko.ru/Xlib/chap10.html#10.9.1 */
         DEBUG(Dvalue, "expose %d: x=%d y=%d w=%d h=%d", report.xexpose.count, report.xexpose.x, report.xexpose.y, report.xexpose.width, report.xexpose.height);
         if (report.xexpose.count == 0) {
-          int line;
-          for (line = 0; line < osd->number_lines; line++) {
-            int y = osd->line_height * line;
-            if (report.xexpose.y >= y + osd->line_height)
-              continue;
-            if (report.xexpose.y + report.xexpose.height < y)
-              continue;
-            expose_line(osd, line);
-          }
-          XShapeCombineMask(osd->display, osd->window, ShapeBounding,
-                            0, 0, osd->mask_bitmap, ShapeSet);
-          XFlush(osd->display);
+          /*
+          int ytop, ybot;
+          ytop = report.xexpose.y / osd->line_height;
+          ybot = (report.xexpose.y + report.xexpose.height) / osd->line_height;
+          do {
+            osd->lines[ytop].width = -1;
+          } while (ytop++ < ybot);
+          osd->update |= UPD_lines;
+          */
+          XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, report.xexpose.x, report.xexpose.y, report.xexpose.width, report.xexpose.height, report.xexpose.x, report.xexpose.y);
         }
         break;
       case NoExpose:
