@@ -1,3 +1,10 @@
+xosd (2.0.2-1) unstable; urgency=low
+
+  * New upstream version.
+    - Fix several segfaults.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Mon, 20 Jan 2003 09:57:39 +0100
+
 xosd (2.0.1-1) unstable; urgency=low
 
   * New upstream version (never packaged). (closes: #170343)
