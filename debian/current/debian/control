@@ -12,6 +12,7 @@ Architecture: any
 Depends: ${shlibs:Depends}
 Conflicts: libxosd
 Replaces: libxosd, libxosd0
+Suggests: xfonts-base-transcoded
 Description: X On-Screen Display library - runtime
  A library for displaying a TV-like on-screen display in X.
  .
