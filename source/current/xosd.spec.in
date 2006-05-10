@@ -4,14 +4,14 @@
 Name:		xosd
 Version:	@VERSION@
 Release:	1
-Vendor:		Andre Renaud <andre@ignavus.net>
+Vendor:		Philipp Hahn <pmhahn@debian.org>
 Copyright:	GPL
 Group:		System Environment/Libraries
 Packager:	Oron Peled <oron@actcom.co.il>
 Summary:	X On-Screen Display library
 Source:		%name-@VERSION@.tar.gz
 
-URL:		http://www.ignavus.net/software.html
+URL:		http://sourceforge.net/projects/libxosd/
 Buildroot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
