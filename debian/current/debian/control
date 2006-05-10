@@ -2,9 +2,9 @@ Source: xosd
 Section: x11
 Priority: optional
 Maintainer: Philipp Matthias Hahn <pmhahn@debian.org>
-Build-Depends: libgtk1.2-dev, xmms-dev (>= 1.2.0-1), libtool, debhelper (>= 4.1.0), libgdk-pixbuf-dev, xlibs-pic, cdbs
+Build-Depends: libgtk1.2-dev, xmms-dev (>= 1.2.0-1), libtool, debhelper (>= 4.1.0), libgdk-pixbuf-dev, xlibs-static-pic, cdbs
 Build-Conflicts: libxosd-dev (<< ${Source-Version})
-Standards-Version: 3.6.1.0
+Standards-Version: 3.6.1.1
 
 Package: libxosd2
 Section: libs
@@ -20,7 +20,7 @@ Description: X On-Screen Display library - runtime
 Package: libxosd-dev
 Section: libdevel
 Architecture: any
-Depends: libxosd2 (= ${Source-Version}), xlibs-dev, xlibs-pic, ${shlibs:Depends}
+Depends: libxosd2 (= ${Source-Version}), libx11-dev, libxext-dev, x-dev, xlibs-static-dev, xlibs-static-pic, ${shlibs:Depends}
 Conflicts: libxosd
 Description: X On-Screen Display library - development
  A library for displaying a TV-like on-screen display in X.
