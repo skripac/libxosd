@@ -10,11 +10,11 @@
 static struct option long_options[] = {
   {"font",   1, NULL, 'f'},
   {"color",  1, NULL, 'c'},
+  {"colour",  1, NULL, 'c'},
   {"indent",  1, NULL, 'i'},
   {"delay",  1, NULL, 'd'},
   {"offset", 1, NULL, 'o'},
-  {"top",    0, NULL, 't'},
-  {"bottom", 0, NULL, 'b'},
+  {"pos",    0, NULL, 'p'},
   {"align",  1, NULL, 'A'},
   {"shadow", 1, NULL, 's'},
   {"age",    1, NULL, 'a'},
@@ -31,7 +31,7 @@ int main (int argc, char *argv[])
   char *newline;
 
   char *font = (char*) osd_default_font;
-  char *color = "red";
+  char *colour = "red";
   int delay = 5;
   int forcewait=0;
   xosd_pos pos = XOSD_top;
@@ -47,7 +47,7 @@ int main (int argc, char *argv[])
   while (1)
     {
       int option_index = 0;
-      int c = getopt_long (argc, argv, "l:A:a:f:c:d:o:i:s:tbhw", long_options, &option_index);
+      int c = getopt_long (argc, argv, "l:A:a:f:c:d:o:i:s:p:hw", long_options, &option_index);
       if (c == -1) break;
       switch (c)
 	{
@@ -71,11 +71,23 @@ int main (int argc, char *argv[])
 	    return EXIT_FAILURE;
 	  }
 	  break;
+	case 'p':
+	  if (strcasecmp(optarg,"top")==0) {
+	    pos=XOSD_top;
+	  } else if (strcasecmp(optarg,"middle")==0) {
+	    pos=XOSD_middle;
+	  } else if (strcasecmp(optarg,"bottom")==0) {
+	    pos=XOSD_bottom;
+	  } else {
+	    fprintf (stderr, "Unknown alignment: %s\n", optarg);
+	    return EXIT_FAILURE;
+	  }
+	  break;
 	case 'f':
 	  font = optarg;
 	  break;
 	case 'c':
-	  color = optarg;
+	  colour = optarg;
 	  break;
 	case 'd':
 	  delay = atoi(optarg);
@@ -92,24 +104,18 @@ int main (int argc, char *argv[])
 	case 'l':
 	  lines=atoi(optarg);
 	  break;
-	case 't':
-	  pos = XOSD_top;
-	  break;
-	case 'b':
-	  pos = XOSD_bottom;
-	  break;
 	case '?':
 	case 'h':
 	  fprintf (stderr, "Usage: %s [OPTION] [FILE]...\n", argv[0]);
 	  fprintf (stderr, "Version: %s \n", XOSD_VERSION);
 	  fprintf (stderr, "Display FILE, or standard input, on top of display.\n\n");
 	  fprintf (stderr, "  -a, --age           Time in seconds before old scroll lines are discarded\n");
-	  fprintf (stderr, "  -t, --top           Display at top of screen\n");
-	  fprintf (stderr, "  -b, --bottom        Display at bottom of screen\n");
+	  fprintf (stderr, "  -p, --pos=(top|middle|bottom)\n");
+	  fprintf (stderr, "                      Display at top/middle/bottom of screen. Top is default\n");
 	  fprintf (stderr, "  -A, --align=(left|right|center)\n");
-	  fprintf (stderr, "                      Display at left/right/center of screen\n");
+	  fprintf (stderr, "                      Display at left/right/center of screen.Left is default\n");
 	  fprintf (stderr, "  -f, --font=FONT     Use font (default: %s)\n", osd_default_font);
-	  fprintf (stderr, "  -c, --color=COLOR   Use color\n");
+	  fprintf (stderr, "  -c, --colour=COLOUR Use colour\n");
 	  fprintf (stderr, "  -d, --delay=TIME    Show for specified time\n");
 	  fprintf (stderr, "  -o, --offset=OFFSET Vertical Offset\n");
 	  fprintf (stderr, "  -i, --indent=OFFSET Horizontal Offset\n");

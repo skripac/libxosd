@@ -6,6 +6,8 @@
 	slider centering bugfix patch (Torsten Sievers because Tim Wright's thoughts 
 	  were wrong:)
 	middle alignment patch (Jake Roersma)
+	-t and -b arguments in osd_cat have been replaced with -p=(top|middle|bottom)
+	  (Tim Wright)
 	
 1.1.1:
         X concurrency control patch (Tim Wright)
