@@ -7,6 +7,12 @@ xosd (2.2.5-1) unstable; urgency=low
   * Stay with old font if new font doesn't exist.
   * Don't display volume-slider during title-change.
   * Fix memory leak in xmms_osd.c:timeout_func().
+  * Rewrite timeout_func() again:
+    - Next after Pause without show.track displayed Unpause, not Play.
+    - Display time at Unpause.
+    - Less xmms_remote_*() function calls.
+    - Check for buffer overflows using snprintf().
+    - Easier to read and understand (Thanks to ascii-art :-).
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Sun, 28 Sep 2003 23:27:55 +0200
 
