@@ -2,6 +2,7 @@ xosd (2.2.2-2) unstable; urgency=low
 
   * "Happy birthday release".
   * Use Homepage-keyword in debian/control.
+  * Fix Xinerama_pic dependencies in xosd-config.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue,  1 Jul 2003 21:33:10 +0200
 
