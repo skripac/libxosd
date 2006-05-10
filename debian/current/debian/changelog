@@ -1,3 +1,12 @@
+xosd (2.2.9.0-1) unstable; urgency=medium
+
+  * New upstream version.
+    - 26_one_line.diff/26_one_line_addon.diff: Merged upstream
+    - 35_synchronous.diff: Work on tpb related #265757.
+  * Urgency medium because of grave #252170.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu, 26 Aug 2004 20:42:50 +0200
+
 xosd (2.2.9-pre3-1) experimental; urgency=low
 
   * New upstream version.
