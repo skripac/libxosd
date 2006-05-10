@@ -1,3 +1,6 @@
+1.0.3:
+	Man page affect/effect spell patch (John McPherson)
+
 1.0.2: 
        Autoconf fixes:
         Cleaned up autoconf scripts (patch from Philipp Matthias Hahn)
