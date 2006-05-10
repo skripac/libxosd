@@ -1,6 +1,7 @@
 1.0.0-pre1: New maintainer: Tim Wright (tnw13@cosc.canterbury.ac.nz)
 	Applied DTM's xmms_osd patch
 	Applied segfault fix:unknown font (unknown author)
+	Applied showstreamname patch (unknown author)
 
 0.7.0:  Added "XOSD_Slider" type to possible display types
 	Added balance display to xmms plugin

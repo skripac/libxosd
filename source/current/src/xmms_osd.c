@@ -54,6 +54,7 @@ GeneralPlugin gp =
 xosd *osd;
 guint timeout_tag;
 int previous_song, previous_volume, previous_balance;
+static gchar * previous_title = 0;
 gboolean previous_playing, previous_paused, previous_repeat, previous_shuffle;
 gchar *font;
 gchar *colour;
@@ -83,6 +84,8 @@ static void init(void)
       FALSE;
   previous_volume = previous_song = 
       0;   
+  previous_title = 0;
+
 
    osd = xosd_init (font, colour, timeout, pos, offset, shadow_offset);
    if (osd)
@@ -453,6 +456,18 @@ static void configure (void)
    gtk_widget_show_all (configure_win);
    }
 
+/**
+ * DTM: save_previous_title() assumes ownership of the 
+ * memory pointed to by 'title', and will g_free()
+ * it when deleting it - as such 'title' must be
+ * gotten through glib allocations.
+ */
+static void save_previous_title ( gchar * title ) { 
+  if ( previous_title )
+    g_free( previous_title );
+  previous_title = title;
+}
+
 static void replace_hexcodes (gchar *text)
    {
    gchar hex_number[] = "FF";
@@ -507,15 +522,28 @@ static gint timeout_func(gpointer data)
    */
   if (pos != previous_song )
       {
-      xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
-      
       if (xmms_remote_get_playlist_length (gp.xmms_session)) /* otherwise it'll crash */
 	 {
+	   
 	 text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
 	 replace_hexcodes (text);
+	   
+	  /** 
+	   * Check to see if the title of the song has changed.
+	   */
+	  if ( !previous_title || 
+	       g_strcasecmp(text, previous_title) != 0 ) { 
+	    xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
 	 xosd_display (osd, 1, XOSD_string, text);		       
 	 }
 
+	  save_previous_title( text );
+	} else { 
+	  /** No song titles available. */
+	  xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
+	  save_previous_title( 0 );
+	}
+       
       previous_song = pos;
       }
 
@@ -527,6 +555,7 @@ static gint timeout_func(gpointer data)
 	 text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
 	 replace_hexcodes (text);
 	 xosd_display (osd, 1, XOSD_string, text);		       
+	  save_previous_title ( text );
 	 }
       else
 	 {
@@ -550,6 +579,7 @@ static gint timeout_func(gpointer data)
 	 text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
 	 replace_hexcodes (text);
 	 xosd_display (osd, 1, XOSD_string, text);		       
+	  save_previous_title( text );
 	 }
       previous_paused = paused;
       }
