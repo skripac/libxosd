@@ -1,3 +1,12 @@
+xosd (1.1.1-1) unstable; urgency=low
+
+  * New upstream version:
+    - Fix asynchronous X problem.
+    - Change "immediate" to "wait" in helptext. (closes: #163886)
+    - Fix manual page, memory leaks, centered sliders.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 16 Oct 2002 09:12:50 +0200
+
 xosd (1.0.4-2) unstable; urgency=low
 
   * Fix memory leaks in osd_cat.
