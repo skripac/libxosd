@@ -7,6 +7,7 @@ xosd (2.2.12-1) experimental; urgency=low
   * 46_event.diff: Fix hang. (closes: #269671,#279406,#271807)
   * 47_exposure.diff: Reduce events to improve speed.
   * 48_update.diff: Fix lost update problem.
+  * 49_debug.diff: Debug X11 events.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed,  3 Nov 2004 14:26:21 +0100
 
