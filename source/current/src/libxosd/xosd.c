@@ -123,6 +123,11 @@ struct xosd
 /** Global error string. */
 char* xosd_error;
 
+/* Forward declarations of internal functions. */
+static void set_timeout (xosd *);
+static void show (xosd *);
+static void hide (xosd *);
+
 
 static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
                      int percent, int is_slider, int set_color)
@@ -309,22 +314,20 @@ static void *timeout_loop (void *osdv)
 
   if (osdv == NULL) return NULL;
 
+  pthread_mutex_lock (&osd->mutex);
   while (!osd->done) {
-    pthread_mutex_lock (&osd->mutex);
     /* Wait for timeout or change of timeout */
     int cond = osd->timeout_time.tv_sec
       ? pthread_cond_timedwait (&osd->cond_time, &osd->mutex, &osd->timeout_time)
       : pthread_cond_wait (&osd->cond_time, &osd->mutex);
     /* If it was a timeout, hide output */
     if (cond && osd->timeout_time.tv_sec && osd->mapped) {
-      pthread_mutex_unlock (&osd->mutex);
       //printf ("timeout_loop: hiding\n");
       osd->timeout_time.tv_sec = 0;
-      xosd_hide (osd);
+      hide (osd);
     }
-    else
-      pthread_mutex_unlock (&osd->mutex);
   }
+  pthread_mutex_unlock (&osd->mutex);
 
   return NULL;
 }
@@ -382,43 +385,31 @@ static int display_slider (xosd *osd, xosd_line *l, int percentage)
   return 0;
 }
 
-static void resize(xosd *osd)
+static void resize(xosd *osd) /* Requires mutex lock. */
 {
-  pthread_mutex_lock (&osd->mutex);
-
   XResizeWindow (osd->display, osd->window, osd->width, osd->height);
   XFreePixmap (osd->display, osd->mask_bitmap);
   osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, osd->height, 1);
   XFreePixmap (osd->display, osd->line_bitmap);
   osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->width,
                                     osd->line_height, osd->depth);
-  pthread_mutex_unlock (&osd->mutex);
 }
 
-static int force_redraw (xosd *osd, int line)
+static int force_redraw (xosd *osd, int line) /* Requires mutex lock. */
 {
   resize(osd);
-
-  if (osd == NULL) return -1;
-  pthread_mutex_lock (&osd->mutex);
   for (line = 0; line < osd->number_lines; line++) {
     expose_line (osd, line);
   }
   XShapeCombineMask (osd->display, osd->window, ShapeBounding, 0, 0, osd->mask_bitmap, ShapeSet);
   XFlush(osd->display);
-  pthread_mutex_unlock (&osd->mutex);
-
-  if (!osd->mapped) {
-    pthread_mutex_lock (&osd->mutex);
-    XMapRaised (osd->display, osd->window);
-    osd->mapped = 1;
-    pthread_mutex_unlock (&osd->mutex);
-  }
+  if (!osd->mapped)
+    show (osd);
 
   return 0;
 }
 
-static int set_font (xosd *osd, const char *font)
+static int set_font (xosd *osd, const char *font) /* Requires mutex lock. */
 {
   char **missing;
   int nmissing;
@@ -429,7 +420,6 @@ static int set_font (xosd *osd, const char *font)
 
   if (osd == NULL) return -1;
 
-  pthread_mutex_lock (&osd->mutex);
   if (osd->fontset) {
     XFreeFontSet (osd->display, osd->fontset);
     osd->fontset = NULL;
@@ -437,7 +427,6 @@ static int set_font (xosd *osd, const char *font)
 
   osd->fontset = XCreateFontSet (osd->display, font, &missing, &nmissing, &defstr);
   if (osd->fontset == NULL) {
-    pthread_mutex_unlock (&osd->mutex);
     xosd_error="Requested font not found";
     return -1;
   }
@@ -459,18 +448,15 @@ static int set_font (xosd *osd, const char *font)
       l->width = rect.width;
     }
   }
-  pthread_mutex_unlock (&osd->mutex);
 
   return 0;
 }
 
-static int set_colour (xosd *osd, const char *colour)
+static int set_colour (xosd *osd, const char *colour) /* Requires mutex lock. */
 {
   int retval = 0;
 
   if (osd == NULL) return -1;
-
-  pthread_mutex_lock (&osd->mutex);
 
   DEBUG("getting colourmap");
   osd->colourmap = DefaultColormap (osd->display, osd->screen);
@@ -501,21 +487,8 @@ static int set_colour (xosd *osd, const char *colour)
   XSetBackground (osd->display, osd->gc, WhitePixel (osd->display, osd->screen));
 
   DEBUG("done");
-  pthread_mutex_unlock (&osd->mutex);
 
   return retval;
-}
-
-
-static void set_timeout (xosd *osd, int timeout)
-{
-  pthread_mutex_lock (&osd->mutex);
-  osd->timeout = timeout;
-  osd->timeout_time.tv_sec = (osd->timeout > 0)
-    ? osd->timeout_time.tv_sec = time (NULL) + osd->timeout
-    : 0;
-  pthread_cond_signal (&osd->cond_time);
-  pthread_mutex_unlock (&osd->mutex);
 }
 
 static Atom net_wm;
@@ -936,8 +909,10 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
   }
   va_end (a);
 
+  pthread_mutex_lock (&osd->mutex);
   force_redraw (osd, line);
-  set_timeout (osd, osd->timeout);
+  set_timeout (osd);
+  pthread_mutex_unlock (&osd->mutex);
 
   return len;
 }
@@ -970,9 +945,11 @@ int xosd_set_colour (xosd *osd, const char *colour)
 
   if (osd == NULL) return -1;
 
+  pthread_mutex_lock (&osd->mutex);
   retval = set_colour (osd, colour);
-
   force_redraw (osd, -1);
+  pthread_mutex_unlock (&osd->mutex);
+
   return retval;
 }
 
@@ -985,16 +962,16 @@ int xosd_set_font (xosd *osd, const char *font)
   if (font == NULL)  return -1;
   if (osd == NULL) return -1;
 
+  pthread_mutex_lock (&osd->mutex);
   ret = set_font (osd, font);
   if (ret == 0) resize(osd);
+  pthread_mutex_unlock (&osd->mutex);
 
   return ret;
 }
 
-static void xosd_update_pos (xosd *osd)
+static void update_pos (xosd *osd) /* Requires mutex lock. */
 {
-  osd->x = 0;
-  pthread_mutex_lock (&osd->mutex);
   if (osd->pos == XOSD_bottom) {
     osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->voffset;
   }
@@ -1017,15 +994,16 @@ static void xosd_update_pos (xosd *osd)
   }
 
   XMoveWindow (osd->display, osd->window, osd->x, osd->y);
-  pthread_mutex_unlock (&osd->mutex);
 }
 
 int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
 {
   if (osd == NULL) return -1;
 
+  pthread_mutex_lock (&osd->mutex);
   osd->shadow_offset = shadow_offset;
   force_redraw (osd, -1);
+  pthread_mutex_unlock (&osd->mutex);
 
   return 0;
 }
@@ -1034,8 +1012,10 @@ int xosd_set_vertical_offset (xosd *osd, int voffset)
 {
   if (osd == NULL) return -1;
 
+  pthread_mutex_lock (&osd->mutex);
   osd->voffset = voffset;
-  xosd_update_pos (osd);
+  update_pos (osd);
+  pthread_mutex_unlock (&osd->mutex);
 
   return 0;
 }
@@ -1044,8 +1024,10 @@ int xosd_set_horizontal_offset (xosd *osd, int hoffset)
 {
   if (osd == NULL) return -1;
 
+  pthread_mutex_lock (&osd->mutex);
   osd->hoffset = hoffset;
-  xosd_update_pos (osd);
+  update_pos (osd);
+  pthread_mutex_unlock (&osd->mutex);
 
   return 0;
 }
@@ -1054,8 +1036,10 @@ int xosd_set_pos (xosd *osd, xosd_pos pos)
 {
   if (osd == NULL) return -1;
 
+  pthread_mutex_lock (&osd->mutex);
   osd->pos = pos;
-  xosd_update_pos (osd);
+  update_pos (osd);
+  pthread_mutex_unlock (&osd->mutex);
 
   return 0;
 }
@@ -1064,8 +1048,10 @@ int xosd_set_align (xosd *osd, xosd_align align)
 {
   if (osd == NULL) return -1;
 
+  pthread_mutex_lock (&osd->mutex);
   osd->align = align;
   force_redraw (osd, -1);
+  pthread_mutex_unlock (&osd->mutex);
 
   return 0;
 }
@@ -1079,28 +1065,42 @@ int xosd_get_colour (xosd *osd, int *red, int *green, int *blue)
   if (green) *green = osd->colour.green;
 
   return 0;
-
 }
 
+/** Change automatic timeout. **/
+static void set_timeout (xosd *osd) /* Requires mutex lock. */
+{
+  osd->timeout_time.tv_sec = (osd->timeout > 0)
+    ? osd->timeout_time.tv_sec = time (NULL) + osd->timeout
+    : 0;
+  pthread_cond_signal (&osd->cond_time);
+}
 int xosd_set_timeout (xosd *osd, int timeout)
 {
   if (osd == NULL) return -1;
-
-  set_timeout (osd, timeout);
+  pthread_mutex_lock (&osd->mutex);
+  osd->timeout = timeout;
+  set_timeout (osd);
+  pthread_mutex_unlock (&osd->mutex);
   return 0;
 }
 
 
 /** Hide current lines. **/
+static void hide (xosd *osd) /* Requires mutex lock. */
+{
+  osd->mapped = 0;
+  XUnmapWindow (osd->display, osd->window);
+  XFlush (osd->display);
+  pthread_cond_broadcast(&osd->cond_hide);
+}
+
 int xosd_hide (xosd *osd)
 {
   if (osd == NULL) return -1;
   if (osd->mapped) {
     pthread_mutex_lock (&osd->mutex);
-    osd->mapped = 0;
-    XUnmapWindow (osd->display, osd->window);
-    XFlush (osd->display);
-    pthread_cond_broadcast(&osd->cond_hide);
+    hide (osd);
     pthread_mutex_unlock (&osd->mutex);
     return 0;
   }
@@ -1108,14 +1108,18 @@ int xosd_hide (xosd *osd)
 }
 
 /** Show current lines (again). **/
+static void show (xosd *osd) /* Requires mutex lock. */
+{
+  osd->mapped = 1;
+  XMapRaised (osd->display, osd->window);
+  XFlush (osd->display);
+}
 int xosd_show (xosd *osd)
 {
   if (osd == NULL) return -1;
   if (!osd->mapped) {
     pthread_mutex_lock (&osd->mutex);
-    osd->mapped = 1;
-    XMapRaised (osd->display, osd->window);
-    XFlush (osd->display);
+    show (osd);
     pthread_mutex_unlock (&osd->mutex);
     return 0;
   }
@@ -1152,8 +1156,8 @@ int xosd_scroll(xosd *osd, int lines)
     osd->lines[new_line].type = LINE_blank;
     new_line++;
   }
-  pthread_mutex_unlock (&osd->mutex);
   force_redraw (osd, -1);
+  pthread_mutex_unlock (&osd->mutex);
   return 0;
 }
 
