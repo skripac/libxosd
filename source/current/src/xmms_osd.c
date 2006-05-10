@@ -61,6 +61,7 @@ gchar *colour;
 gint timeout;
 gint offset;
 gint shadow_offset;
+gint vol;
 gint pos;
 GtkObject *timeout_obj, *offset_obj, *shadow_obj;
 GtkWidget *configure_win, *font_entry, *colour_entry, 
@@ -110,8 +111,10 @@ static void cleanup(void)
 
 static void read_config (void)
    {
+
    ConfigFile *cfgfile;
    
+  vol = 1;
    g_free (colour);
    g_free (font);
    colour = NULL;
@@ -123,6 +126,7 @@ static void read_config (void)
    
    if ((cfgfile = xmms_cfg_open_default_file ()) != NULL)
       {
+      xmms_cfg_read_int (cfgfile, "osd", "vol", &vol);
       xmms_cfg_read_string (cfgfile, "osd", "font", &font);
       xmms_cfg_read_string (cfgfile, "osd", "colour", &colour);
       xmms_cfg_read_int (cfgfile, "osd", "timeout", &timeout);
@@ -139,9 +143,17 @@ static void read_config (void)
    }
 
 static void configure_apply_cb (gpointer data)
+
    {
+
    ConfigFile *cfgfile;
 
+   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (vol_on)))
+      vol = 1;
+   else
+      vol = 0;
+
+   
    if (colour)
       g_free (colour);
    if (font)
@@ -168,6 +180,7 @@ static void configure_apply_cb (gpointer data)
       }
 
    cfgfile = xmms_cfg_open_default_file();
+  xmms_cfg_write_int(cfgfile, "osd", "vol", vol);
    xmms_cfg_write_string(cfgfile, "osd", "colour", colour);
    xmms_cfg_write_string(cfgfile, "osd", "font", font);
    xmms_cfg_write_int(cfgfile, "osd", "timeout", timeout);
@@ -412,6 +425,24 @@ static void configure (void)
    unit_label = gtk_label_new ("pixels");
    gtk_box_pack_start (GTK_BOX (hbox), unit_label, FALSE, FALSE, 0);      
    
+
+  hbox = gtk_hbox_new (FALSE, 5);
+  
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  label = gtk_label_new ("Show Volume and Balance :");
+  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+  vol_on = gtk_radio_button_new_with_label (NULL, "Yes");
+  group = gtk_radio_button_group (GTK_RADIO_BUTTON (vol_on));
+  vol_off = gtk_radio_button_new_with_label (group, "No");
+  gtk_box_pack_start (GTK_BOX (hbox), vol_on, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox), vol_off, FALSE, FALSE, 0);
+   
+  if (vol == 1)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (vol_on), TRUE);
+  else
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (vol_off), TRUE);
+  
+
    hbox = gtk_hbox_new (FALSE, 5);
    gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
    label = gtk_label_new ("Position:");
@@ -584,14 +615,14 @@ static gint timeout_func(gpointer data)
       previous_paused = paused;
       }
 
-   else if (volume != previous_volume)
+  else if (volume != previous_volume && vol != 0)
       {
       xosd_display (osd, 0, XOSD_string, "Volume");
       xosd_display (osd, 1, XOSD_percentage, volume);
       previous_volume = volume;
       }
    
-   else if (balance != previous_balance)
+  else if (balance != previous_balance && vol != 0)
       {
       xosd_display (osd, 0, XOSD_string, "Balance");
       xosd_display (osd, 1, XOSD_slider, balance);
