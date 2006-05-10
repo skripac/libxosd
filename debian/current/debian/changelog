@@ -1,3 +1,10 @@
+xosd (1.0.4-2) unstable; urgency=low
+
+  * Fix memory leaks in osd_cat.
+  * non-NMU upload really closes: #157702, #139455
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue,  1 Oct 2002 13:44:23 +0200
+
 xosd (1.0.4-1) unstable; urgency=low
 
   * New upstream version:
