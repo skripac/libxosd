@@ -3,6 +3,7 @@ xosd (2.1.2-1) unstable; urgency=low
   * New upstream version.
     - Fix wrong deprecation.
     - Small manual page fix.
+  * Also update last_pause on stop in xmms plugin (closes: #170643)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 26 Feb 2003 20:53:25 +0100
 

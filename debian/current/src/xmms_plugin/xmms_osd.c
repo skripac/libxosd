@@ -943,6 +943,7 @@ static gint timeout_func(gpointer data)
 	}
 
       previous_playing = playing;
+      previous_paused = paused;
     }
 
   else if (paused != previous_paused && show_pause)
