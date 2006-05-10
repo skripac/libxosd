@@ -632,6 +632,7 @@ xosd_create(int number_lines)
   int event_basep, error_basep, i;
   char *display;
   XSetWindowAttributes setwinattr;
+  XGCValues xgcv = { .graphics_exposures = False };
 #ifdef HAVE_XINERAMA
   int screens;
   int dummy_a, dummy_b;
@@ -759,9 +760,9 @@ xosd_create(int number_lines)
     XCreatePixmap(osd->display, osd->window, osd->screen_width,
                   osd->line_height, osd->depth);
 
-  osd->gc = XCreateGC(osd->display, osd->window, 0, NULL);
-  osd->mask_gc = XCreateGC(osd->display, osd->mask_bitmap, 0, NULL);
-  osd->mask_gc_back = XCreateGC(osd->display, osd->mask_bitmap, 0, NULL);
+  osd->gc = XCreateGC(osd->display, osd->window, GCGraphicsExposures, &xgcv);
+  osd->mask_gc = XCreateGC(osd->display, osd->mask_bitmap, GCGraphicsExposures, &xgcv);
+  osd->mask_gc_back = XCreateGC(osd->display, osd->mask_bitmap, GCGraphicsExposures, &xgcv);
 
   XSetBackground(osd->display, osd->gc,
                  WhitePixel(osd->display, osd->screen));

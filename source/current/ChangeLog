@@ -2,6 +2,7 @@
        buffer overflow patch (P Hahn)
 	timeout patch (P Hahn)
 	x window select patch (P Hahn)
+	x event patch (P Hahn)
 
 2.2.12: 
 	Applied three patches from the debian maintainer. The first cleans
