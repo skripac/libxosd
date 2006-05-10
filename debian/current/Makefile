@@ -44,10 +44,10 @@ libxosd.a: xosd.o
 	ranlib libxosd.a
 
 xmms_osd.o: xmms_osd.c
-	$(CC) -c -o $@ xmms_osd.c `xmms-config --cflags` -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 $(CFLAGS)
+	$(CC) -fPIC -c -o $@ xmms_osd.c `xmms-config --cflags` -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 $(CFLAGS)
 
 libxmms_osd.so: xmms_osd.o 
-	$(CC) -shared -o $@ $+ $(LDFLAGS) `gtk-config --libs` $(XOSDLIBS)
+	$(CC) -fPIC -shared -o $@ $+ $(LDFLAGS) `gtk-config --libs` $(XOSDLIBS)
 
 testprog: testprog.o libxosd.so
 	$(CC) -o $@ testprog.o $(LDFLAGS) $(XOSDLIBS)
