@@ -78,10 +78,8 @@ AC_ARG_WITH(pixmapdir,
   [ XMMS_PIXMAPDIR="$withval" ],
   [ XMMS_PIXMAPDIR="${datadir}/xosd" ])
 AC_SUBST(XMMS_PIXMAPDIR)
-AC_DEFINE_UNQUOTED(XMMS_PIXMAPDIR, "$XMMS_PIXMAPDIR")
 
 dnl Plugin selection starts
-SELECTED_PLUGINS=
 NEW_PLUGIN="yes"
 AC_ARG_ENABLE(new-plugin, 
   [  --disable-new-plugin          Disable new xmms plugin (enabled by default)],
@@ -117,7 +115,7 @@ AC_SUBST(XMMS_CFLAGS)
 AC_SUBST(XMMS_LIBS)
 AC_SUBST(XMMS_PLUGIN_DIR)
 
-	SELECTED_PLUGINS="$SELECTED_PLUGINS xmms_plugin"
+	AM_CONDITIONAL(BUILD_NEW_PLUGIN, true)
 fi
 fi
 
@@ -142,7 +140,7 @@ AC_SUBST(XMMS_PLUGIN_DIR)
 
      echo "*** xmms-config script not found. Old xmms plugin will not be built"
 else
-	SELECTED_PLUGINS="$SELECTED_PLUGINS xmms_plugin_oldplugin"
+	AM_CONDITIONAL(BUILD_OLD_PLUGIN, true)
 fi
 fi
 
@@ -158,10 +156,6 @@ dnl Replace `main' with a function in -lXinerama:
 fi
 
 
-dnl Plugin selection ends
-AC_SUBST(SELECTED_PLUGINS)
-
-
 dnl Define XOSD_VERSION
 dnl XOSD_VERSION=${VERSION}
 AC_DEFINE_UNQUOTED(XOSD_VERSION, "${VERSION}")
@@ -175,7 +169,6 @@ Makefile
 src/Makefile
 src/libxosd/Makefile
 src/xmms_plugin/Makefile
-src/xmms_plugin_oldplugin/Makefile
 macros/Makefile
 man/Makefile
 pixmaps/Makefile
