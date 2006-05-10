@@ -1,0 +1,15 @@
+#DPATCHLEVEL=0
+# Fix shadowed text
+# Minor speed improvement
+--- src/libxosd/xosd.c~	2004-08-12 10:54:33.000000000 +0200
++++ src/libxosd/xosd.c	2004-08-12 10:54:38.000000000 +0200
+@@ -204,7 +204,8 @@ draw_text(xosd *osd, int line)
+     /* FIXME: echo . | osd_cat -O 50 -p middle -A center */
+     for (i = 1; i <= osd->outline_offset; i++)
+       for (j = 0; j < 9; j++)
+-        _draw_text(osd, l->string, x + (i/3-1)*i, y + (i%3-1)*i);
++        if (j != 4)
++          _draw_text(osd, l->string, x + (j/3-1)*i, y + (j%3-1)*i);
+   }
+   if (1) {
+     XSetForeground(osd->display, osd->gc, osd->pixel);

@@ -1,3 +1,9 @@
+xosd (2.2.8-5) unstable; urgency=low
+
+  * 28_shadow_text_fix.diff
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu, 12 Aug 2004 10:58:09 +0200
+
 xosd (2.2.8-4) unstable; urgency=low
 
   * 27_clear_blank_fix.diff (closes: #265010)
