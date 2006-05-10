@@ -1,0 +1,13 @@
+# Fix blunder from 0.3.0-1 - Aagh!
+if [ -L /usr/share/doc/libxosd/libxosd-dev ]; then
+	rm -f /usr/share/doc/libxosd/libxosd-dev
+fi
+
+if [ -L /usr/share/doc/libxosd/xmms-osd-plugin ]; then
+	rm -f /usr/share/doc/libxosd/xmms-osd-plugin
+fi
+
+# Call ldconfig (we have a shared library)
+if [ "$1" = configure ]; then
+	ldconfig
+fi
