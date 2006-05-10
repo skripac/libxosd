@@ -2,6 +2,8 @@
 	Applied man pages patch - all xosd functions now
 	 have their own man page (Michael JasonSmith)
 	Applied XOSD Multicolour patch (Bjorn Bringert)
+	Fixed internationalization calls based on patch by 
+	 Michael JasonSmith
 	
 1.0.0-pre2:
 	Applied xosd.h comment and compile-error patch
@@ -15,6 +17,7 @@
 
 1.0.0-pre1: New maintainer: Tim Wright (tnw13@cosc.canterbury.ac.nz)
 	Applied DTM's xmms_osd patch
+	Applied Locale patch (unknown author)
 	Applied segfault fix:unknown font (unknown author)
 	Applied showstreamname patch (unknown author)
 	Applied shadow and offset patch   (Malcolm Valentine <farkit@iprimus.com.au>)

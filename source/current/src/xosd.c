@@ -27,12 +27,20 @@
 #include <assert.h>
 #include <pthread.h>
 
+#include <locale.h>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/shape.h>
 #include <X11/Xatom.h>
 
 #define NLINES 2 /* The number of lines displayed on the screen */
+#ifdef X_HAVE_UTF8_STRING
+#define XDRAWSTRING Xutf8DrawString
+#else
+#define XDRAWSTRING XmbDrawString
+#endif
+
 
 #define MUTEX_GET()  pthread_mutex_lock (&osd->mutex)
 #define MUTEX_RELEASE() pthread_mutex_unlock (&osd->mutex)
@@ -174,7 +182,7 @@ static void expose (xosd *osd)
 	    /* printf ("line: [%d] (%d, %d) %s\n", line, x, y, osd->lines[line]); */
 
 	    len = strlen (text);
-	    XmbDrawString (osd->display, osd->bitmap, osd->fontset,
+	    XDRAWSTRING (osd->display, osd->bitmap, osd->fontset,
 			   osd->bitmap_gc, x, y,
 			   text, len);
 
@@ -183,11 +191,11 @@ static void expose (xosd *osd)
 	       XSetForeground (osd->display, osd->gc, 
 			       BlackPixel(osd->display, osd->screen));
 
-	       XmbDrawString (osd->display, osd->bitmap, osd->fontset,
+	       XDRAWSTRING (osd->display, osd->bitmap, osd->fontset,
 			      osd->bitmap_gc, x + osd->shadow_offset, 
 			      y + osd->shadow_offset,
 			      text, len);
-	       XmbDrawString (osd->display, osd->window, osd->fontset,
+	       XDRAWSTRING (osd->display, osd->window, osd->fontset,
 			      osd->gc, x + osd->shadow_offset, 
 			      y + osd->shadow_offset,
 			      text, len);
@@ -195,7 +203,7 @@ static void expose (xosd *osd)
 
 	    XSetForeground (osd->display, osd->gc, osd->lines[line].pixel);
 	    
-	    XmbDrawString (osd->display, osd->window, osd->fontset,
+	    XDRAWSTRING (osd->display, osd->window, osd->fontset,
 			   osd->gc, x, y,
 			   text, len);
 	    break;
@@ -517,6 +525,8 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
         return NULL;
       }
    
+   setlocale(LC_ALL, "");
+
    osd = malloc (sizeof (xosd));
    
    pthread_mutex_init (&osd->mutex, NULL);
