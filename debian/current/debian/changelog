@@ -1,3 +1,9 @@
+xosd (2.2.12-2) experimental; urgency=low
+
+  * configure.ac: Remove dependency on libxt-dev (closes: #279513)
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed,  3 Nov 2004 18:08:16 +0100
+
 xosd (2.2.12-1) experimental; urgency=low
 
   * New upstream version.
