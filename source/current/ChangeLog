@@ -8,6 +8,7 @@
 	middle alignment patch (Jake Roersma)
 	-t and -b arguments in osd_cat have been replaced with -p=(top|middle|bottom)
 	  (Tim Wright)
+	Man pages patches (Tim Wright --- but they need more work)
 	
 1.1.1:
         X concurrency control patch (Tim Wright)
