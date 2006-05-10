@@ -5,6 +5,8 @@
 	  Philipp Matthias Hahn)
 	xmms plugin segfault bugfix (Philipp Matthias Hahn)
 	Fontset related memory leak (Philipp Matthias Hahn)
+	KDE stay-on-top patch (Hans Verkuil) [he says it doesn't work,
+	  but I'll leave it in anyway]
 
 1.0.2: 
        Autoconf fixes:

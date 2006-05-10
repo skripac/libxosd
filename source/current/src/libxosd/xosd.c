@@ -423,6 +423,89 @@ static void set_timeout (xosd *osd, int timeout)
   osd->timeout_time = time (NULL) + timeout;
 }
 
+static Atom net_wm;
+static Atom net_wm_state;
+static Atom net_wm_top;
+
+#define _NET_WM_STATE_ADD           1    /* add/set property */
+
+/* tested with kde */
+static void net_wm_stay_on_top(Display *dpy, Window win)
+{
+  XEvent e;
+
+  e.xclient.type = ClientMessage;
+  e.xclient.message_type = net_wm_state;
+  e.xclient.display = dpy;
+  e.xclient.window = win;
+  e.xclient.format = 32;
+  e.xclient.data.l[0] = _NET_WM_STATE_ADD;
+  e.xclient.data.l[1] = net_wm_top;
+  e.xclient.data.l[2] = 0l;
+  e.xclient.data.l[3] = 0l;
+  e.xclient.data.l[4] = 0l;
+
+  XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureRedirectMask, &e);
+}
+
+/* ------------------------------------------------------------------------ */
+
+static Atom gnome;
+static Atom gnome_layer;
+
+#define WIN_LAYER_ONTOP                  6
+
+/* tested with icewm + WindowMaker */
+static void gnome_stay_on_top(Display *dpy, Window win)
+{
+  XClientMessageEvent xev;
+
+  memset(&xev, 0, sizeof(xev));
+  xev.type = ClientMessage;
+  xev.window = win;
+  xev.message_type = gnome_layer;
+  xev.format = 32;
+  xev.data.l[0] = WIN_LAYER_ONTOP;
+  XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, (XEvent *)&xev);
+}
+
+/* ------------------------------------------------------------------------ */
+
+static void stay_on_top(Display *dpy, Window win)
+{
+  Atom            type;
+  int             format;
+  unsigned long   nitems, bytesafter;
+  unsigned char  *args = NULL;
+  Window root = DefaultRootWindow(dpy);
+
+  /* build atoms */
+  net_wm       = XInternAtom(dpy, "_NET_SUPPORTED", False);
+  net_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
+  net_wm_top   = XInternAtom(dpy, "_NET_WM_STATE_STAYS_ON_TOP", False);
+  gnome        = XInternAtom(dpy, "_WIN_SUPPORTING_WM_CHECK", False);
+  gnome_layer  = XInternAtom(dpy, "_WIN_LAYER", False);
+
+  /* gnome-compilant */
+  if (Success == XGetWindowProperty
+      (dpy, root, gnome, 0, (65536 / sizeof(long)), False,
+       AnyPropertyType, &type, &format, &nitems, &bytesafter, &args) &&
+      nitems > 0) {
+    /* FIXME: check capabilities */
+    gnome_stay_on_top(dpy, win);
+    XFree(args);
+  }
+  /* netwm compliant */
+  else if (Success == XGetWindowProperty
+      (dpy, root, net_wm, 0, (65536 / sizeof(long)), False,
+       AnyPropertyType, &type, &format, &nitems, &bytesafter, &args) &&
+      nitems > 0) {
+    net_wm_stay_on_top(dpy, win);
+    XFree(args);
+  }
+  XRaiseWindow(dpy, win);
+}
+
 xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset, int shadow_offset, int number_lines)
 {
   xosd *osd;
@@ -531,18 +614,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   inputmask = ExposureMask ;
   XSelectInput (osd->display, osd->window, inputmask);
 
-  data = 6;
-  a = XInternAtom (osd->display, "_WIN_LAYER", True);
-  if (a != None) {
-    XChangeProperty (osd->display,
-        osd->window,
-        XInternAtom (osd->display, "_WIN_LAYER", True),
-        XA_CARDINAL,
-        32,
-        PropModeReplace,
-        (unsigned char *)&data,
-        1);
-  }
+  stay_on_top(osd->display, osd->window);
 
   for (i = 0; i < osd->number_lines; i++) {
     osd->lines[i].type = LINE_text;
