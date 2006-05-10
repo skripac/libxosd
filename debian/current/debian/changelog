@@ -1,3 +1,11 @@
+xosd (2.2.10-2) unstable; urgency=medium
+
+  * Urgency medium because of #269345.
+  * 38_one_line.diff: Revert 26_one_line.diff again (closes: #269345)
+  * 39_reorder.diff: Reorder event_thread.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu,  2 Sep 2004 20:56:29 +0200
+
 xosd (2.2.10-1) unstable; urgency=medium
 
   * New upstream version.
