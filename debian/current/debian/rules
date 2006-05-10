@@ -63,6 +63,8 @@ install: build
 
 	ln -s libxosd.so.$(LIBRARY_VERSION)		\
 		debian/tmp-dev/usr/lib/libxosd.so
+	install -o root -g root -m 644 libxosd.a	\
+		debian/tmp-dev/usr/lib/libxosd.a
 
 # Binary package
 	install -d -m 755 -o root -g root debian/tmp-bin/DEBIAN

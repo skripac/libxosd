@@ -1,3 +1,9 @@
+xosd (0.6.1-3) unstable; urgency=low
+
+  * Add static library (libxosd.a). Closes: #85169
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Wed,  7 Feb 2001 20:32:59 +0100
+
 xosd (0.6.1-2) unstable; urgency=low
 
   * Fix override disparity
