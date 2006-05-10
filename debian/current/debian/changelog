@@ -1,3 +1,9 @@
+xosd (0.3.0-3) unstable; urgency=low
+
+  * Applied Isaac Kar-Keung To's FontSet patch (closes: #79242)
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Sun, 10 Dec 2000 11:28:20 +0100
+
 xosd (0.3.0-2) unstable; urgency=low
 
   * Packaging updates (closes: #77873)
