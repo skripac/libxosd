@@ -30,8 +30,6 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <locale.h>
-
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/shape.h>
@@ -897,9 +895,6 @@ xosd_create(int number_lines)
     xosd_error = "No display";
     return NULL;
   }
-
-  DEBUG("setting locale");
-  setlocale(LC_ALL, "");
 
   DEBUG("Mallocing osd");
   osd = malloc(sizeof(xosd));
