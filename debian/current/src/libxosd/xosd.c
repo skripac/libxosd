@@ -550,8 +550,9 @@ force_redraw (xosd * osd, int line)	/* Requires mutex lock. */
   XShapeCombineMask (osd->display, osd->window, ShapeBounding, 0, 0,
 		     osd->mask_bitmap, ShapeSet);
   XFlush (osd->display);
-  if (!osd->mapped)
-    show (osd);
+
+  /*if (!osd->mapped)
+    show (osd);*/
 
   return 0;
 }
@@ -559,6 +560,7 @@ force_redraw (xosd * osd, int line)	/* Requires mutex lock. */
 static int
 set_font (xosd * osd, const char *font)	/* Requires mutex lock. */
 {
+  XFontSet fontset2;
   char **missing;
   int nmissing;
   char *defstr;
@@ -567,20 +569,23 @@ set_font (xosd * osd, const char *font)	/* Requires mutex lock. */
   XFontSetExtents *extents;
 
   assert (osd);
+
+  /* Try to create the new font. If it doesn't succeed, keep old font. */
+  fontset2 =
+    XCreateFontSet (osd->display, font, &missing, &nmissing, &defstr);
+  XFreeStringList (missing);
+  if (fontset2 == NULL)
+    {
+      xosd_error = "Requested font not found";
+      return -1;
+    }
+
   if (osd->fontset)
     {
       XFreeFontSet (osd->display, osd->fontset);
       osd->fontset = NULL;
     }
-
-  osd->fontset =
-    XCreateFontSet (osd->display, font, &missing, &nmissing, &defstr);
-  if (osd->fontset == NULL)
-    {
-      xosd_error = "Requested font not found";
-      return -1;
-    }
-  XFreeStringList (missing);
+  osd->fontset = fontset2;
 
   extents = XExtentsOfFontSet (osd->fontset);
   osd->extent = &extents->max_logical_extent;
@@ -1030,7 +1035,8 @@ xosd_destroy (xosd * osd)
   XFreeGC (osd->display, osd->mask_gc);
   XFreeGC (osd->display, osd->mask_gc_back);
   XFreePixmap (osd->display, osd->line_bitmap);
-  XFreeFontSet (osd->display, osd->fontset);
+  if (osd->fontset)
+    XFreeFontSet (osd->display, osd->fontset);
   XFreePixmap (osd->display, osd->mask_bitmap);
   XDestroyWindow (osd->display, osd->window);
 
@@ -1144,6 +1150,8 @@ xosd_display (xosd * osd, int line, xosd_command command, ...)
 
   pthread_mutex_lock (&osd->mutex);
   force_redraw (osd, line);
+  if (!osd->mapped)
+	  show(osd);
   set_timeout (osd);
   pthread_mutex_unlock (&osd->mutex);
 
