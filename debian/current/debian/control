@@ -27,6 +27,16 @@ Description: X On-Screen Display library - development
  This package contains the development headers needed for compiling
  programs against libxosd.
 
+Package: xosd-bin
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: X On-Screen Display library - binary files
+ This package contains binary files shipped with the X OSD library:
+ osd_cat - a 'cat' like program which will display its output in an
+           OSD-like window
+ .
+ More info can be found on http://www.ignavus.net/software.html
+
 Package: xmms-osd-plugin
 Section: sound
 Architecture: any

@@ -22,7 +22,7 @@ clean:
 	rm -f build-stamp
 	-$(MAKE) clean
 
-	-rm -fr debian/tmp debian/tmp-dev debian/tmp-xmms
+	-rm -fr debian/tmp debian/tmp-dev debian/tmp-bin debian/tmp-xmms
 	-rm -fr debian/files debian/substvars debian/xmms.substvars
 	-rm -fr debian/bin.substvars
 
@@ -64,6 +64,17 @@ install: build
 	ln -s libxosd.so.$(LIBRARY_VERSION)		\
 		debian/tmp-dev/usr/lib/libxosd.so
 
+# Binary package
+	install -d -m 755 -o root -g root debian/tmp-bin/DEBIAN
+	install -d -m 755 -o root -g root debian/tmp-bin/usr/bin
+	install -d -m 755 -o root -g root debian/tmp-bin/usr/share/man/man1
+	install -d -m 755 -o root -g root debian/tmp-bin/usr/share/doc/xosd-bin
+
+	install -o root -g root -m 755 -s osd_cat debian/tmp-bin/usr/bin
+	install -o root -g root -m 644 osd_cat.1	\
+		debian/tmp-bin/usr/share/man/man1/osd_cat.1xosd
+	gzip -9f debian/tmp-bin/usr/share/man/man1/osd_cat.1xosd
+
 # XMMS plugin package
 	install -d -m 755 -o root -g root debian/tmp-xmms/DEBIAN
 	install -d -m 755 -o root -g root 		\
@@ -91,6 +102,8 @@ binary-arch: build install
 	install -m 644 -o root -g root ChangeLog			\
 		debian/tmp-dev/usr/share/doc/libxosd-dev/changelog
 	install -m 644 -o root -g root ChangeLog			\
+		debian/tmp-bin/usr/share/doc/xosd-bin/changelog
+	install -m 644 -o root -g root ChangeLog			\
 		debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog
 	
 	install -m 644 -o root -g root debian/copyright		\
@@ -98,12 +111,16 @@ binary-arch: build install
 	install -m 644 -o root -g root debian/copyright		\
 		debian/tmp-dev/usr/share/doc/libxosd-dev
 	install -m 644 -o root -g root debian/copyright		\
+		debian/tmp-bin/usr/share/doc/xosd-bin
+	install -m 644 -o root -g root debian/copyright		\
 		debian/tmp-xmms/usr/share/doc/xmms-osd-plugin
 
 	install -m 644 -o root -g root debian/changelog			  \
 		debian/tmp/usr/share/doc/libxosd0/changelog.Debian
 	install -m 644 -o root -g root debian/changelog			  \
 		debian/tmp-dev/usr/share/doc/libxosd-dev/changelog.Debian
+	install -m 644 -o root -g root debian/changelog			  \
+		debian/tmp-bin/usr/share/doc/xosd-bin/changelog.Debian
 	install -m 644 -o root -g root debian/changelog			  \
 		debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog.Debian
 
@@ -113,6 +130,9 @@ binary-arch: build install
 
 	gzip -9f debian/tmp-dev/usr/share/doc/libxosd-dev/changelog.Debian
 	gzip -9f debian/tmp-dev/usr/share/doc/libxosd-dev/changelog
+
+	gzip -9f debian/tmp-bin/usr/share/doc/xosd-bin/changelog.Debian
+	gzip -9f debian/tmp-bin/usr/share/doc/xosd-bin/changelog
 
 	gzip -9f debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog.Debian
 	gzip -9f debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog
@@ -125,11 +145,15 @@ binary-arch: build install
 	sed -e 's/::PKG::/libxosd-dev/g'     < debian/prerm.template    > debian/tmp-dev/DEBIAN/prerm
 	sed -e 's/::PKG::/libxosd-dev/g'     < debian/postinst.template > debian/tmp-dev/DEBIAN/postinst
 
+	sed -e 's/::PKG::/xosd-bin/g'     < debian/prerm.template    > debian/tmp-bin/DEBIAN/prerm
+	sed -e 's/::PKG::/xosd-bin/g'     < debian/postinst.template > debian/tmp-bin/DEBIAN/postinst
+
 	sed -e 's/::PKG::/xmms-osd-plugin/g' < debian/prerm.template    > debian/tmp-xmms/DEBIAN/prerm
 	sed -e 's/::PKG::/xmms-osd-plugin/g' < debian/postinst.template > debian/tmp-xmms/DEBIAN/postinst
 
 	chmod 755 debian/tmp/DEBIAN/postinst debian/tmp/DEBIAN/prerm	     \
 		debian/tmp-dev/DEBIAN/postinst debian/tmp-dev/DEBIAN/prerm   \
+		debian/tmp-bin/DEBIAN/postinst debian/tmp-bin/DEBIAN/prerm   \
 		debian/tmp-xmms/DEBIAN/postinst debian/tmp-xmms/DEBIAN/prerm
 
 # We provide shared libraries:
@@ -142,11 +166,17 @@ binary-arch: build install
 	dpkg-shlibdeps -Tdebian/xmms.substvars			\
 		debian/tmp-xmms/usr/lib/xmms/General/libxmms_osd.so
 
+	dpkg-shlibdeps -Tdebian/bin.substvars	\
+		debian/tmp-bin/usr/bin/osd_cat
+
 	dpkg-gencontrol -plibxosd0 -isp -Pdebian/tmp -Tdebian/substvars
 	dpkg-gencontrol -plibxosd-dev -isp -Pdebian/tmp-dev
+	dpkg-gencontrol -pxosd-bin -isp -Pdebian/tmp-bin		\
+		-Tdebian/bin.substvars
 	dpkg-gencontrol -pxmms-osd-plugin -isp -Pdebian/tmp-xmms 	\
 		-Tdebian/xmms.substvars
 
 	dpkg --build debian/tmp ..
 	dpkg --build debian/tmp-dev ..
+	dpkg --build debian/tmp-bin ..
 	dpkg --build debian/tmp-xmms ..
