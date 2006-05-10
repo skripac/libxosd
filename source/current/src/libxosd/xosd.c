@@ -427,7 +427,9 @@ event_loop(void *osdv)
       continue;
     } else if (FD_ISSET(xfd, &readfds)) {
       XEvent report;
-      XWindowEvent(osd->display, osd->window, ExposureMask, &report);
+      /* There is a event, but it might not be an Exposure-event, so don't use
+       * XWindowEvent(), since that might block. */
+      XNextEvent(osd->display, &report);
       /* ignore sent by server/manual send flag */
       switch (report.type & 0x7f) {
       case Expose:
