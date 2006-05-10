@@ -1030,7 +1030,8 @@ xosd_destroy (xosd * osd)
   XFreeGC (osd->display, osd->mask_gc);
   XFreeGC (osd->display, osd->mask_gc_back);
   XFreePixmap (osd->display, osd->line_bitmap);
-  XFreeFontSet (osd->display, osd->fontset);
+  if (osd->fontset)
+    XFreeFontSet (osd->display, osd->fontset);
   XFreePixmap (osd->display, osd->mask_bitmap);
   XDestroyWindow (osd->display, osd->window);
 
