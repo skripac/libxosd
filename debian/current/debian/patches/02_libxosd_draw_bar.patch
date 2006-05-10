@@ -1,0 +1,159 @@
+--- src/libxosd/xosd.c
++++ src/libxosd/xosd.c
+@@ -53,7 +53,7 @@
+ //#endif
+ #define SLIDER_WIDTH 0.8
+ 
+-	const char* osd_default_font="-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
++const char* osd_default_font="-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
+ static const char* osd_default_colour="green";
+ 
+ //const char* osd_default_font="adobe-helvetica-bold-r-*-*-10-*";
+@@ -140,13 +140,12 @@
+ static void update_pos (xosd *osd);
+ 
+ 
+-static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
++static void draw_bar(xosd *osd, Drawable d, GC gc, const int xx, const int yy,
+                      int percent, int is_slider, int set_color)
+ {
+ 	int barw, barh;
+ 	int nbars, on, i;
+-	int so = osd->shadow_offset;
+-	int ox;
++	int x, y;
+ 	assert (osd);
+ 
+ 	barh = -osd->extent->y;
+@@ -158,7 +157,7 @@
+ 		on    = ((nbars-is_slider) * percent) / 100;
+ 	} else {
+ 		nbars = osd->bar_length;
+-    		on    = ((nbars-is_slider) * percent) / 100;
++		on    = ((nbars-is_slider) * percent) / 100;
+ 
+ 		DEBUG("percent=%d, nbars==%d, on == %d", percent, nbars, on);
+ 
+@@ -176,36 +175,48 @@
+ 				break;
+ 		}
+ 	}
+-	ox=x;
+ 
+-	for (i = 0; i < nbars; x += barw, i++) {
+-		int w = barw, h = barh;
+-		int yy = y;
++	if (osd->outline_offset) {
++		if (set_color)
++			XSetForeground (osd->display, gc, osd->outline_pixel);
++		for (x = xx, y = yy, i = 0; i < nbars; x += barw, i++) {
++			int w = barw, h = barh;
+ 
+-		if (is_slider ? i == on : i < on) {
+-			w *= SLIDER_WIDTH-0.1;
+-		}
+-		else {
+-			w *= SLIDER_WIDTH;
+-			h /= 3;
+-			yy += h;
+-		}
+-		if (osd->outline_offset)
+-		{
+-		 if (set_color) XSetForeground (osd->display, gc, osd->outline_pixel);
+-		 XFillRectangle(osd->display, d, gc, x-osd->outline_offset, yy-osd->outline_offset, w+(2*osd->outline_offset), h+(2*osd->outline_offset));
+-                 if (set_color) XSetForeground (osd->display, gc, osd->pixel);
++			if (is_slider ? i == on : i < on) {
++				w *= SLIDER_WIDTH-0.1;
++			}
++			else {
++				w *= SLIDER_WIDTH;
++				h /= 3;
++				yy += h;
++			}
++			XFillRectangle(osd->display, d, gc,
++					xx - osd->outline_offset, yy - osd->outline_offset,
++					w + (2*osd->outline_offset), h + (2*osd->outline_offset));
+ 		}
+-		if (so) {
+-			if (set_color) XSetForeground (osd->display, gc, osd->shadow_pixel);
+-			XFillRectangle(osd->display, d, gc, x + so, yy + so, w, h);
+-			if (set_color) XSetForeground (osd->display, gc, osd->pixel);
++	}
++	if (osd->shadow_offset) {
++		if (set_color)
++			XSetForeground (osd->display, gc, osd->shadow_pixel);
++		for (x = xx, y = yy, i = 0; i < nbars; x += barw, i++) {
++			int w = barw, h = barh;
++
++			if (is_slider ? i == on : i < on) {
++				w *= SLIDER_WIDTH-0.1;
++			}
++			else {
++				w *= SLIDER_WIDTH;
++				h /= 3;
++				yy += h;
++			}
++			XFillRectangle(osd->display, d, gc,
++					xx + osd->shadow_offset, yy + osd->shadow_offset, w, h);
+ 		}
+ 	}
+-	x=ox;
+-	for (i = 0; i < nbars; x += barw, i++) {
++	if (set_color)
++		XSetForeground (osd->display, gc, osd->pixel);
++	for (x = xx, y = yy, i = 0; i < nbars; x += barw, i++) {
+ 		int w = barw, h = barh;
+-		int yy = y;
+ 
+ 		if (is_slider ? i == on : i < on) {
+ 			w *= SLIDER_WIDTH-0.1;
+@@ -215,32 +226,28 @@
+ 			h /= 3;
+ 			yy += h;
+ 		}
+-		XFillRectangle(osd->display, d, gc, x, yy, w, h);
++		XFillRectangle(osd->display, d, gc, xx, yy, w, h);
+ 	}
+ }
+ 
+ static void draw_with_mask(xosd* osd, xosd_line* l, int inX, int inPlace, int inY) 
+ {
+-	   XDRAWSTRING (osd->display,
+-					osd->mask_bitmap,
+-					osd->fontset,
+-					osd->mask_gc,
+-					inX,
+-					inPlace + inY,
+-					l->text,
+-					l->length);
+-	   
+-
+-
+-		XDRAWSTRING (osd->display,
+-					 osd->line_bitmap,
+-					 osd->fontset,
+-					 osd->gc,
+-					 inX,
+-					 inY,
+-					 l->text,
+-					 l->length);				
+-
++	XDRAWSTRING (osd->display,
++				 osd->mask_bitmap,
++				 osd->fontset,
++				 osd->mask_gc,
++				 inX,
++				 inPlace + inY,
++				 l->text,
++				 l->length);
++	XDRAWSTRING (osd->display,
++				 osd->line_bitmap,
++				 osd->fontset,
++				 osd->gc,
++				 inX,
++				 inY,
++				 l->text,
++				 l->length);				
+ }
+ 
+ static void expose_line(xosd *osd, int line)
