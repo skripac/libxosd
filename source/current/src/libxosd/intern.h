@@ -63,14 +63,20 @@ static const enum DEBUG_LEVEL {
   } while (0)
 /* }}} */
 
-typedef struct
+enum LINE { LINE_blank, LINE_text, LINE_percentage, LINE_slider };
+union xosd_line
 {
-  enum { LINE_blank, LINE_text, LINE_percentage, LINE_slider } type;
-
-  char *text;
-  int width;
-  int percentage;
-} xosd_line;
+  enum LINE type;
+  struct xosd_text {
+    enum LINE type;
+    int width;
+    char *string;
+  } text;
+  struct xosd_bar {
+    enum LINE type;
+    int value;
+  } bar;
+};
 
 struct xosd
 {
@@ -133,7 +139,7 @@ struct xosd
   unsigned long pixel;          /* CACHE (pixel) */
   XColor colour;                /* CONF */
 
-  xosd_line *lines;             /* CONF */
+  union xosd_line *lines;       /* CONF */
   int number_lines;             /* CONF */
 
   int timeout;                  /* CONF delta time */
