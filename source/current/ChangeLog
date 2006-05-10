@@ -1,6 +1,7 @@
 1.0.0pre3:
 	Applied man pages patch - all xosd functions now
 	 have their own man page (Michael JasonSmith)
+	Applied XOSD Multicolour patch (Bjorn Bringert)
 	
 1.0.0-pre2:
 	Applied xosd.h comment and compile-error patch

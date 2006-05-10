@@ -50,6 +50,7 @@ typedef struct
    
    char *text;
    int percentage;
+   unsigned int pixel;
    } xosd_line;
 
 struct xosd
@@ -192,7 +193,7 @@ static void expose (xosd *osd)
 			      text, len);
 	       }
 
-	    XSetForeground (osd->display, osd->gc, osd->pixel);
+	    XSetForeground (osd->display, osd->gc, osd->lines[line].pixel);
 	    
 	    XmbDrawString (osd->display, osd->window, osd->fontset,
 			   osd->gc, x, y,
@@ -217,7 +218,7 @@ static void expose (xosd *osd)
 				osd->lines[line].percentage);
 	       }
 	    
-	    XSetForeground (osd->display, osd->gc, osd->pixel);
+	    XSetForeground (osd->display, osd->gc, osd->lines[line].pixel);
 	    draw_percentage (osd, osd->window, osd->gc, x, y,
 			     osd->lines[line].percentage);
 	    break;
@@ -240,7 +241,7 @@ static void expose (xosd *osd)
 			    osd->lines[line].percentage);
 	       }
 	    
-	    XSetForeground (osd->display, osd->gc, osd->pixel);
+	    XSetForeground (osd->display, osd->gc, osd->lines[line].pixel);
 	    draw_slider (osd, osd->window, osd->gc, x, y,
 			 osd->lines[line].percentage);
 	    break;
@@ -332,6 +333,7 @@ static int display_string (xosd *osd, int line, char *string)
    assert (osd);
    
    osd->lines[line].type = LINE_text;
+   osd->lines[line].pixel = osd->pixel;
    
    if (string)
       {
@@ -359,6 +361,7 @@ static int display_percentage (xosd *osd, int line, int percentage)
    
    osd->lines[line].type = LINE_percentage;
    osd->lines[line].percentage = percentage;
+   osd->lines[line].pixel = osd->pixel;
    
    return 0;
    }
@@ -374,6 +377,7 @@ static int display_slider (xosd *osd, int line, int percentage)
    
    osd->lines[line].type = LINE_slider;
    osd->lines[line].percentage = percentage;
+   osd->lines[line].pixel = osd->pixel;
    
    return 0;
    }
