@@ -880,6 +880,7 @@ int
 xosd_display(xosd * osd, int line, xosd_command command, ...)
 {
   int ret = -1;
+  union xosd_line newline = { type: LINE_blank };
   va_list a;
 
   FUNCTION_START(Dfunction);
@@ -897,7 +898,7 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
   case XOSD_printf:
     {
       char buf[XOSD_MAX_PRINTF_BUF_SIZE];
-      struct xosd_text *l = &osd->lines[line].text;
+      struct xosd_text *l = &newline.text;
       char *string = va_arg(a, char *);
       if (command == XOSD_printf) {
         if (vsnprintf(buf, sizeof(buf), string, a) >= sizeof(buf)) {
@@ -909,19 +910,11 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
       if (string && *string) {
         ret = strlen(string);
         l->type = LINE_text;
-        if (l->string == NULL) {
-          l->string = malloc(ret + 1);
-        } else {
-          realloc(l->string, ret + 1);
-        }
+        l->string = malloc(ret + 1);
         memcpy(l->string, string, ret + 1);
       } else {
         ret = 0;
         l->type = LINE_blank;
-        if (l->string != NULL) {
-          free(l->string);
-          l->string = NULL;
-        }
         l->width = -1;
       }
       break;
@@ -930,7 +923,7 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
   case XOSD_percentage:
   case XOSD_slider:
     {
-      struct xosd_bar *l = &osd->lines[line].bar;
+      struct xosd_bar *l = &newline.bar;
       ret = va_arg(a, int);
       ret = (ret < 0) ? 0 : (ret > 100) ? 100 : ret;
       l->type = (command == XOSD_percentage) ? LINE_percentage : LINE_slider;
@@ -946,6 +939,16 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
   }
 
   _xosd_lock(osd);
+  /* Free old entry */
+  switch (osd->lines[line].type) {
+    case LINE_text:
+      free (osd->lines[line].text.string);
+    case LINE_blank:
+    case LINE_percentage:
+    case LINE_slider:
+      break;
+  }
+  osd->lines[line] = newline;
   osd->update |= UPD_content | UPD_timer | UPD_show;
   _xosd_unlock(osd);
 
