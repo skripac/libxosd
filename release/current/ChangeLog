@@ -1,8 +1,17 @@
+2.2.6:
+        FontSet fixes (Philipp Matthias Hahn)
+	Title change fix (Philipp Matthias Hahn)
+	Memory leak patch (Philipp Matthias Hahn)
+	New, improved timeout_func (Philipp Matthias Hahn)
+	New TODO list  (Philipp Matthias Hahn)
+	Fixed bug where osd displays after clicking 'apply' in XMMS 
+	config dialogue (Tim Wright)
+	
 2.2.5:
         set font patch (Joachim "nomeata" Breitner)
 	cleanup "draw_bar" method patch (Philipp Matthias Hahn)
 	ran all source and header files through 'indent' for 
-	  consistancy (Tim Wright). Used default arguents --- GNU style.
+	  consistency (Tim Wright). Used default arguments --- GNU style.
 	
 2.2.4:  outline/shadow cut fix (Tomas Janousek)
 	xmms_plugin: added outline (Ondrej Novy)

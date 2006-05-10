@@ -264,9 +264,8 @@ apply_config (void)
   if (osd)
     {
       if (xosd_set_font (osd, font) == -1)
-	{
-	  DEBUG ("invalid font %s", font);
-	}
+	DEBUG ("invalid font %s", font);
+
       xosd_set_colour (osd, colour);
       xosd_set_timeout (osd, timeout);
       xosd_set_shadow_offset (osd, shadow_offset);
@@ -325,8 +324,8 @@ timeout_func (gpointer data)
 {
   struct state current;
   char *text = NULL;
-  char *title = NULL;
-  char *title2 = NULL;
+  gboolean songchange, showtext, withtime = FALSE;
+  gint playlist_length;
 
   DEBUG ("timeout func");
 
@@ -343,98 +342,95 @@ timeout_func (gpointer data)
   current.volume = xmms_remote_get_main_volume (gp.xmms_session);
   current.balance = (xmms_remote_get_balance (gp.xmms_session) + 100) / 2;
 
-
   /* Get the current title only if the playlist is not empty. Otherwise
    * it'll crash. Don't forget to free the title! */
-  current.title = xmms_remote_get_playlist_length (gp.xmms_session)
+  playlist_length = xmms_remote_get_playlist_length (gp.xmms_session);
+  current.title = playlist_length
     ? xmms_remote_get_playlist_title (gp.xmms_session, current.pos) : NULL;
-  if (current.title)
-    {
-      replace_hexcodes (current.title);
-    }
 
-  /* Display title when
-   * - play started
-   * - unpaused
-   * - the position changed (playlist advanced)
-   * - title changed (current title was deleted from playlist)
-   *   - no old but new
-   *   - old but no new
-   *   - old and new are different
+  /* Check for song change. Deleting a song from the playlist only changed the
+   * name, but not the position, so compare also by (still hexencoded) name. */
+  songchange =
+    (previous.pos != current.pos) ||
+    (previous.title == NULL && current.title != NULL) ||
+    (previous.title != NULL && current.title == NULL) ||
+    (previous.title != NULL && current.title != NULL &&
+     (g_strcasecmp (previous.title, current.title) != 0));
+
+  /* Possible show something when either song or state changed. */
+  showtext = songchange ||
+    ((current.playing != previous.playing) ||
+     (current.paused != previous.paused));
+
+  /* Determine right text depending on state and state/title change.
+   *    +---+          +---+
+   *    |   |          |   |
+   *    +->PLAY<---->STOP<-+
+   *        ^          ^
+   *        |          |
+   *        +-->PAUSE--+
    */
-  if ((!previous.playing && current.playing) ||
-      (previous.paused && !current.paused) ||
-      (current.pos != previous.pos) ||
-      (previous.title == NULL && current.title != NULL) ||
-      (previous.title != NULL && current.title == NULL) ||
-      (previous.title != NULL && current.title != NULL &&
-       (g_strcasecmp (previous.title, current.title) != 0)))
-    {
-      if (show.trackname)
-	{
-	  title = current.title;
-	  if (title != NULL)
-	    {
-	      title2 = malloc (strlen (current.title) + 26);
-	      sprintf (title2, "%i/%i: %s",
-		       xmms_remote_get_playlist_pos (gp.xmms_session) + 1,
-		       xmms_remote_get_playlist_length (gp.xmms_session),
-		       current.title);
-	    }
-	}
+  if (!current.playing)
+    {				/* {PLAY,PAUSE,STOP} -> STOP */
+      text = "Stopped";
+      showtext &= show.stop;
     }
-
-  /* Determine right text depending on state and title change. */
-  if (!current.playing && (title2 || previous.playing))
-    {
-      if (show.stop)
-	text = "Stopped";
+  else if (current.paused)
+    {				/* PLAY -> PAUSE */
+      text = "Paused";
+      showtext &= show.pause;
+      withtime = TRUE;
     }
-  else if (!previous.paused && current.paused)
-    {
-      if (show.pause)
-	{
-	  text = "Paused";
-	  if (show.trackname)
-	    {
-	      if (current.title != NULL)
-		{
-		  title2 = malloc (strlen (current.title) + 52);
-		  sprintf (title2, "%i/%i: %s (%.2i:%.2i)",
-			   xmms_remote_get_playlist_pos (gp.xmms_session) + 1,
-			   xmms_remote_get_playlist_length (gp.xmms_session),
-			   current.title,
-			   xmms_remote_get_output_time (gp.xmms_session) /
-			   1000 / 60,
-			   xmms_remote_get_output_time (gp.xmms_session) /
-			   1000 % 60);
-		}
-	    }
-	}
+  else if (previous.paused && !current.paused && !songchange)
+    {				/* PAUSE -SameSong-> PLAY */
+      text = "Unpaused";
+      showtext &= show.pause;
+      withtime = TRUE;
     }
-  else if (previous.paused && !current.paused)
-    {
-      if (show.pause)
-	text = "Unpaused";
-    }
-  else if (current.playing && (title2 || !previous.playing))
-    {
-      text = "Play";
+  else
+    {				/* {PLAY,STOP} -> PLAY <-OtherSong- PAUSE */
+      text = "Playing";
+      showtext &= show.trackname;
     }
 
   /* Decide what to display, in decreasing priority. */
-  if (text)
+  if (showtext)
     {
       xosd_display (osd, 0, XOSD_string, text);
-      xosd_display (osd, 1, XOSD_string, title2 ? title2 : "");
+      if (show.trackname && (current.title != NULL))
+	{
+	  int len;
+	  char *title;
+	  gint playlist_time;
+
+	  len = 13 + strlen (current.title) + (withtime ? 11 : 0);
+	  title = malloc (len);
+	  playlist_time =
+	    withtime ? xmms_remote_get_output_time (gp.xmms_session) : 0;
+	  snprintf (title, len,
+		    withtime ? "%i/%i: %s (%i:%02i)" : "%i/%i: %s",
+		    current.pos + 1, playlist_length, current.title,
+		    playlist_time / 1000 / 60, playlist_time / 1000 % 60);
+	  replace_hexcodes (title);
+	  xosd_display (osd, 1, XOSD_string, title);
+	  free (title);
+	}
+      else
+	xosd_display (osd, 1, XOSD_string, "");
     }
   else if (current.volume != previous.volume && show.volume)
     {
+      DEBUG ("V: %d->%d\n", previous.volume, current.volume);
+      /* xmms returns -1 during a title change. skip this and try again later. */
+      if ((previous.volume == -1) || (current.volume == -1))
+	goto skip;
       xosd_display (osd, 0, XOSD_string, "Volume");
       xosd_display (osd, 1, XOSD_percentage, current.volume);
     }
   else if (current.balance != previous.balance && show.balance)
     {
+      DEBUG ("B: %d->%d\n", previous.balance, current.balance);
+      /* FIXME: Same as above might happen, but with what values? */
       xosd_display (osd, 0, XOSD_string, "Balance");
       xosd_display (osd, 1, XOSD_slider, current.balance);
     }
@@ -449,9 +445,7 @@ timeout_func (gpointer data)
       xosd_display (osd, 1, XOSD_string, current.shuffle ? "On" : "Off");
     }
 
-  if (title2)
-    free (title2);
-
+skip:
   /* copy current state (including title) for future comparison. Free old
    * title first. */
   if (previous.title)
