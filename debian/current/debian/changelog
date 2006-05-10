@@ -1,3 +1,11 @@
+xosd (2.2.4-1.1) unstable; urgency=low
+
+  * debian/control
+    + Added ${shlibs:Depend} to Depends (Closes: #206954)
+  * Bump standards to 3.6.1.0
+
+ -- Julien Danjou <acid@debian.org>  Thu, 28 Aug 2003 19:07:08 +0200
+
 xosd (2.2.4-1) unstable; urgency=low
 
   * New upstream version.
