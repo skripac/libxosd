@@ -3,6 +3,7 @@ xosd (1.0.2-1) unstable; urgency=low
   * New upstream version.
     - Includes man-page.
     - Includes memory-leak fix.
+  * Fix linking of libxmms_osd. (closes: #156869)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 16 Aug 2002 11:46:50 +0200
 
