@@ -44,6 +44,10 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BUILD_NEW_PLUGIN_FALSE = @BUILD_NEW_PLUGIN_FALSE@
+BUILD_NEW_PLUGIN_TRUE = @BUILD_NEW_PLUGIN_TRUE@
+BUILD_OLD_PLUGIN_FALSE = @BUILD_OLD_PLUGIN_FALSE@
+BUILD_OLD_PLUGIN_TRUE = @BUILD_OLD_PLUGIN_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -59,12 +63,11 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 GDK_PIXBUF_CFLAGS = @GDK_PIXBUF_CFLAGS@
+GDK_PIXBUF_CONFIG = @GDK_PIXBUF_CONFIG@
 GDK_PIXBUF_LIBS = @GDK_PIXBUF_LIBS@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
-HAVE_XINERAMA_FALSE = @HAVE_XINERAMA_FALSE@
-HAVE_XINERAMA_TRUE = @HAVE_XINERAMA_TRUE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -92,15 +95,22 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
-SELECTED_PLUGINS = @SELECTED_PLUGINS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
 XMMS_CFLAGS = @XMMS_CFLAGS@
+XMMS_CONFIG = @XMMS_CONFIG@
+XMMS_DATA_DIR = @XMMS_DATA_DIR@
+XMMS_EFFECT_PLUGIN_DIR = @XMMS_EFFECT_PLUGIN_DIR@
+XMMS_GENERAL_PLUGIN_DIR = @XMMS_GENERAL_PLUGIN_DIR@
+XMMS_INPUT_PLUGIN_DIR = @XMMS_INPUT_PLUGIN_DIR@
 XMMS_LIBS = @XMMS_LIBS@
+XMMS_OUTPUT_PLUGIN_DIR = @XMMS_OUTPUT_PLUGIN_DIR@
 XMMS_PIXMAPDIR = @XMMS_PIXMAPDIR@
 XMMS_PLUGIN_DIR = @XMMS_PLUGIN_DIR@
+XMMS_VERSION = @XMMS_VERSION@
+XMMS_VISUALIZATION_PLUGIN_DIR = @XMMS_VISUALIZATION_PLUGIN_DIR@
 X_CFLAGS = @X_CFLAGS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_LIBS = @X_LIBS@
@@ -121,7 +131,6 @@ build_os = @build_os@
 build_vendor = @build_vendor@
 datadir = @datadir@
 exec_prefix = @exec_prefix@
-gdk_pixbuf_config_script = @gdk_pixbuf_config_script@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -141,7 +150,6 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-xmms_config_script = @xmms_config_script@
 
 SUBDIRS = macros man pixmaps src script
 
@@ -166,7 +174,7 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	check-recursive installcheck-recursive
 DIST_COMMON = README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
 	Makefile.in NEWS aclocal.m4 config.guess config.sub configure \
-	configure.in depcomp install-sh ltconfig ltmain.sh missing \
+	configure.ac depcomp install-sh ltconfig ltmain.sh missing \
 	mkinstalldirs xosd.spec.in
 DIST_SUBDIRS = $(SUBDIRS)
 all: all-recursive
@@ -175,7 +183,7 @@ all: all-recursive
 
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
 	  $(AUTOMAKE) --gnu  Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -183,10 +191,10 @@ Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.s
 
 $(top_builddir)/config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
-$(srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
+$(srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(srcdir)/configure.ac $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && $(AUTOCONF)
 
-$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ configure.in 
+$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ configure.ac 
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 xosd.spec: $(top_builddir)/config.status xosd.spec.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
