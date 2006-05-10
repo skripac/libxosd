@@ -13,6 +13,7 @@ static struct option long_options[] = {
     {"top",    0, NULL, 't'},
     {"bottom", 0, NULL, 'b'},
     {"help",   0, NULL, 'h'},
+  {"shadow", 1, NULL, 's'}, 
     {NULL,     0, NULL, 0}
 };
 
@@ -28,11 +29,12 @@ int main (int argc, char *argv[])
    int delay = 5;
    xosd_pos pos = XOSD_top;
    int offset = 0;
+  int shadow = 0;
 
    while (1)
    {
        int option_index = 0;
-       int c = getopt_long (argc, argv, "f:c:d:o:tbh", long_options, &option_index);
+      int c = getopt_long (argc, argv, "f:c:d:o:s:tbh", long_options, &option_index);
        if (c == -1) break;
        switch (c)
        {
@@ -48,6 +50,9 @@ int main (int argc, char *argv[])
 	   case 'o':
 	       offset = atoi(optarg);
 	       break;
+	case 's':
+	  shadow=atoi(optarg);
+	  break;
 	   case 't':
 	       pos = XOSD_top;
 	       break;
@@ -65,6 +70,7 @@ int main (int argc, char *argv[])
 	       fprintf (stderr, "  -d, --delay=TIME    Show for specified time\n");
 	       fprintf (stderr, "  -o, --offset=OFFSET Display Offset\n");
 	       fprintf (stderr, "  -h, --help          Show this help\n");
+	  fprintf (stderr, "  -s, --shadow=SHADOW Offset of shadow, default is 0 which is no shadow\n");
 	       fprintf (stderr, "\nWith no FILE, or when FILE is -, read standard input.\n");
 	       return EXIT_SUCCESS;
        }
@@ -81,7 +87,7 @@ int main (int argc, char *argv[])
    else
       fp = stdin;
    
-   osd = xosd_init (font, color, delay, pos, offset, 0);
+  osd = xosd_init (font, color, delay, pos, offset, shadow);
    if (!osd)
       {
       fprintf (stderr, "Error initializing osd\n");
