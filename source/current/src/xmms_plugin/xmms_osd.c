@@ -65,6 +65,7 @@ gint timeout;
 gint offset;
 gint h_offset;
 gint shadow_offset;
+gint outline_offset;
 gint pos;
 gint align;
 
@@ -183,6 +184,7 @@ read_config (void)
 	offset = 50;
 	h_offset = 0;
 	shadow_offset = 1;
+	outline_offset = 0;
 	pos = XOSD_bottom;
 	align = XOSD_left;
 
@@ -194,6 +196,7 @@ read_config (void)
 		xmms_cfg_read_int (cfgfile, "osd", "offset", &offset);
 		xmms_cfg_read_int (cfgfile, "osd", "h_offset", &h_offset);
 		xmms_cfg_read_int (cfgfile, "osd", "shadow_offset", &shadow_offset);
+		xmms_cfg_read_int (cfgfile, "osd", "outline_offset", &outline_offset);
 		xmms_cfg_read_int (cfgfile, "osd", "pos", &pos);
 		xmms_cfg_read_int (cfgfile, "osd", "align", &align);
 		xmms_cfg_read_int (cfgfile, "osd", "show_volume", &show.volume );
@@ -233,6 +236,7 @@ write_config (void)
 		xmms_cfg_write_int (cfgfile, "osd", "offset", offset);
 		xmms_cfg_write_int (cfgfile, "osd", "h_offset", h_offset);
 		xmms_cfg_write_int (cfgfile, "osd", "shadow_offset", shadow_offset);
+		xmms_cfg_write_int (cfgfile, "osd", "outline_offset", outline_offset);
 		xmms_cfg_write_int (cfgfile, "osd", "pos", pos);
 		xmms_cfg_write_int (cfgfile, "osd", "align", align);
 
@@ -257,17 +261,18 @@ apply_config (void)
 	DEBUG("apply_config");
 	if (osd)
 	{
-		if (xosd_set_font (osd, font) == -1)
-		{
-			DEBUG("invalid font %s", font);
-		}
 		xosd_set_colour (osd, colour);
 		xosd_set_timeout (osd, timeout);
 		xosd_set_vertical_offset (osd, offset);
 		xosd_set_horizontal_offset (osd, h_offset);
 		xosd_set_shadow_offset (osd, shadow_offset);
+		xosd_set_outline_offset (osd, outline_offset);
 		xosd_set_pos (osd, pos);
 		xosd_set_align (osd, align);
+		if (xosd_set_font (osd, font) == -1)
+		{
+			DEBUG("invalid font %s", font);
+		}
 	}
 	DEBUG("done");
 }
