@@ -1,3 +1,11 @@
+xosd (2.2.2-1) unstable; urgency=low
+
+  * New upstream version.
+  * Standards-Version 3.5.10 (no changes).
+  * Switch to cdbs in debian/rules.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 27 Jun 2003 09:06:35 +0200
+
 xosd (2.2.1-3) unstable; urgency=low
 
   * libxosd-dev should depend on xlibs-pic for xinerama_pic. closes: #191773
