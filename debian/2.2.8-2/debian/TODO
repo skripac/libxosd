@@ -1,0 +1,2 @@
+* Get debian/patches/26_one_line.diff.broken working.
+  - What are x_off and y_off in XShapeCombineMask() good for?
