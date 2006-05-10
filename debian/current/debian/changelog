@@ -1,6 +1,7 @@
 xosd (0.4.0-2) unstable; urgency=low
 
   * Modified build system to use a soname
+  * Added a manual page (xosd(3xosd))
 
  -- Martijn van de Streek <martijn@foodfight.org>  Mon,  1 Jan 2001 13:50:11 +0100
 
