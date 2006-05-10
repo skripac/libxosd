@@ -1,0 +1,34 @@
+#DPATCHLEVEL=0
+# Colormap is used only in one place
+--- src/libxosd/xosd.c~	2004-08-03 07:19:04.000000000 +0200
++++ src/libxosd/xosd.c	2004-08-03 07:30:38.000000000 +0200
+@@ -143,7 +143,6 @@ struct xosd
+ 
+   unsigned int pixel;
+   XColor colour;
+-  Colormap colourmap;
+ 
+   xosd_line *lines;
+   int number_lines;
+@@ -573,17 +572,17 @@ set_font(xosd * osd, const char *font)
+ static int
+ parse_colour(xosd * osd, XColor * col, int *pixel, const char *colour)
+ {
++  Colormap colourmap;
+   int retval = 0;
+ 
+   FUNCTION_START(Dfunction);
+   DEBUG(Dtrace, "getting colourmap");
+-  osd->colourmap = DefaultColormap(osd->display, osd->screen);
++  colourmap = DefaultColormap(osd->display, osd->screen);
+ 
+   DEBUG(Dtrace, "parsing colour");
+-  if (XParseColor(osd->display, osd->colourmap, colour, col)) {
+-
++  if (XParseColor(osd->display, colourmap, colour, col)) {
+     DEBUG(Dtrace, "attempting to allocate colour");
+-    if (XAllocColor(osd->display, osd->colourmap, col)) {
++    if (XAllocColor(osd->display, colourmap, col)) {
+       DEBUG(Dtrace, "allocation sucessful");
+       *pixel = col->pixel;
+     } else {
