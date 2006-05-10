@@ -885,7 +885,7 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
   case XOSD_string:
   case XOSD_printf:
     {
-      char buf[2000];
+      char buf[XOSD_MAX_PRINTF_BUF_SIZE];
       struct xosd_text *l = &osd->lines[line].text;
       char *string = va_arg(a, char *);
       if (command == XOSD_printf) {
