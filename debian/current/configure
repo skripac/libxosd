@@ -708,11 +708,11 @@ fi
 
 # version crud for libraries
 LT_CURRENT=2
-LT_AGE=0
-LT_REVISION=2
+LT_AGE=1
+LT_REVISION=4
 
 # version for tar file
-VERSION=2.0.2
+VERSION=2.1.0
 
 
 
@@ -7118,27 +7118,51 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
+
 if test "x$xmms_config_script" = "xnone" ; then
      echo "*** xmms-config script not found. xmms plugin will not be built"
 elif test "x$gdk_pixbuf_script" = "xnone" ; then
      echo "*** gdk-pixbuf-config script not found. xmms plugin will not be built"
 else
-	XMMS_CFLAGS=`$xmms_config_script --cflags`
-	XMMS_LIBS=`$xmms_config_script --libs`
-	echo $ac_n "checking for xmms plugin directory""... $ac_c" 1>&6
-echo "configure:7130: checking for xmms plugin directory" >&5
-	if test "x$XMMS_PLUGIN_DIR" = "x" ; then
-	   XMMS_PLUGIN_DIR=`$xmms_config_script --general-plugin-dir`
-	fi
-	echo "$ac_t""$XMMS_PLUGIN_DIR" 1>&6
-	GDK_PIXBUF_CFLAGS=`$gdk_pixbuf_config_script --cflags`
-	GDK_PIXBUF_LIBS=`$gdk_pixbuf_config_script --libs`
-	
-	
-	
-	
-	
+XMMS_CFLAGS=`$xmms_config_script --cflags`
+XMMS_LIBS=`$xmms_config_script --libs`
+echo $ac_n "checking for xmms plugin directory""... $ac_c" 1>&6
+echo "configure:7131: checking for xmms plugin directory" >&5
+if test "x$XMMS_PLUGIN_DIR" = "x" ; then
+   XMMS_PLUGIN_DIR=`$xmms_config_script --general-plugin-dir`
+fi
+echo "$ac_t""$XMMS_PLUGIN_DIR" 1>&6
+GDK_PIXBUF_CFLAGS=`$gdk_pixbuf_config_script --cflags`
+GDK_PIXBUF_LIBS=`$gdk_pixbuf_config_script --libs`
+
+
+
+
+
+
 	SELECTED_PLUGINS="$SELECTED_PLUGINS xmms_plugin"
+fi
+
+if test "x$xmms_config_script" = "xnone" ; then
+XMMS_CFLAGS=`$xmms_config_script --cflags`
+XMMS_LIBS=`$xmms_config_script --libs`
+echo $ac_n "checking for xmms plugin directory""... $ac_c" 1>&6
+echo "configure:7151: checking for xmms plugin directory" >&5
+if test "x$XMMS_PLUGIN_DIR" = "x" ; then
+   XMMS_PLUGIN_DIR=`$xmms_config_script --general-plugin-dir`
+fi
+echo "$ac_t""$XMMS_PLUGIN_DIR" 1>&6
+GDK_PIXBUF_CFLAGS=`$gdk_pixbuf_config_script --cflags`
+GDK_PIXBUF_LIBS=`$gdk_pixbuf_config_script --libs`
+
+
+
+
+
+
+     echo "*** xmms-config script not found. Old xmms plugin will not be built"
+else
+	SELECTED_PLUGINS="$SELECTED_PLUGINS xmms_plugin_oldplugin"
 fi
 
 
@@ -7272,6 +7296,7 @@ Makefile
 src/Makefile
 src/libxosd/Makefile
 src/xmms_plugin/Makefile
+src/xmms_plugin_oldplugin/Makefile
 macros/Makefile
 man/Makefile
 pixmaps/Makefile
@@ -7407,6 +7432,7 @@ CONFIG_FILES=\${CONFIG_FILES-"Makefile
 src/Makefile
 src/libxosd/Makefile
 src/xmms_plugin/Makefile
+src/xmms_plugin_oldplugin/Makefile
 macros/Makefile
 man/Makefile
 pixmaps/Makefile
