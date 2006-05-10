@@ -1,3 +1,9 @@
+xosd (2.2.8-4) unstable; urgency=low
+
+  * 27_clear_blank_fix.diff (closes: #265010)
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 11 Aug 2004 18:16:15 +0200
+
 xosd (2.2.8-3) unstable; urgency=medium
 
   * Reupload to unstable after successful testing in experimental.
