@@ -1,3 +1,10 @@
+xosd (2.2.7-1) unstable; urgency=low
+
+  * New upstream version:
+    - Fix 100% CPU upsage in lineakd.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed,  1 Oct 2003 08:50:58 +0200
+
 xosd (2.2.6-1) unstable; urgency=low
 
   * New upstream version:
