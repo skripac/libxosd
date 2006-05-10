@@ -556,7 +556,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   DEBUG("getting display");
   display = getenv ("DISPLAY");
   if (!display) {
-    xosd_error = "No display";
+    xosd_error= "No display";
     return NULL;
   }
 
@@ -577,6 +577,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   DEBUG("initializing condition");
   pthread_cond_init (&osd->cond, NULL);
 
+
   DEBUG("initializing number lines");
   osd->number_lines=number_lines;
   osd->lines=malloc(sizeof(xosd_line) * osd->number_lines);
@@ -585,6 +586,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
       xosd_error = "Out of memory";
       goto error1;
     }
+
   for (i = 0; i < osd->number_lines; i++) {
     osd->lines[i].type = LINE_text;
     osd->lines[i].text = NULL;
@@ -596,7 +598,6 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->align = XOSD_left;
   osd->shadow_offset = shadow_offset;
   osd->display = XOpenDisplay (display);
-
   DEBUG("Display query");
   if (!osd->display) {
     xosd_error = "Cannot open display";
@@ -604,6 +605,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   }
 
   osd->screen = XDefaultScreen (osd->display);
+
 
   DEBUG("x shape extension query");
   if (!XShapeQueryExtension (osd->display, &event_basep, &error_basep)) {
@@ -615,16 +617,16 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->depth = DefaultDepth (osd->display, osd->screen);
 
   DEBUG("font selection info");
-  osd->fontset = NULL;
+  osd->fontset=NULL;
   if (set_font (osd, font)) {
     /* If we didn't get a fontset, default to default font */
-    font = osd_default_font;
+    font = (char*)osd_default_font;
     set_font(osd, font);
   }
 
   if (osd->fontset == NULL) {
     /* if we still don't have a fontset, then abort */
-    xosd_error = "Requested font not found";
+    xosd_error="Requested font not found";
     goto error3;
   }
 
@@ -670,6 +672,12 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   DEBUG("stay on top");
   stay_on_top(osd->display, osd->window);
 
+  /* for (i = 0; i < osd->number_lines; i++) {
+    osd->lines[i].type = LINE_text;
+    osd->lines[i].text = NULL;
+    }*/
+
+ 
   DEBUG("initializing event thread");
   pthread_create (&osd->event_thread, NULL, event_loop, osd);
 
