@@ -34,7 +34,7 @@ sed -e 's/^build_old_libs=yes/build_old_libs=no/' libtool > libtool-disable-stat
 chmod +x libtool-disable-static
 
 LIBS="$LIBS $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
-CFLAGS="$CFLAGS $X_CFLAGS"
+CFLAGS="$CFLAGS $X_CFLAGS -Wall"
 M4DATADIR="$datadir/aclocal"
 AC_SUBST(M4DATADIR)
 
