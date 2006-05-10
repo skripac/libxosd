@@ -1,0 +1,727 @@
+#DPATCHLEVEL=0
+# Change debugging macros to include thread-id
+# Implement different debugging levels ats bit-field
+--- src/libxosd/xosd.c.orig	2004-08-04 10:57:28.000000000 +0200
++++ src/libxosd/xosd.c	2004-08-04 11:01:43.000000000 +0200
+@@ -40,15 +40,36 @@
+ 
+ #include "xosd.h"
+ 
+-#if 0
+-#define DEBUG(args...) fprintf (stderr, "%s: %s: %d: ", __FILE__, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, args); fprintf(stderr, "\n")
+-#define FUNCTION_START fprintf (stderr, "ENTER: %s (%s, %d)\n",  __PRETTY_FUNCTION__, __FILE__, __LINE__)
+-#define FUNCTION_END fprintf (stderr, "LEAVE: %s (%s, %d)\n",  __PRETTY_FUNCTION__, __FILE__, __LINE__)
+-#else
+-#define DEBUG(args...)
+-#define FUNCTION_START
+-#define FUNCTION_END
+-#endif
++/* gcc -O2 optimizes debugging away if Dnone is chosen. {{{ */
++static const enum DEBUG_LEVEL {
++  Dnone = 0,          /* Nothing */
++  Dfunction = (1<<0), /* Function enter/exit */
++  Dlocking = (1<<1),  /* Locking */
++  Dselect = (1<<2),   /* select() processing */
++  Dtrace = (1<<3),    /* Programm progess */
++  Dvalue = (1<<4),    /* Computed values */
++  Dupdate = (1<<5),   /* Display update processing */
++  Dall = -1           /* Everything */
++} _xosd_debug_level = Dnone;
++#define DEBUG(lvl, fmt, ...) \
++  do { \
++    if (_xosd_debug_level & lvl) \
++      fprintf (stderr, "%s:%-4d %ld@%s: " fmt "\n", __FILE__, __LINE__, \
++          pthread_self(), __PRETTY_FUNCTION__ ,## __VA_ARGS__); \
++  } while (0)
++#define FUNCTION_START(lvl) \
++  do { \
++    if (_xosd_debug_level & Dfunction && _xosd_debug_level & lvl) \
++      fprintf (stderr, "%s:%-4d %ld<%s\n", __FILE__, __LINE__, \
++          pthread_self(), __PRETTY_FUNCTION__); \
++  } while (0)
++#define FUNCTION_END(lvl) \
++  do { \
++    if (_xosd_debug_level & Dfunction && _xosd_debug_level & lvl) \
++      fprintf (stderr, "%s:%-4d %ld>%s\n",  __FILE__, __LINE__, \
++          pthread_self(), __PRETTY_FUNCTION__); \
++  } while (0)
++/* }}} */
+ 
+ // #ifdef X_HAVE_UTF8_STRING
+ // #define XDRAWSTRING Xutf8DrawString
+@@ -170,7 +191,7 @@ draw_bar(xosd * osd, Drawable d, GC gc, 
+   } bar[2];
+ 
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+ 
+   /*
+    * bar size and dimension 
+@@ -206,7 +227,7 @@ draw_bar(xosd * osd, Drawable d, GC gc, 
+   }
+   on = ((nbars - is_slider) * percent) / 100;
+ 
+-  DEBUG("percent=%d, nbars=%d, on=%d", percent, nbars, on);
++  DEBUG(Dvalue, "percent=%d, nbars=%d, on=%d", percent, nbars, on);
+ 
+   /*
+    * Outline 
+@@ -253,7 +274,7 @@ static void
+ draw_with_mask(xosd * osd, xosd_line * l, int inX, int inPlace, int inY,
+                int draw_line_bitmap)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   XDRAWSTRING(osd->display,
+               osd->mask_bitmap,
+               osd->fontset,
+@@ -273,7 +294,7 @@ expose_line(xosd * osd, int line)
+   int i;
+   xosd_line *l = &osd->lines[line];
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+ 
+   osd->fill_mask = FILL_NONE;
+   if (!osd->shadow_offset && !osd->outline_offset) {
+@@ -319,7 +340,7 @@ expose_line(xosd * osd, int line)
+     if (!l->text || !l->length)
+       break;
+     if (!osd->fontset) {
+-      DEBUG("CRITICAL: No fontset");
++      DEBUG(Dtrace, "CRITICAL: No fontset");
+       return;
+     }
+ 
+@@ -427,13 +448,13 @@ event_loop(void *osdv)
+   XEvent report;
+   int line, y;
+ 
+-  FUNCTION_START;
+-  DEBUG("event thread started");
++  FUNCTION_START(Dfunction);
++  DEBUG(Dtrace, "event thread started");
+   assert(osd);
+   usleep(500);
+ 
+   while (!osd->done) {
+-    // DEBUG("checking window event");
++    // DEBUG(Dtrace, "checking window event");
+     XWindowEvent(osd->display, osd->window, ExposureMask, &report);
+     if (osd->done)
+       break;
+@@ -443,7 +464,7 @@ event_loop(void *osdv)
+ 
+     switch (report.type) {
+     case Expose:
+-      DEBUG("expose");
++      DEBUG(Dtrace, "expose");
+       if (report.xexpose.count == 0) {
+         pthread_mutex_lock(&osd->mutex);
+         for (line = 0; line < osd->number_lines; line++) {
+@@ -482,7 +503,7 @@ timeout_loop(void *osdv)
+ {
+   xosd *osd = osdv;
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+ 
+   pthread_mutex_lock(&osd->mutex);
+   while (!osd->done) {
+@@ -492,7 +513,7 @@ timeout_loop(void *osdv)
+     int cond;
+ 
+     if (osd->timeout_time.tv_sec) {
+-      DEBUG("waiting for timeout");
++      DEBUG(Dtrace, "waiting for timeout");
+       cond = pthread_cond_timedwait(&osd->cond_time,
+                                     &osd->mutex, &osd->timeout_time);
+ 
+@@ -501,7 +522,7 @@ timeout_loop(void *osdv)
+        * which means new timeout 
+        */
+       if (cond == ETIMEDOUT) {
+-        DEBUG("hiding");
++        DEBUG(Dtrace, "hiding");
+         osd->timeout_time.tv_sec = 0;
+ 
+         if (osd->mapped) {
+@@ -513,7 +534,7 @@ timeout_loop(void *osdv)
+        * once we get the condition variable being signaled, then
+        * it's time for another timeout 
+        */
+-      DEBUG("waiting on condition variable");
++      DEBUG(Dtrace, "waiting on condition variable");
+       cond = pthread_cond_wait(&osd->cond_time, &osd->mutex);
+ 
+     }
+@@ -529,9 +550,9 @@ display_string(xosd * osd, xosd_line * l
+   XRectangle rect;
+ 
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (!osd->fontset) {
+-    DEBUG("CRITICAL: No fontset");
++    DEBUG(Dtrace, "CRITICAL: No fontset");
+     return -1;
+   }
+ 
+@@ -558,7 +579,7 @@ static int
+ display_percentage(xosd * osd, xosd_line * l, int percentage)
+ {
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+ 
+   if (percentage < 0)
+     percentage = 0;
+@@ -575,7 +596,7 @@ static int
+ display_slider(xosd * osd, xosd_line * l, int percentage)
+ {
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+ 
+   if (percentage < 0)
+     percentage = 0;
+@@ -592,7 +613,7 @@ static void
+ resize(xosd * osd)
+ {                               /* Requires mutex lock. */
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   XResizeWindow(osd->display, osd->window, osd->screen_width, osd->height);
+   XFreePixmap(osd->display, osd->mask_bitmap);
+   osd->mask_bitmap =
+@@ -608,7 +629,7 @@ static int
+ force_redraw(xosd * osd, int line)
+ {                               /* Requires mutex lock. */
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   resize(osd);
+   for (line = 0; line < osd->number_lines; line++) {
+     expose_line(osd, line);
+@@ -636,7 +657,7 @@ set_font(xosd * osd, const char *font)
+   XFontSetExtents *extents;
+ 
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+ 
+   /*
+    * Try to create the new font. If it doesn't succeed, keep old font. 
+@@ -679,24 +700,24 @@ parse_colour(xosd * osd, XColor * col, i
+ {
+   int retval = 0;
+ 
+-  FUNCTION_START;
+-  DEBUG("getting colourmap");
++  FUNCTION_START(Dfunction);
++  DEBUG(Dtrace, "getting colourmap");
+   osd->colourmap = DefaultColormap(osd->display, osd->screen);
+ 
+-  DEBUG("parsing colour");
++  DEBUG(Dtrace, "parsing colour");
+   if (XParseColor(osd->display, osd->colourmap, colour, col)) {
+ 
+-    DEBUG("attempting to allocate colour");
++    DEBUG(Dtrace, "attempting to allocate colour");
+     if (XAllocColor(osd->display, osd->colourmap, col)) {
+-      DEBUG("allocation sucessful");
++      DEBUG(Dtrace, "allocation sucessful");
+       *pixel = col->pixel;
+     } else {
+-      DEBUG("defaulting to white. could not allocate colour");
++      DEBUG(Dtrace, "defaulting to white. could not allocate colour");
+       *pixel = WhitePixel(osd->display, osd->screen);
+       retval = -1;
+     }
+   } else {
+-    DEBUG("could not poarse colour. defaulting to white");
++    DEBUG(Dtrace, "could not poarse colour. defaulting to white");
+     *pixel = WhitePixel(osd->display, osd->screen);
+     retval = -1;
+   }
+@@ -710,19 +731,18 @@ set_colour(xosd * osd, const char *colou
+ {                               /* Requires mutex lock. */
+   int retval = 0;
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   assert(osd);
+ 
+   retval = parse_colour(osd, &osd->colour, &osd->pixel, colour);
+ 
+-  DEBUG("setting foreground");
++  DEBUG(Dtrace, "setting foreground");
+   XSetForeground(osd->display, osd->gc, osd->pixel);
+-  DEBUG("setting background");
++  DEBUG(Dtrace, "setting background");
+   XSetBackground(osd->display, osd->gc,
+                  WhitePixel(osd->display, osd->screen));
+ 
+-  DEBUG("done");
+-
++  FUNCTION_END(Dfunction);
+   return retval;
+ }
+ 
+@@ -740,7 +760,7 @@ net_wm_stay_on_top(Display * dpy, Window
+ {
+   XEvent e;
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   e.xclient.type = ClientMessage;
+   e.xclient.message_type = net_wm_state;
+   e.xclient.display = dpy;
+@@ -773,7 +793,7 @@ gnome_stay_on_top(Display * dpy, Window 
+ {
+   XClientMessageEvent xev;
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   memset(&xev, 0, sizeof(xev));
+   xev.type = ClientMessage;
+   xev.window = win;
+@@ -799,7 +819,7 @@ stay_on_top(Display * dpy, Window win)
+   unsigned char *args = NULL;
+   Window root = DefaultRootWindow(dpy);
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   /*
+    * build atoms 
+    */
+@@ -842,7 +862,7 @@ xosd_init(const char *font, const char *
+ {
+   xosd *osd = xosd_create(number_lines);
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL) {
+     return NULL;
+   }
+@@ -882,21 +902,21 @@ xosd_create(int number_lines)
+   XineramaScreenInfo *screeninfo = NULL;
+ #endif
+ 
+-  FUNCTION_START;
+-  DEBUG("X11 thread support");
++  FUNCTION_START(Dfunction);
++  DEBUG(Dtrace, "X11 thread support");
+   if (!XInitThreads()) {
+     xosd_error = "xlib is not thread-safe";
+     return NULL;
+   }
+ 
+-  DEBUG("getting display");
++  DEBUG(Dtrace, "getting display");
+   display = getenv("DISPLAY");
+   if (!display) {
+     xosd_error = "No display";
+     return NULL;
+   }
+ 
+-  DEBUG("Mallocing osd");
++  DEBUG(Dtrace, "Mallocing osd");
+   osd = malloc(sizeof(xosd));
+   memset(osd, 0, sizeof(xosd));
+   if (osd == NULL) {
+@@ -904,13 +924,13 @@ xosd_create(int number_lines)
+     goto error0;
+   }
+ 
+-  DEBUG("initializing mutex");
++  DEBUG(Dtrace, "initializing mutex");
+   pthread_mutex_init(&osd->mutex, NULL);
+-  DEBUG("initializing condition");
++  DEBUG(Dtrace, "initializing condition");
+   pthread_cond_init(&osd->cond_hide, NULL);
+   pthread_cond_init(&osd->cond_time, NULL);
+ 
+-  DEBUG("initializing number lines");
++  DEBUG(Dtrace, "initializing number lines");
+   osd->number_lines = number_lines;
+   osd->lines = malloc(sizeof(xosd_line) * osd->number_lines);
+   if (osd->lines == NULL) {
+@@ -923,7 +943,7 @@ xosd_create(int number_lines)
+     osd->lines[i].text = NULL;
+   }
+ 
+-  DEBUG("misc osd variable initialization");
++  DEBUG(Dtrace, "misc osd variable initialization");
+   osd->mapped = 0;
+   osd->done = 0;
+   osd->pos = XOSD_top;
+@@ -934,7 +954,7 @@ xosd_create(int number_lines)
+   osd->timeout_time.tv_sec = 0;
+   osd->fontset = NULL;
+ 
+-  DEBUG("Display query");
++  DEBUG(Dtrace, "Display query");
+   osd->display = XOpenDisplay(display);
+   if (!osd->display) {
+     xosd_error = "Cannot open display";
+@@ -942,7 +962,7 @@ xosd_create(int number_lines)
+   }
+   osd->screen = XDefaultScreen(osd->display);
+ 
+-  DEBUG("x shape extension query");
++  DEBUG(Dtrace, "x shape extension query");
+   if (!XShapeQueryExtension(osd->display, &event_basep, &error_basep)) {
+     xosd_error = "X-Server does not support shape extension";
+     goto error3;
+@@ -951,7 +971,7 @@ xosd_create(int number_lines)
+   osd->visual = DefaultVisual(osd->display, osd->screen);
+   osd->depth = DefaultDepth(osd->display, osd->screen);
+ 
+-  DEBUG("font selection info");
++  DEBUG(Dtrace, "font selection info");
+   set_font(osd, osd_default_font);
+   if (osd->fontset == NULL) {
+     /*
+@@ -961,7 +981,7 @@ xosd_create(int number_lines)
+     goto error3;
+   }
+ 
+-  DEBUG("width and height initialization");
++  DEBUG(Dtrace, "width and height initialization");
+ #ifdef HAVE_XINERAMA
+   if (XineramaQueryExtension(osd->display, &dummy_a, &dummy_b) &&
+       (screeninfo = XineramaQueryScreens(osd->display, &screens)) &&
+@@ -984,7 +1004,7 @@ xosd_create(int number_lines)
+   osd->bar_length = -1;         // init bar_length with -1: draw_bar
+   // behaves like unpached
+ 
+-  DEBUG("creating X Window");
++  DEBUG(Dtrace, "creating X Window");
+   setwinattr.override_redirect = 1;
+ 
+   osd->window = XCreateWindow(osd->display,
+@@ -1019,25 +1039,25 @@ xosd_create(int number_lines)
+                  BlackPixel(osd->display, osd->screen));
+ 
+ 
+-  DEBUG("setting colour");
++  DEBUG(Dtrace, "setting colour");
+   set_colour(osd, osd_default_colour);
+ 
+-  DEBUG("Request exposure events");
++  DEBUG(Dtrace, "Request exposure events");
+   XSelectInput(osd->display, osd->window, ExposureMask);
+ 
+-  DEBUG("stay on top");
++  DEBUG(Dtrace, "stay on top");
+   stay_on_top(osd->display, osd->window);
+ 
+-  DEBUG("finale resize");
++  DEBUG(Dtrace, "finale resize");
+   update_pos(osd);              /* Shoule be inside lock, but no threads
+                                  * yet */
+   resize(osd);                  /* Shoule be inside lock, but no threads
+                                  * yet */
+ 
+-  DEBUG("initializing event thread");
++  DEBUG(Dtrace, "initializing event thread");
+   pthread_create(&osd->event_thread, NULL, event_loop, osd);
+ 
+-  DEBUG("initializing timeout thread");
++  DEBUG(Dtrace, "initializing timeout thread");
+   pthread_create(&osd->timeout_thread, NULL, timeout_loop, osd);
+ 
+   return osd;
+@@ -1059,7 +1079,7 @@ error0:
+ int
+ xosd_uninit(xosd * osd)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   return xosd_destroy(osd);
+ }
+ 
+@@ -1068,13 +1088,11 @@ xosd_destroy(xosd * osd)
+ {
+   int i;
+ 
+-  DEBUG("start");
+-  FUNCTION_START;
+-
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+-  DEBUG("waiting for threads to exit");
++  DEBUG(Dtrace, "waiting for threads to exit");
+   pthread_mutex_lock(&osd->mutex);
+   osd->done = 1;
+   /*
+@@ -1086,7 +1104,7 @@ xosd_destroy(xosd * osd)
+   /*
+    * Send fake XExpose-event to event-thread, will quit. 
+    */
+-  DEBUG("Send fake expose");
++  DEBUG(Dtrace, "Send fake expose");
+   {
+     XEvent event = {
+       .xexpose = {
+@@ -1101,11 +1119,11 @@ xosd_destroy(xosd * osd)
+     XFlush(osd->display);
+   }
+ 
+-  DEBUG("join threads");
++  DEBUG(Dtrace, "join threads");
+   pthread_join(osd->event_thread, NULL);
+   pthread_join(osd->timeout_thread, NULL);
+ 
+-  DEBUG("freeing X resources");
++  DEBUG(Dtrace, "freeing X resources");
+   XFreeGC(osd->display, osd->gc);
+   XFreeGC(osd->display, osd->mask_gc);
+   XFreeGC(osd->display, osd->mask_gc_back);
+@@ -1117,22 +1135,22 @@ xosd_destroy(xosd * osd)
+ 
+   XCloseDisplay(osd->display);
+ 
+-  DEBUG("freeing lines");
++  DEBUG(Dtrace, "freeing lines");
+   for (i = 0; i < osd->number_lines; i++) {
+     if (osd->lines[i].text)
+       free(osd->lines[i].text);
+   }
+   free(osd->lines);
+ 
+-  DEBUG("destroying condition and mutex");
++  DEBUG(Dtrace, "destroying condition and mutex");
+   pthread_cond_destroy(&osd->cond_time);
+   pthread_cond_destroy(&osd->cond_hide);
+   pthread_mutex_destroy(&osd->mutex);
+ 
+-  DEBUG("freeing osd structure");
++  DEBUG(Dtrace, "freeing osd structure");
+   free(osd);
+ 
+-  DEBUG("done");
++  FUNCTION_END(Dfunction);
+   return 0;
+ }
+ 
+@@ -1140,7 +1158,7 @@ xosd_destroy(xosd * osd)
+ int
+ xosd_set_bar_length(xosd * osd, int length)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1163,7 +1181,7 @@ xosd_display(xosd * osd, int line, xosd_
+   int percent;
+   xosd_line *l = &osd->lines[line];
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1235,7 +1253,7 @@ xosd_display(xosd * osd, int line, xosd_
+ int
+ xosd_is_onscreen(xosd * osd)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+   return osd->mapped;
+@@ -1245,7 +1263,7 @@ xosd_is_onscreen(xosd * osd)
+ int
+ xosd_wait_until_no_display(xosd * osd)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1263,7 +1281,7 @@ xosd_set_colour(xosd * osd, const char *
+ {
+   int retval = 0;
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1282,7 +1300,7 @@ xosd_set_shadow_colour(xosd * osd, const
+ {
+   int retval = 0;
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1299,7 +1317,7 @@ xosd_set_outline_colour(xosd * osd, cons
+ {
+   int retval = 0;
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1319,7 +1337,7 @@ xosd_set_font(xosd * osd, const char *fo
+ {
+   int ret = 0;
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (font == NULL)
+     return -1;
+   if (osd == NULL)
+@@ -1338,7 +1356,7 @@ static void
+ update_pos(xosd * osd)
+ {                               /* Requires mutex lock. */
+   assert(osd);
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   switch (osd->pos) {
+   case XOSD_bottom:
+     osd->y = osd->screen_height - osd->height - osd->voffset;
+@@ -1383,7 +1401,7 @@ update_pos(xosd * osd)
+ int
+ xosd_set_shadow_offset(xosd * osd, int shadow_offset)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1400,7 +1418,7 @@ xosd_set_shadow_offset(xosd * osd, int s
+ int
+ xosd_set_outline_offset(xosd * osd, int outline_offset)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1417,7 +1435,7 @@ xosd_set_outline_offset(xosd * osd, int 
+ int
+ xosd_set_vertical_offset(xosd * osd, int voffset)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1432,7 +1450,7 @@ xosd_set_vertical_offset(xosd * osd, int
+ int
+ xosd_set_horizontal_offset(xosd * osd, int hoffset)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1447,7 +1465,7 @@ xosd_set_horizontal_offset(xosd * osd, i
+ int
+ xosd_set_pos(xosd * osd, xosd_pos pos)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1463,7 +1481,7 @@ xosd_set_pos(xosd * osd, xosd_pos pos)
+ int
+ xosd_set_align(xosd * osd, xosd_align align)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1479,7 +1497,7 @@ xosd_set_align(xosd * osd, xosd_align al
+ int
+ xosd_get_colour(xosd * osd, int *red, int *green, int *blue)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1497,7 +1515,7 @@ xosd_get_colour(xosd * osd, int *red, in
+ static void
+ set_timeout(xosd * osd)
+ {                               /* Requires mutex lock. */
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   assert(osd);
+   osd->timeout_time.tv_sec = (osd->timeout > 0)
+     ? osd->timeout_time.tv_sec = time(NULL) + osd->timeout : 0;
+@@ -1507,7 +1525,7 @@ set_timeout(xosd * osd)
+ int
+ xosd_set_timeout(xosd * osd, int timeout)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+   pthread_mutex_lock(&osd->mutex);
+@@ -1522,7 +1540,7 @@ xosd_set_timeout(xosd * osd, int timeout
+ static void
+ hide(xosd * osd)
+ {                               /* Requires mutex lock. */
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   assert(osd);
+   osd->mapped = 0;
+   XUnmapWindow(osd->display, osd->window);
+@@ -1533,7 +1551,7 @@ hide(xosd * osd)
+ int
+ xosd_hide(xosd * osd)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+   if (osd->mapped) {
+@@ -1549,7 +1567,7 @@ xosd_hide(xosd * osd)
+ static void
+ show(xosd * osd)
+ {                               /* Requires mutex lock. */
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   assert(osd);
+   osd->mapped = 1;
+   XMapRaised(osd->display, osd->window);
+@@ -1559,7 +1577,7 @@ show(xosd * osd)
+ int
+ xosd_show(xosd * osd)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+   if (!osd->mapped) {
+@@ -1579,7 +1597,7 @@ xosd_scroll(xosd * osd, int lines)
+ {
+   int new_line;
+ 
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
+@@ -1622,7 +1640,7 @@ xosd_scroll(xosd * osd, int lines)
+ int
+ xosd_get_number_lines(xosd * osd)
+ {
+-  FUNCTION_START;
++  FUNCTION_START(Dfunction);
+   if (osd == NULL)
+     return -1;
+ 
