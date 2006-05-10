@@ -1,6 +1,7 @@
 xosd (2.2.8-7) unstable; urgency=low
 
   * 30_yield_fix.diff: Don't do busy waiting AKA #177551
+  * 06_ChangeLog.diff: Optimization
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 13 Aug 2004 10:57:57 +0200
 

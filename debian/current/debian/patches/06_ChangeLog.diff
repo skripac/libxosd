@@ -370,7 +370,7 @@
  	Initial Release
 --- TODO~	2004-07-05 00:31:58.000000000 +0200
 +++ TODO	2004-08-04 10:47:39.000000000 +0200
-@@ -13,11 +13,15 @@ Unordered TODOs
+@@ -13,11 +13,16 @@ Unordered TODOs
    - Broken locales.
    - Busy waiting.
  
@@ -389,3 +389,4 @@
  
 +* Fix outline which is no outline
 +  echo . | osd_cat -O 50 -p middle -A center
++* Only update lines which were changed: Add a flag to each line
