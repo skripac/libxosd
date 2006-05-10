@@ -623,6 +623,12 @@ xosd *xosd_create (int number_lines)
   char *display;
   XSetWindowAttributes setwinattr;
 
+  DEBUG("X11 thread support");
+  if (!XInitThreads ()) {
+    xosd_error = "xlib is not thread-safe";
+    return NULL;
+  } 
+
   DEBUG("getting display");
   display = getenv ("DISPLAY");
   if (!display) {
