@@ -16,7 +16,7 @@ Suggests: xfonts-base-transcoded
 Description: X On-Screen Display library - runtime
  A library for displaying a TV-like on-screen display in X.
  .
- Homepage: http://www.ignavus.net/software.html
+ Homepage: http://libxosd.sourceforge.net/
 
 Package: libxosd-dev
 Section: libdevel
@@ -37,7 +37,7 @@ Description: X On-Screen Display library - binary files
  osd_cat - a 'cat' like program which will display its output in an
  OSD-like window
  .
- Homepage: http://www.ignavus.net/software.html
+ Homepage: http://libxosd.sourceforge.net/
 
 Package: xmms-osd-plugin
 Section: sound
@@ -47,4 +47,4 @@ Description: XMMS plugin using xosd
  An XMMS plugin which displays volume and track information like
  on-screen displays on TVs and monitors.
  .
- Homepage: http://www.ignavus.net/software.html
+ Homepage: http://libxosd.sourceforge.net/
