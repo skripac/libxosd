@@ -3,6 +3,7 @@ xosd (2.2.5-1) unstable; urgency=low
   * New upstream version:
     - Includes debian/patches/01_xmms_osd_set_font.patch
     - Includes debian/patches/02_libxosd_draw_bar.patch
+  * Fix XFreeFontSet() after invalid font. (closes: #210680)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Sun, 28 Sep 2003 23:27:55 +0200
 

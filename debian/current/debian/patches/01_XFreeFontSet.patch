@@ -1,0 +1,20 @@
+[BUG]
+This bug was reportes via Debian as #210680 making xmms crash.
+The bug manifests as following: During initialization of the xmms plugin, the
+default font is chosen, so the xosd context is successfully created. In
+ally_config(), an invalid font is loaded from xmms's config file and
+xosd->fontset gets set to NULL, so xosd doesn't seem to work. On disableing the
+plugin, NULL is freed and xmms crashes.
+
+--- src/libxosd/xosd.c	2003-09-26 02:25:42.000000000 +0200
++++ src/libxosd/xosd.c~	2003-09-28 02:11:11.000000000 +0200
+@@ -1030,7 +1030,8 @@ xosd_destroy (xosd * osd)
+   XFreeGC (osd->display, osd->mask_gc);
+   XFreeGC (osd->display, osd->mask_gc_back);
+   XFreePixmap (osd->display, osd->line_bitmap);
+-  XFreeFontSet (osd->display, osd->fontset);
++  if (osd->fontset)
++    XFreeFontSet (osd->display, osd->fontset);
+   XFreePixmap (osd->display, osd->mask_bitmap);
+   XDestroyWindow (osd->display, osd->window);
+ 
