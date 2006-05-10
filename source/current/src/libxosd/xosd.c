@@ -73,20 +73,15 @@ static const enum DEBUG_LEVEL {
   } while (0)
 /* }}} */
 
-// #ifdef X_HAVE_UTF8_STRING
-// #define XDRAWSTRING Xutf8DrawString
-// #else
-#define XDRAWSTRING XmbDrawString
-// #endif
 #define SLIDER_SCALE 0.8
 #define SLIDER_SCALE_ON 0.7
 
 const char *osd_default_font =
   "-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
-static const char *osd_default_colour = "green";
-
-// const char* osd_default_font="adobe-helvetica-bold-r-*-*-10-*";
-// const char* osd_default_font="-adobe-helvetica-bold-r-*-*-10-*";
+#if 0
+  "-adobe-helvetica-bold-r-*-*-10-*";
+#endif
+const char *osd_default_colour = "green";
 
 typedef struct
 {
@@ -299,21 +294,21 @@ draw_with_mask(xosd * osd, xosd_line * l, int inX, int inPlace, int inY,
 {
   int len = strlen(l->text);
   FUNCTION_START(Dfunction);
-  XDRAWSTRING(osd->display,
-              osd->mask_bitmap,
-              osd->fontset,
-              osd->mask_gc, inX, inPlace + inY, l->text, len);
+  XmbDrawString(osd->display,
+                osd->mask_bitmap,
+                osd->fontset,
+                osd->mask_gc, inX, inPlace + inY, l->text, len);
   if (draw_line_bitmap) {
-    XDRAWSTRING(osd->display,
-                osd->line_bitmap,
-                osd->fontset, osd->gc, inX, inY, l->text, len);
+    XmbDrawString(osd->display,
+                  osd->line_bitmap,
+                  osd->fontset, osd->gc, inX, inY, l->text, len);
   }
 }
 
 static void
 expose_line(xosd * osd, int line)
 {
-  int x = 10;
+  int x = 10; // FIXME: Where does this value come from?
   int y = osd->line_height * line;
   int i;
   xosd_line *l = &osd->lines[line];
@@ -352,6 +347,12 @@ expose_line(xosd * osd, int line)
   case LINE_text:
     if (l->text == NULL)
       return;
+
+    if (l->width < 0) {
+      XRectangle rect;
+      XmbTextExtents(osd->fontset, l->text, strlen(l->text), NULL, &rect);
+      l->width = rect.width;
+    }
 
     switch (osd->align) {
     case XOSD_center:
@@ -425,7 +426,7 @@ static void *
 event_loop(void *osdv)
 {
   xosd *osd = osdv;
-  int line, y, xfd, max;
+  int xfd, max;
 
   FUNCTION_START(Dfunction);
   DEBUG(Dtrace, "event thread started");
@@ -494,8 +495,9 @@ event_loop(void *osdv)
         /* http://x.holovko.ru/Xlib/chap10.html#10.9.1 */
         DEBUG(Dvalue, "expose %d: x=%d y=%d w=%d h=%d", report.xexpose.count, report.xexpose.x, report.xexpose.y, report.xexpose.width, report.xexpose.height);
         if (report.xexpose.count == 0) {
+          int line;
           for (line = 0; line < osd->number_lines; line++) {
-            y = osd->line_height * line;
+            int y = osd->line_height * line;
             if (report.xexpose.y >= y + osd->line_height)
               continue;
             if (report.xexpose.y + report.xexpose.height < y)
@@ -528,25 +530,15 @@ display_string(xosd * osd, xosd_line * l, char *string)
 {
   assert(osd);
   FUNCTION_START(Dfunction);
-  if (!osd->fontset) {
-    DEBUG(Dtrace, "CRITICAL: No fontset");
-    return -1;
-  }
 
   if (string && *string) {
-    XRectangle rect;
-    int len = strlen(string);
     l->type = LINE_text;
     if (l->text == NULL) {
       l->text = strdup(string);
     } else {
-      realloc(l->text, len + 1);
+      realloc(l->text, strlen(string) + 1);
       strcpy(l->text, string);
     }
-    _xosd_lock(osd);
-    XmbTextExtents(osd->fontset, l->text, len, NULL, &rect);
-    l->width = rect.width;
-    _xosd_unlock(osd);
   } else {
     l->type = LINE_blank;
     if (l->text != NULL) {
@@ -630,16 +622,8 @@ set_font(xosd * osd, const char *font)
   osd->line_height =
     osd->extent->height + osd->shadow_offset + 2 * osd->outline_offset;
   osd->height = osd->line_height * osd->number_lines;
-  for (line = 0; line < osd->number_lines; line++) {
-    xosd_line *l = &osd->lines[line];
-
-    if (l->type == LINE_text && l->text != NULL) {
-      XRectangle rect;
-
-      XmbTextExtents(osd->fontset, l->text, strlen(l->text), NULL, &rect);
-      l->width = rect.width;
-    }
-  }
+  for (line = 0; line < osd->number_lines; line++)
+    osd->lines[line].width = -1;
 
   return 0;
 }
@@ -782,14 +766,12 @@ xosd_init(const char *font, const char *colour, int timeout, xosd_pos pos,
   }
 
   if (xosd_set_font(osd, font) == -1) {
-    if (xosd_set_font(osd, osd_default_font) == -1) {
       xosd_destroy(osd);
       /*
        * we do not set xosd_error, as set_font has already set it to 
        * a sensible error message. 
        */
       return NULL;
-    }
   }
   xosd_set_colour(osd, colour);
   xosd_set_timeout(osd, timeout);
@@ -1026,8 +1008,7 @@ xosd_destroy(xosd * osd)
   XFreeGC(osd->display, osd->mask_gc);
   XFreeGC(osd->display, osd->mask_gc_back);
   XFreePixmap(osd->display, osd->line_bitmap);
-  if (osd->fontset)
-    XFreeFontSet(osd->display, osd->fontset);
+  XFreeFontSet(osd->display, osd->fontset);
   XFreePixmap(osd->display, osd->mask_bitmap);
   XDestroyWindow(osd->display, osd->window);
 
