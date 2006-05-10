@@ -1,3 +1,22 @@
+xosd (2.2.1-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue, 15 Apr 2003 09:35:52 +0200
+
+xosd (2.2.1-0pre2) experimental; urgency=low
+
+  * Rework old xmms-plugin too.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Sat, 12 Apr 2003 22:44:00 +0200
+
+xosd (2.2.1-0pre1) experimental; urgency=low
+
+  * New prerelease.
+    - Rework whole xmms-plugin. (closes: #141811)
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu,  3 Apr 2003 11:49:55 +0200
+
 xosd (2.2.0-1) unstable; urgency=low
 
   * New upstream version.
