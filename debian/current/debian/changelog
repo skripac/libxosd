@@ -1,3 +1,11 @@
+xosd (2.2.5-1) unstable; urgency=low
+
+  * New upstream version:
+    - Includes debian/patches/01_xmms_osd_set_font.patch
+    - Includes debian/patches/02_libxosd_draw_bar.patch
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Sun, 28 Sep 2003 23:27:55 +0200
+
 xosd (2.2.4-3) unstable; urgency=low
 
   * Rework debian/patches/02_libxosd_draw_bar. (closes: #212599)
@@ -8,6 +16,9 @@ xosd (2.2.4-3) unstable; urgency=low
 xosd (2.2.4-2) unstable; urgency=low
 
   * Ack NMU.
+  * Fix initial position. (closes: #202162)
+    Move xosd_set_font() first in xmms_osd.c:apply_config.
+    Thanks to Joachim Breitner for the fix.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Mon, 22 Sep 2003 16:49:23 +0200
 
