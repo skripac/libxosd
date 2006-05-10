@@ -7,6 +7,7 @@
 	updated testprog to have error reporting and do cooler stuff (Tim Wright)
 	applied track name change patch (Robert Hart)
 	only compile xmms plugin if gdk_pixbuf is installed (Daniel Ahlberg)
+	header file patch to work with C++ linkers (Julian Peterson)
 	
 2.0.1:  
 	xosd.h header file patch (Tim Wright)
