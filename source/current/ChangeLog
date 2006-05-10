@@ -1,6 +1,7 @@
 1.1.1:
         X concurrency control patch (Tim Wright)
         misc bug fixes (Philipp Matthias Hahn)
+        osd_cat man page patch (Philipp Matthias Hahn)
 	
 1.0.4:
         Eungkyu Song's "xmms hanging in some non-C locale's patch" (Eungkyu Song)
