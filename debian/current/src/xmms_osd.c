@@ -39,6 +39,7 @@ static gint timeout_func(gpointer);
 static void read_config (void);
 static void configure (void);
 static show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on);
+static void save_previous_title ( gchar * title );
 
 GeneralPlugin gp =
   {
@@ -135,6 +136,9 @@ static void cleanup(void)
     colour=NULL;
   }   
 
+  save_previous_title( 0 );
+
+  xosd_hide (osd);
   xosd_uninit (osd);
   osd=NULL;
 }
