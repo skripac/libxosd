@@ -367,6 +367,8 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
+osd_cat.o: osd_cat.c xosd.h
+testprog.o: testprog.c xosd.h
 
 info-am:
 info: info-recursive
