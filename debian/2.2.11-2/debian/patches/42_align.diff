@@ -1,0 +1,13 @@
+#DPATCHLEVEL=0
+# Align at center (#270738)
+--- src/libxosd/xosd.c~	2004-09-02 23:46:16.000000000 +0200
++++ src/libxosd/xosd.c	2004-09-10 10:58:18.000000000 +0200
+@@ -312,7 +312,7 @@ event_loop(void *osdv)
+         y = osd->screen_height - osd->height - osd->voffset;
+         break;
+       case XOSD_middle:
+-        y = osd->screen_height / 2 - osd->height - osd->voffset;
++        y = (osd->screen_height - osd->height) / 2 - osd->voffset;
+         break;
+       case XOSD_top:
+         y = osd->voffset;
