@@ -1,5 +1,6 @@
 2.2.0:
 	Man pages for xosd_is_onscreen and xosd_set_bar_length (Michael JasonSmith)
+	Makefile patches (Philipp Matthias Hahn)
 	
 2.1.3:
        configureable pixmap directory (Philipp Matthias Hahn)
