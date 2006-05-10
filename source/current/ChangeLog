@@ -1,7 +1,9 @@
 2.1.3:
        configureable pixmap directory (Philipp Matthias Hahn)
+       strange pause on stop behaviour fix (Philipp Matthias Hahn)
        ChangeLog name spell fix (Philipp Matthias Hahn)
        Misc configure and automake changes (Philipp Matthias Hahn)
+       Update all Makefile.am for AutoMake 1.7.3 (Tim Wright)
        Remembered to run configure with --enable-old-plugin=yes before running
 	'make dist' so that the distubition will have the old plugin 
 	included (Tim Wright)
