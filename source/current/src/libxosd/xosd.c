@@ -339,6 +339,10 @@ static int set_font (xosd *osd, char *font)
   if (osd == NULL) return -1;
 
   pthread_mutex_lock (&osd->mutex);
+  if (osd->fontset) {
+    XFreeFontSet (osd->display, osd->fontset);
+    osd->fontset = NULL;
+  }
 
   osd->fontset = XCreateFontSet (osd->display, font, &missing, &nmissing, &defstr);
   if (osd->fontset == NULL) {
@@ -477,6 +481,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->visual = DefaultVisual (osd->display, osd->screen);
   osd->depth = DefaultDepth (osd->display, osd->screen);
 
+  osd->fontset=NULL;
   if (set_font (osd, font)) {
     /* If we didn't get a fontset, default to default font */
     font = osd_default_font;
@@ -565,6 +570,7 @@ int xosd_uninit (xosd *osd)
 
   XFreePixmap (osd->display, osd->mask_bitmap);
   XFreePixmap (osd->display, osd->line_bitmap);
+  XFreeFontSet (osd->display, osd->fontset);
   XDestroyWindow (osd->display, osd->window);
 
 
