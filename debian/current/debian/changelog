@@ -1,6 +1,7 @@
 xosd (2.2.11-2) unstable; urgency=medium
 
   * 40_close_pipe.diff: Close pipes on destroy (closes: #270722)
+  * 41_manpage.diff: Default is left not center (closes: #270902)
   * Urgency medium because of #270722.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 10 Sep 2004 10:56:29 +0200
