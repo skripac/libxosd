@@ -6,6 +6,7 @@ xosd (2.2.9-pre3-1) experimental; urgency=low
     - 34_docs.diff: Update package documentation.
   * Fix spelling in README.Debian (Thanks to Markus Braun)
   * 26_one_line.diff/26_one_line_addon.diff: Fix broken merge.
+  * 35_synchronous.diff: Work on tpb related #265757.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 20 Aug 2004 10:54:48 +0200
 

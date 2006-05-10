@@ -1,0 +1,28 @@
+#DPATCHLEVEL=0
+# Relax synchonisation after updates to speed up multiple changes in a short time
+--- src/libxosd/xosd.c~	2004-08-20 10:26:39.000000000 +0200
++++ src/libxosd/xosd.c	2004-08-20 10:39:44.000000000 +0200
+@@ -950,7 +950,10 @@ xosd_display(xosd * osd, int line, xosd_
+ 
+   /* Wait for update */
+   pthread_mutex_lock(&osd->mutex_sync);
+-  pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
++  while (!osd->mapped) {
++    DEBUG(Dtrace, "waiting %d", osd->mapped);
++    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
++  }
+   pthread_mutex_unlock(&osd->mutex_sync);
+ 
+ error:
+@@ -1272,7 +1275,10 @@ xosd_show(xosd * osd)
+ 
+     /* Wait for update */
+     pthread_mutex_lock(&osd->mutex_sync);
+-    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
++    while (!osd->mapped) {
++      DEBUG(Dtrace, "waiting %d", osd->mapped);
++      pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
++    }
+     pthread_mutex_unlock(&osd->mutex_sync);
+     return 0;
+   }
