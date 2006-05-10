@@ -1,3 +1,19 @@
+2.1.x:
+	Fix library version number schema
+	Fail on missing fontset instead of crashing
+	Call XInitThreads()
+	Use proper signaling for timeout
+	Use blocking X11 calls to fix xmms with realtime scheduling.
+	Add lots of comments
+	Move locking and checking osd!=NULL to xosd_* wrappers
+	Start using assert()
+	More const parameters
+	Use switch() instead of nested if()
+	Base deprecated osd_create() on newer osd_init()
+	Free pthread_cond on failed init
+	Fix race in xosd_wait_until_no_display()
+	Remove double xosd_set_align()
+
 2.1.0:
         New xmms plugin! well, actually the plugin from 2.0.0 has been 
 	included as an old plugin. Some people were having trouble with
