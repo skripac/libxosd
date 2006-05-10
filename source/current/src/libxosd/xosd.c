@@ -1,12 +1,12 @@
 /* XOSD
- 
+
  Copyright (c) 2000 Andre Renaud (andre@ignavus.net)
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
  (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -84,7 +84,7 @@ struct xosd
   int mapped;
   int done;
 
-  unsigned int pixel;   
+  unsigned int pixel;
   XColor colour;
   Colormap colourmap;
 
@@ -99,7 +99,7 @@ char* xosd_error;
 
 static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
                      int percent, int is_slider, int set_color)
-{   
+{
   int barw, barh;
   int nbars, on, i;
   int so = osd->shadow_offset;
@@ -113,7 +113,7 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
   for (i = 0; i < nbars; x += barw, i++) {
     int w = barw, h = barh;
     int yy = y;
-    
+
     if (is_slider ? i == on : i < on) {
       w *= 0.7;
     }
@@ -146,7 +146,7 @@ static void expose_line(xosd *osd, int line)
       break;
 
     case LINE_text:
-      if (!l->length) break;	    
+      if (!l->length) break;
 
       if (osd->align) {
         if (osd->align == XOSD_right) x = osd->width - l->width - x;
@@ -165,7 +165,7 @@ static void expose_line(xosd *osd, int line)
       XSetForeground (osd->display, osd->gc, osd->pixel);
       XmbDrawString (osd->display, osd->line_bitmap, osd->fontset, osd->gc,
           x, -osd->extent->y, l->text, l->length);
-      XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0, 
+      XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
           osd->width, osd->line_height, 0, y);
       break;
 
@@ -180,7 +180,7 @@ static void expose_line(xosd *osd, int line)
 static void *event_loop (void *osdv)
 {
   xosd *osd = osdv;
-  XEvent report;   
+  XEvent report;
   int line, y;
 
   while (!osd->done) {
@@ -195,7 +195,7 @@ static void *event_loop (void *osdv)
     report.type &= 0x7f; /* remove the sent by server/manual send flag */
 
     switch (report.type) {
-      case Expose: 
+      case Expose:
         if (report.xexpose.count == 0) {
           pthread_mutex_lock (&osd->mutex);
           for (line = 0; line < osd->number_lines; line++) {
@@ -218,7 +218,7 @@ static void *event_loop (void *osdv)
         //printf ("%d\n", report.type);
         break;
     }
-  }   
+  }
 
   return NULL;
 }
@@ -235,7 +235,7 @@ static void *timeout_loop (void *osdv)
     pthread_mutex_lock (&osd->mutex);
     if (osd->timeout != -1 && osd->mapped && osd->timeout_time <= time(NULL)) {
       pthread_mutex_unlock (&osd->mutex);
-      //printf ("timeout_loop: hiding\n"); 
+      //printf ("timeout_loop: hiding\n");
       xosd_hide (osd);
     }
     else
@@ -343,7 +343,7 @@ static int set_font (xosd *osd, char *font)
   osd->height = osd->line_height * osd->number_lines;
   for (line = 0; line < osd->number_lines; line++) {
     xosd_line *l = &osd->lines[line];
-    
+
     if (l->type == LINE_text) {
       XRectangle rect;
 
@@ -363,7 +363,7 @@ static void resize(xosd *osd)
   XFreePixmap (osd->display, osd->mask_bitmap);
   osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, osd->height, 1);
   XFreePixmap (osd->display, osd->line_bitmap);
-  osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, 
+  osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->width,
                                     osd->line_height, osd->depth);
   pthread_mutex_unlock (&osd->mutex);
 }
@@ -390,7 +390,7 @@ static int set_colour (xosd *osd, char *colour)
   else {
     osd->pixel = WhitePixel(osd->display, osd->screen);
     retval = -1;
-  }      
+  }
 
   XSetForeground (osd->display, osd->gc, osd->pixel);
   XSetBackground (osd->display, osd->gc, WhitePixel (osd->display, osd->screen));
@@ -430,7 +430,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
       xosd_error = "Out of memory";
       return NULL;
     }
- 
+
   pthread_mutex_init (&osd->mutex, NULL);
   pthread_cond_init (&osd->cond, NULL);
 
@@ -442,7 +442,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
       free (osd);
       return NULL;
     }
-  
+
   osd->mapped = 0;
   osd->done = 0;
   osd->align = XOSD_left;
@@ -520,9 +520,9 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
     XChangeProperty (osd->display,
         osd->window,
         XInternAtom (osd->display, "_WIN_LAYER", True),
-        XA_CARDINAL, 
-        32, 
-        PropModeReplace, 
+        XA_CARDINAL,
+        32,
+        PropModeReplace,
         (unsigned char *)&data,
         1);
   }
@@ -544,7 +544,7 @@ int xosd_uninit (xosd *osd)
 
   if (osd == NULL) return -1;
 
-  pthread_mutex_lock (&osd->mutex);   
+  pthread_mutex_lock (&osd->mutex);
   osd->done = 1;
   pthread_mutex_unlock (&osd->mutex);
 
@@ -595,7 +595,7 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
 
     case XOSD_printf: {
         char buf[2000];
-        
+
         string = va_arg (a, char *);
         if (vsnprintf(buf, sizeof(buf), string, a) >= sizeof(buf)) {
           return -1;
@@ -704,7 +704,7 @@ int xosd_set_offset (xosd *osd, int offset)
 {
   if (osd == NULL) return -1;
 
-  osd->offset = offset;   
+  osd->offset = offset;
   xosd_update_pos (osd);
 
   return 0;
@@ -762,7 +762,7 @@ int xosd_hide (xosd *osd)
     pthread_cond_broadcast(&osd->cond);
     pthread_mutex_unlock (&osd->mutex);
     return 0;
-  } 
+  }
   return -1;
 }
 
