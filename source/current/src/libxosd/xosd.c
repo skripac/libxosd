@@ -752,6 +752,9 @@ xosd *xosd_init (const char *font, const char *colour, int timeout, xosd_pos pos
  error2:
   free (osd->lines);
  error1:
+  pthread_cond_destroy (&osd->cond_time);
+  pthread_cond_destroy (&osd->cond_hide);
+  pthread_mutex_destroy (&osd->mutex);
   free (osd);
  error0:
   return NULL;
