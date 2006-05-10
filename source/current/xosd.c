@@ -34,7 +34,6 @@
 #include <X11/extensions/shape.h>
 #include <X11/Xatom.h>
 
-#define SCREEN 0
 #define NLINES 2 /* The number of lines displayed on the screen */
 
 #define MUTEX_GET() sem_wait (&osd->mutex)
@@ -59,7 +58,8 @@ struct xosd
    
    sem_t mutex;
    
-   Display *display;   
+   Display *display;
+   int screen;
    Window window;
    unsigned int depth;
    Pixmap bitmap;
@@ -93,8 +93,8 @@ struct xosd
 static void draw_percentage (xosd *osd, Drawable d, GC gc, int x, int y,
 			     int percent)
    {
-   int nbars, on, i;
    int barw, barh;
+   int nbars, on, i;
    XFontSetExtents *extents = XExtentsOfFontSet(osd->fontset);
 
    y -= - (extents->max_logical_extent.y);
@@ -308,7 +308,7 @@ static int set_font (xosd *osd, char *font)
 
    extents = XExtentsOfFontSet(osd->fontset);
    
-   osd->width = XDisplayWidth (osd->display, SCREEN);
+   osd->width = XDisplayWidth (osd->display, osd->screen);
    osd->height = extents->max_logical_extent.height * NLINES + 10;
 
    XResizeWindow (osd->display, osd->window, osd->width, osd->height);
@@ -324,7 +324,7 @@ static int set_colour (xosd *osd, char *colour)
 
    MUTEX_GET ();
    
-   osd->colourmap = DefaultColormap (osd->display, SCREEN);
+   osd->colourmap = DefaultColormap (osd->display, osd->screen);
    
    if (XParseColor (osd->display, osd->colourmap, colour, &osd->colour))
       {
@@ -334,17 +334,17 @@ static int set_colour (xosd *osd, char *colour)
 	 }
       else
 	 {
-	 osd->pixel = WhitePixel(osd->display, SCREEN);
+	 osd->pixel = WhitePixel(osd->display, osd->screen);
 	 }
       }
    else
       {
-      osd->pixel = WhitePixel(osd->display, SCREEN);
+      osd->pixel = WhitePixel(osd->display, osd->screen);
       }      
 
    XSetForeground (osd->display, osd->gc, osd->pixel);
    XSetBackground (osd->display, osd->gc,
-		   WhitePixel (osd->display, SCREEN));
+		   WhitePixel (osd->display, osd->screen));
    
    MUTEX_RELEASE ();
    
@@ -386,6 +386,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    sem_init (&osd->mutex, 0, 1);
    
    osd->display = XOpenDisplay (display);
+   osd->screen = XDefaultScreen (osd->display);
    
    if (!osd->display)
       {
@@ -401,8 +402,8 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
       return NULL;
       }
 
-   osd->visual = DefaultVisual (osd->display, SCREEN);
-   osd->depth = DefaultDepth (osd->display, SCREEN);
+   osd->visual = DefaultVisual (osd->display, osd->screen);
+   osd->depth = DefaultDepth (osd->display, osd->screen);
 
    osd->fontset = XCreateFontSet (osd->display, font,
                                   &missing, &nmissing, &defstr);
@@ -413,7 +414,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    
    setwinattr.override_redirect = 1;
    osd->window = XCreateWindow (osd->display,
-				   XRootWindow (osd->display, SCREEN),
+				   XRootWindow (osd->display, osd->screen),
 				   0, 0,
 				   osd->width, osd->height,
 				   0,
@@ -435,14 +436,14 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    osd->bitmap_gc_back = XCreateGC (osd->display, osd->bitmap, 
 				       0, NULL);
    XSetForeground (osd->display, osd->bitmap_gc_back,
-		   BlackPixel (osd->display, SCREEN));
+		   BlackPixel (osd->display, osd->screen));
    XSetBackground (osd->display, osd->bitmap_gc_back,
-		   WhitePixel (osd->display, SCREEN));
+		   WhitePixel (osd->display, osd->screen));
    
    XSetForeground (osd->display, osd->bitmap_gc,
-		   WhitePixel (osd->display, SCREEN));
+		   WhitePixel (osd->display, osd->screen));
    XSetBackground (osd->display, osd->bitmap_gc,
-		   BlackPixel (osd->display, SCREEN));
+		   BlackPixel (osd->display, osd->screen));
    
    set_font (osd, font);
    set_colour (osd, colour);
@@ -571,7 +572,7 @@ static void xosd_update_pos (xosd *osd)
    {
    osd->x = 0;
    if (osd->pos == XOSD_bottom)
-      osd->y = XDisplayHeight (osd->display, SCREEN) - osd->height - osd->offset;
+      osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->offset;
    else
       osd->y = osd->offset;
 
