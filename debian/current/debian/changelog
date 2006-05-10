@@ -1,10 +1,12 @@
-xosd (2.2.12-3) unstable; urgency=medium
+xosd (2.2.13-1) unstable; urgency=medium
 
-  * Official upload to unstable.
+  * New upstream version.
+    - Applied my 44..50 patches.
+    - Beep Media Player support. (Disabled for Debian)
   * Ungency medium because of important bug fixes.
   * Tighten dependencies in debian/shlibs.
 
- -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu,  4 Nov 2004 09:12:29 +0100
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue,  9 Nov 2004 09:48:23 +0100
 
 xosd (2.2.12-2) experimental; urgency=low
 
@@ -15,7 +17,7 @@ xosd (2.2.12-2) experimental; urgency=low
 xosd (2.2.12-1) experimental; urgency=low
 
   * New upstream version.
-    - Applies my 4[0123] patches.
+    - Applied my 4[0123] patches.
   * 44_endofhex.diff: Fix potential buffer overflow. (closes: #273374)
   * 45_timeout.diff: Fix negative timeouts. (closes: #277027)
   * 46_event.diff: Fix hang. (closes: #269671,#279406,#271807,#272692)
