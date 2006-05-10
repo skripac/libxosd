@@ -27,7 +27,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <assert.h>
 #include <pthread.h>
-
+#include <errno.h>
+	
 #include <locale.h>
 
 #include <X11/Xlib.h>
@@ -437,20 +438,37 @@ timeout_loop (void *osdv)
   while (!osd->done)
     {
       /* Wait for timeout or change of timeout */
-      int cond = osd->timeout_time.tv_sec
-	? pthread_cond_timedwait (&osd->cond_time, &osd->mutex,
-				  &osd->
-				  timeout_time) : pthread_cond_wait (&osd->
-								     cond_time,
-								     &osd->
-								     mutex);
-      /* If it was a timeout, hide output */
-      if (cond && osd->timeout_time.tv_sec && osd->mapped)
-	{
-	  //printf ("timeout_loop: hiding\n");
-	  osd->timeout_time.tv_sec = 0;
-	  hide (osd);
-	}
+      int cond;
+
+	  if (osd->timeout_time.tv_sec ) 
+	  {  
+		  DEBUG("waiting for timeout");
+		  cond = pthread_cond_timedwait (&osd->cond_time,
+										 &osd->mutex,
+										 &osd->timeout_time) ;
+
+		  /* check for timeout. Other condition is variable signaled, which means
+		   new timeout */
+		  if (cond == ETIMEDOUT) 
+		  {
+			  DEBUG("hiding");
+			  osd->timeout_time.tv_sec = 0;
+
+			  if (osd->mapped) 
+			  {
+				  hide (osd);
+			  }  
+		  }
+	  }
+	  else 
+	  {
+		  /* once we get the condition variable being signaled, then it's time
+			 for another timeout */
+		  DEBUG("waiting on condition variable");
+		  cond=pthread_cond_wait (&osd->cond_time,
+								  &osd->mutex);
+	  
+	  }
     }
   pthread_mutex_unlock (&osd->mutex);
 
