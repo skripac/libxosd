@@ -3,6 +3,7 @@ xosd (1.0.4-0) experimental; urgency=low
   * PREBUILD
   * New upstream version.
     - Hopefully closes: #157702 CPU hog problem.
+  * Increment library version info (should have been 1.0.3)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 13 Sep 2002 09:30:57 +0200
 

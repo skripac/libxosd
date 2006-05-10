@@ -5382,9 +5382,9 @@ sed -e 's/^build_old_libs=yes/build_old_libs=no/' libtool > libtool-disable-stat
 chmod +x libtool-disable-static
 
 # version crud
-LT_CURRENT=1
-LT_AGE=0
-LT_REVISION=4
+LT_CURRENT=2
+LT_AGE=1
+LT_REVISION=0
 
 
 
