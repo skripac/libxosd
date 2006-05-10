@@ -237,7 +237,7 @@ event_loop(void *osdv)
   pthread_mutex_lock(&osd->mutex);
   DEBUG(Dtrace, "Request exposure events");
   XSelectInput(osd->display, osd->window, ExposureMask);
-  osd->update = UPD_size | UPD_pos;
+  osd->update = UPD_size | UPD_pos | UPD_mask;
   while (!osd->done) {
     int retval, line;
     fd_set readfds;
