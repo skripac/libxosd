@@ -10,6 +10,6 @@ testprog_LDADD 	= libxosd/libxosd.la
 
 include_HEADERS = xosd.h
 
-AM_CFLAGS=${GTK_CFLAGS}
+AM_CFLAGS = ${GTK_CFLAGS}
 
 SUBDIRS=libxosd xmms_plugin
