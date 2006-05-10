@@ -37,7 +37,11 @@
 
 #include "xosd.h"
 
-#define DEBUG(args...) /*fprintf (stderr, "%s: %s: %d: ", __FILE__, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, args); fprintf(stderr, "\n")*/
+#if 0
+#define DEBUG(args...) fprintf (stderr, "%s: %s: %d: ", __FILE__, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, args); fprintf(stderr, "\n")
+#else
+#define DEBUG(args...)
+#endif
 
 //#ifdef X_HAVE_UTF8_STRING
 //#define XDRAWSTRING Xutf8DrawString
@@ -68,12 +72,12 @@ typedef struct
 
 struct xosd
 {
-  pthread_t event_thread;
-  pthread_t timeout_thread;
+  pthread_t event_thread; /* handles X events */
+  pthread_t timeout_thread; /* handle automatic hide after timeout */
 
-  pthread_mutex_t mutex;
-  pthread_cond_t cond_hide;
-  pthread_cond_t cond_time;
+  pthread_mutex_t mutex; /* mutual exclusion to protect struct */
+  pthread_cond_t cond_hide; /* signal hide events */
+  pthread_cond_t cond_time; /* signal timeout */
 
   Display *display;
   int screen;
@@ -112,10 +116,11 @@ struct xosd
   xosd_line* lines;
   int number_lines;
 
-  int timeout;
-  struct timespec timeout_time;
+  int timeout; /* delta time */
+  struct timespec timeout_time; /* Next absolute timeout */
 };
 
+/** Global error string. */
 char* xosd_error;
 
 
@@ -245,6 +250,9 @@ static void expose_line(xosd *osd, int line)
   }
 }
 
+/** Handle X11 events
+ * This is running in it's own thread for Expose-events.
+ */
 static void *event_loop (void *osdv)
 {
   xosd *osd = osdv;
@@ -292,6 +300,9 @@ static void *event_loop (void *osdv)
 }
 
 
+/** Handle timeout events to auto hide output.
+ * This is running in it's own thread and waits for timeout notifications.
+ */
 static void *timeout_loop (void *osdv)
 {
   xosd *osd = osdv;
@@ -625,7 +636,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int voffse
 xosd *xosd_create (int number_lines) 
 {
   xosd *osd;
-  int event_basep, error_basep, inputmask, i;
+  int event_basep, error_basep, i;
   char *display;
   XSetWindowAttributes setwinattr;
 
@@ -648,11 +659,10 @@ xosd *xosd_create (int number_lines)
   DEBUG("Mallocing osd");
   osd = malloc (sizeof (xosd));
   memset (osd, 0, sizeof (xosd));
-  if (osd == NULL)
-    {
-      xosd_error = "Out of memory";
-      goto error0;
-    }
+  if (osd == NULL) {
+    xosd_error = "Out of memory";
+    goto error0;
+  }
 
   DEBUG("initializing mutex");
   pthread_mutex_init (&osd->mutex, NULL);
@@ -663,11 +673,10 @@ xosd *xosd_create (int number_lines)
   DEBUG("initializing number lines");
   osd->number_lines=number_lines;
   osd->lines=malloc(sizeof(xosd_line) * osd->number_lines);
-  if (osd->lines == NULL)
-    {
-      xosd_error = "Out of memory";
-      goto error1;
-    }
+  if (osd->lines == NULL) {
+    xosd_error = "Out of memory";
+    goto error1;
+  }
 
   for (i = 0; i < osd->number_lines; i++) {
     osd->lines[i].type = LINE_text;
@@ -679,6 +688,7 @@ xosd *xosd_create (int number_lines)
   osd->done = 0;
   osd->align = XOSD_left;
   osd->display = XOpenDisplay (display);
+
   DEBUG("Display query");
   if (!osd->display) {
     xosd_error = "Cannot open display";
@@ -730,6 +740,7 @@ xosd *xosd_create (int number_lines)
       &setwinattr);
   XStoreName (osd->display, osd->window, "XOSD");
 
+  DEBUG("setting pos");
   xosd_set_pos(osd, 0);
   DEBUG("setting vertical offset");
   xosd_set_vertical_offset (osd, 0);
@@ -757,9 +768,8 @@ xosd *xosd_create (int number_lines)
   DEBUG("setting timeout");
   set_timeout (osd, -1); 
 
-  inputmask = ExposureMask ;
-  XSelectInput (osd->display, osd->window, inputmask);
-
+  DEBUG("Request exposure events");
+  XSelectInput (osd->display, osd->window, ExposureMask);
 
   DEBUG("stay on top");
   stay_on_top(osd->display, osd->window);
@@ -772,7 +782,7 @@ xosd *xosd_create (int number_lines)
 
   DEBUG("initializing timeout thread");
   pthread_create (&osd->timeout_thread, NULL, timeout_loop, osd);
-  
+
   return osd;
 
  error3:
@@ -843,7 +853,6 @@ int xosd_destroy (xosd *osd)
   free(osd->lines);
 
   DEBUG("destroying condition and mutex");
-
   pthread_cond_destroy (&osd->cond_time);
   pthread_cond_destroy (&osd->cond_hide);
   pthread_mutex_destroy (&osd->mutex);
@@ -856,12 +865,11 @@ int xosd_destroy (xosd *osd)
 }
 
 
-int xosd_set_bar_length(xosd *osd, int length) {
-
+int xosd_set_bar_length(xosd *osd, int length)
+{
   if (osd == NULL) return -1;
 
   if (length==0) return -1;
-
   if (length<-1) return -1;
 
   osd->bar_length = length;
@@ -876,7 +884,6 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
   char *string;
   int percent;
   xosd_line *l = &osd->lines[line];
-
 
   if (osd == NULL) return -1;
 
@@ -935,12 +942,14 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
   return len;
 }
 
+/** Return, if anything is displayed. Beware race conditions! **/
 int xosd_is_onscreen(xosd* osd)
 {
   if (osd == NULL) return -1;
   return osd->mapped;
 }
 
+/** Wait until nothing is displayed anymore. **/
 int xosd_wait_until_no_display(xosd* osd)
 {
   if (osd == NULL) return -1;
@@ -954,7 +963,7 @@ int xosd_wait_until_no_display(xosd* osd)
   return 0;
 }
 
-
+/** Set colour and force redraw. **/
 int xosd_set_colour (xosd *osd, const char *colour)
 {
   int retval = 0;
@@ -968,12 +977,12 @@ int xosd_set_colour (xosd *osd, const char *colour)
 }
 
 
+/** Set font. Might return error if fontset can't be created. **/
 int xosd_set_font (xosd *osd, const char *font)
 {
   int ret = 0;
 
-  if (font==NULL)  return -1;
-
+  if (font == NULL)  return -1;
   if (osd == NULL) return -1;
 
   ret = set_font (osd, font);
@@ -1041,8 +1050,6 @@ int xosd_set_horizontal_offset (xosd *osd, int hoffset)
   return 0;
 }
 
-
-
 int xosd_set_pos (xosd *osd, xosd_pos pos)
 {
   if (osd == NULL) return -1;
@@ -1084,6 +1091,7 @@ int xosd_set_timeout (xosd *osd, int timeout)
 }
 
 
+/** Hide current lines. **/
 int xosd_hide (xosd *osd)
 {
   if (osd == NULL) return -1;
@@ -1099,10 +1107,10 @@ int xosd_hide (xosd *osd)
   return -1;
 }
 
+/** Show current lines (again). **/
 int xosd_show (xosd *osd)
 {
   if (osd == NULL) return -1;
-
   if (!osd->mapped) {
     pthread_mutex_lock (&osd->mutex);
     osd->mapped = 1;
@@ -1149,9 +1157,9 @@ int xosd_scroll(xosd *osd, int lines)
   return 0;
 }
 
-int xosd_get_number_lines(xosd* osd) {
-
-  if ( (osd) == NULL) { return -1; };
+int xosd_get_number_lines(xosd* osd)
+{
+  if (osd == NULL) return -1;
 
   return osd->number_lines;
 }
