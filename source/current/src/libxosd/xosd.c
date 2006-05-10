@@ -363,7 +363,8 @@ event_loop(void *osdv)
       }
     }
     /* Copy content, if window was changed or exposed. */
-    if (osd->mapped && osd->update & (UPD_size | UPD_pos | UPD_lines | UPD_show)) {
+    if (osd->mapped
+        && osd->update & (UPD_size | UPD_pos | UPD_lines | UPD_show)) {
       DEBUG(Dupdate, "UPD_copy");
       XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
                 osd->screen_width, osd->height, 0, 0);
@@ -436,13 +437,16 @@ event_loop(void *osdv)
         if (report.xexpose.count == 0) {
           int ytop, ybot;
           ytop = report.xexpose.y / osd->line_height;
-          ybot = (report.xexpose.y + report.xexpose.height) / osd->line_height;
+          ybot =
+            (report.xexpose.y + report.xexpose.height) / osd->line_height;
           do {
             osd->lines[ytop].width = -1;
           } while (ytop++ < ybot);
         }
 #endif
-        XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, report.xexpose.x, report.xexpose.y, report.xexpose.width, report.xexpose.height, report.xexpose.x, report.xexpose.y);
+        XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc,
+                  report.xexpose.x, report.xexpose.y, report.xexpose.width,
+                  report.xexpose.height, report.xexpose.x, report.xexpose.y);
         break;
       case NoExpose:
       default:
@@ -463,7 +467,8 @@ event_loop(void *osdv)
 /* }}} */
 
 /* Wait until display is update and in specific state. {{{ */
-static void _wait_until_state(xosd *osd, int state)
+static void
+_wait_until_state(xosd * osd, int state)
 {
   pthread_mutex_lock(&osd->mutex_sync);
   while (osd->mapped != state) {
@@ -472,6 +477,7 @@ static void _wait_until_state(xosd *osd, int state)
   }
   pthread_mutex_unlock(&osd->mutex_sync);
 }
+
 /* }}} */
 
 /* Parse textual colour value. {{{ */
