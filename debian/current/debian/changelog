@@ -1,3 +1,15 @@
+xosd (2.2.6-1) unstable; urgency=low
+
+  * New upstream version:
+    - Includes debian/patches/01_XFreeFontSet.patch
+    - Includes debian/patches/02_set_font.patch
+    - Includes debian/patches/03_titlechange.patch
+    - Includes debian/patches/04_title_with_time.patch
+    - Includes debian/patches/05_state_rewrite.patch
+    - Fix redisplay after config change.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue, 30 Sep 2003 10:32:49 +0200
+
 xosd (2.2.5-1) unstable; urgency=low
 
   * New upstream version:
