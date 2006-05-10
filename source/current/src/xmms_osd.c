@@ -53,7 +53,7 @@ GeneralPlugin gp =
 
 xosd *osd;
 guint timeout_tag;
-int previous_song, previous_length, previous_volume, previous_balance;
+int previous_song, previous_volume, previous_balance;
 gboolean previous_playing, previous_paused, previous_repeat, previous_shuffle;
 gchar *font;
 gchar *colour;
@@ -81,7 +81,7 @@ static void init(void)
    
    previous_repeat = previous_shuffle = previous_paused = previous_playing = 
       FALSE;
-   previous_volume = previous_length = previous_song = 
+  previous_volume = previous_song = 
       0;   
 
    osd = xosd_init (font, colour, timeout, pos, offset, shadow_offset);
@@ -482,7 +482,7 @@ static void replace_hexcodes (gchar *text)
 
 static gint timeout_func(gpointer data)
    {
-   gint pos, length, volume, balance;
+  gint pos, volume, balance;
    gboolean playing, paused, repeat, shuffle;
    gchar *text;
 
@@ -492,7 +492,6 @@ static gint timeout_func(gpointer data)
    GDK_THREADS_ENTER();
 
    pos = xmms_remote_get_playlist_pos (gp.xmms_session);
-   length = xmms_remote_get_playlist_time (gp.xmms_session, pos);
    playing = xmms_remote_is_playing (gp.xmms_session);
    paused = xmms_remote_is_paused (gp.xmms_session);
    volume = xmms_remote_get_main_volume (gp.xmms_session);
@@ -500,7 +499,13 @@ static gint timeout_func(gpointer data)
    repeat = xmms_remote_is_repeat (gp.xmms_session);
    balance = (xmms_remote_get_balance(gp.xmms_session) + 100) / 2;
    
-   if (pos != previous_song || length != previous_length)
+  /**
+   * Check if the position of the current song has changed.
+   * DTM: bugfix
+   *        1) 'get_playlist_time' seems "variable" for a song, don't use it
+   *        2) we must free the titles we download
+   */
+  if (pos != previous_song )
       {
       xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
       
@@ -512,7 +517,6 @@ static gint timeout_func(gpointer data)
 	 }
 
       previous_song = pos;
-      previous_length = length;      
       }
 
    else if (playing != previous_playing)
