@@ -1,3 +1,10 @@
+xosd (2.2.2-2) unstable; urgency=low
+
+  * "Happy birthday release".
+  * Use Homepage-keyword in debian/control.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue,  1 Jul 2003 21:33:10 +0200
+
 xosd (2.2.2-1) unstable; urgency=low
 
   * New upstream version.
