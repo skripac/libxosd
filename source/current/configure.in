@@ -89,9 +89,23 @@ fi
 dnl Plugin selection ends
 AC_SUBST(SELECTED_PLUGINS)
 
+dnl --=mjs=-- Check for gdk-pixmap libs.  There is probably a better
+dnl way to do this, but I don't know it.
+AC_PATH_PROG(gdk_pixbuf_config_script, gdk-pixbuf-config, "none")
+GDK_PIXBUF_CFLAGS=`$gdk_pixbuf_config_script --cflags`
+GDK_PIXBUF_LIBS=`$gdk_pixbuf_config_script --libs`
+AC_SUBST(GDK_PIXBUF_CFLAGS)
+AC_SUBST(GDK_PIXBUF_LIBS)
+
 dnl Define XOSD_VERSION
 dnl XOSD_VERSION=${VERSION}
 AC_DEFINE_UNQUOTED(XOSD_VERSION, "${VERSION}")
+
+dnl Pass the "data" ditectory as a #define symbol, so we can find the 
+dnl pixmaps (--=mjs=-- thanks Julien Blache).
+CFLAGS="${CFLAGS} -DPIXMAPDIR=\\\"\$(datadir)/xosd\\\""
+
+dnl Produce Output files
 
 AC_OUTPUT([
 Makefile
@@ -100,6 +114,7 @@ src/libxosd/Makefile
 src/xmms_plugin/Makefile
 macros/Makefile
 man/Makefile
+pixmaps/Makefile
 script/Makefile
 script/xosd-config
 xosd.spec
