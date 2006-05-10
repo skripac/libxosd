@@ -84,9 +84,9 @@ AC_ARG_ENABLE([xinerama],
 
 if test x$disable_xinerama = "xno"
 then
-	AC_CHECK_LIB(Xinerama,
+	AC_CHECK_LIB(Xinerama_pic,
 		     XineramaQueryExtension,
-		     [X_LIBS="$X_LIBS -lXinerama"
+		     [X_LIBS="$X_LIBS -lXinerama_pic"
 		      AC_DEFINE(HAVE_XINERAMA,1,[Define this if you have libXinerama installed])
 		      ac_have_xinerama="yes"],,
 		     [$X_LIBS $X_PRE_LIBS -lXext $X_EXTRA_LIBS])

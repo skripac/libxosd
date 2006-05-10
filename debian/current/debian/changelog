@@ -1,6 +1,7 @@
 xosd (2.2.1-2) unstable; urgency=low
 
   * Call update_pos() instead of force_redraw(). closes: #189731
+  * Link xinerama_pic. closes: #189476
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Mon, 28 Apr 2003 23:06:16 +0200
 
