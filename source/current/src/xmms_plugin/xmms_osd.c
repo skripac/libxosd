@@ -387,7 +387,17 @@ timeout_func (gpointer data)
 	else if (!previous.paused && current.paused)
 	{
 		if (show.pause)
+		{
 			text = "Paused";
+			if (show.trackname)
+			{
+			    if (current.title!=NULL)
+			    {
+	    	             title2=malloc(strlen(current.title)+52);
+			     sprintf(title2,"%i/%i: %s (%.2i:%.2i)",xmms_remote_get_playlist_pos (gp.xmms_session)+1,xmms_remote_get_playlist_length (gp.xmms_session),current.title,xmms_remote_get_output_time(gp.xmms_session)/1000/60,xmms_remote_get_output_time(gp.xmms_session)/1000%60);
+			    }
+			}
+		}
 	}
 	else if (previous.paused && !current.paused)
 	{
