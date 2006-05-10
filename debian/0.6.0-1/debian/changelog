@@ -1,0 +1,80 @@
+xosd (0.6.0-1) unstable; urgency=low
+
+  * New upstream version
+  * Patch from 0.5.0-2 applied upstream
+  * Included upstream README file
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Thu, 11 Jan 2001 16:15:04 +0100
+
+xosd (0.5.0-2) unstable; urgency=low
+
+  * New binary package: xosd-bin which closes: #80803 
+    (thanks Philipp Matthias Hahn <pmhahn@titan.lahn.de>)
+  * Makefile and manpage cleanups (thanks again :)
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Wed, 10 Jan 2001 19:50:08 +0100
+
+xosd (0.5.0-1) unstable; urgency=low
+
+  * New upstream version
+  * All patches accepted upstream
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Tue,  9 Jan 2001 09:35:06 +0100
+
+xosd (0.4.0-3) unstable; urgency=low
+
+  * Oops. libxosd-dev should conflict with the old libxosd package
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Mon,  8 Jan 2001 20:07:56 +0100
+
+xosd (0.4.0-2) unstable; urgency=low
+
+  * Modified build system to use a soname
+  * Added a manual page (xosd(3xosd))
+  * Resize xosd->bitmap on set_font. Closes: #77868,#79175
+  * Fix positioning of osd on xmms restart. Closes: #79177
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Mon,  1 Jan 2001 13:50:11 +0100
+
+xosd (0.4.0-1) unstable; urgency=low
+
+  * New upstream version:
+    - FontSet patch
+    - Better error reporting if the SHAPE is missing
+    - New configuration dialog
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Wed, 27 Dec 2000 19:48:29 +0100 
+
+xosd (0.3.0-3) unstable; urgency=low
+
+  * Applied Isaac Kar-Keung To's FontSet patch (closes: #79242)
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Sun, 10 Dec 2000 11:28:20 +0100
+
+xosd (0.3.0-2) unstable; urgency=low
+
+  * Packaging updates (closes: #77873)
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Fri, 24 Nov 2000 09:24:57 +0100
+
+xosd (0.3.0-1) unstable; urgency=low
+
+  * New upstream version
+  * Fixes a LOT of segfault bugs
+  * Rewrite of the "percentage-bar" code
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Wed, 22 Nov 2000 15:33:49 +0100
+
+xosd (0.2.0-1) unstable; urgency=low
+
+  * Last version was never installed, so this one closes: #76854
+    too.
+  * New upstream version
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Mon, 13 Nov 2000 19:47:42 +0100
+
+xosd (0.1.0-1) unstable; urgency=low
+
+  * Initial packaging (closes: #76854)
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Sun, 12 Nov 2000 14:38:37 +0100
