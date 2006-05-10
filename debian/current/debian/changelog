@@ -7,6 +7,7 @@ xosd (2.2.8-1) unstable; urgency=low
     - No changes.
   * Replace dependency on xlibs-{dev,pic} with new dependencies.
     (closes: #253332)
+  * Remove setlocale() from src/libxosd/xosd.c (closes: #258142)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu,  8 Jul 2004 09:51:50 +0200
 
