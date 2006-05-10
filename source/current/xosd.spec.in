@@ -22,6 +22,7 @@ display in X.
 Summary: X On-Screen Display libray (headers + static libs)
 Group: Development/Libraries
 Requires: xosd = %{version}
+BuildRequires: xmms-devel
 
 %description devel
 On-Screen Display library. A library for displaying a TV-like on-screen
