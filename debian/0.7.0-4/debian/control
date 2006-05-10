@@ -1,0 +1,48 @@
+Source: xosd
+Section: x11
+Priority: optional
+Maintainer: Martijn van de Streek <martijn@foodfight.org>
+Build-Depends: libgtk1.2-dev, xmms-dev (>= 1.2.0-1)
+Standards-Version: 3.2.1.0
+
+Package: libxosd0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Conflicts: libxosd
+Replaces: libxosd
+Description: X On-Screen Display library - runtime
+ A library for displaying a TV-like on-screen display in X.
+ .
+ More info can be found on http://www.ignavus.net/software.html
+
+Package: libxosd-dev
+Section: devel
+Architecture: any
+Depends: libxosd0 (= ${Source-Version}), xlibs-dev
+Conflicts: libxosd
+Description: X On-Screen Display library - development
+ A library for displaying a TV-like on-screen display in X.
+ .
+ This package contains the development headers needed for compiling
+ programs against libxosd.
+
+Package: xosd-bin
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: X On-Screen Display library - binary files
+ This package contains binary files shipped with the X OSD library:
+ osd_cat - a 'cat' like program which will display its output in an
+           OSD-like window
+ .
+ More info can be found on http://www.ignavus.net/software.html
+
+Package: xmms-osd-plugin
+Section: sound
+Architecture: any
+Depends: xmms (>= 1.2.0), ${shlibs:Depends}
+Description: XMMS plugin using xosd
+ An XMMS plugin which displays volume and track information like
+ on-screen displays on TVs and monitors. 
+ .
+ More info can be found on http://www.ignavus.net/software.html
