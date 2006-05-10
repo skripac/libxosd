@@ -855,7 +855,8 @@ stay_on_top(Display * dpy, Window win)
   XRaiseWindow(dpy, win);
 }
 
-/** Deprecated init. Use xosd_create. */
+/* xosd_init -- Create a new xosd "object" {{{
+ * Deprecated: Use xosd_create. */
 xosd *
 xosd_init(const char *font, const char *colour, int timeout, xosd_pos pos,
           int voffset, int shadow_offset, int number_lines)
@@ -887,8 +888,9 @@ xosd_init(const char *font, const char *colour, int timeout, xosd_pos pos,
 
   return osd;
 }
+/* }}} */
 
-/** New init. */
+/* xosd_create -- Create a new xosd "object" {{{ */
 xosd *
 xosd_create(int number_lines)
 {
@@ -1074,15 +1076,19 @@ error1:
 error0:
   return NULL;
 }
+/* }}} */
 
-/** Deprecated uninit. Use xosd_destroy. */
+/* xosd_uninit -- Destroy a xosd "object" {{{
+ * Deprecated: Use xosd_destroy. */
 int
 xosd_uninit(xosd * osd)
 {
   FUNCTION_START(Dfunction);
   return xosd_destroy(osd);
 }
+/* }}} */
 
+/* xosd_destroy -- Destroy a xosd "object" {{{ */
 int
 xosd_destroy(xosd * osd)
 {
@@ -1153,8 +1159,9 @@ xosd_destroy(xosd * osd)
   FUNCTION_END(Dfunction);
   return 0;
 }
+/* }}} */
 
-
+/* xosd_set_bar_length  -- Set length of percentage and slider bar {{{ */
 int
 xosd_set_bar_length(xosd * osd, int length)
 {
@@ -1171,7 +1178,9 @@ xosd_set_bar_length(xosd * osd, int length)
 
   return 0;
 }
+/* }}} */
 
+/* xosd_display -- Display information {{{ */
 int
 xosd_display(xosd * osd, int line, xosd_command command, ...)
 {
@@ -1248,8 +1257,9 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
 
   return len;
 }
+/* }}} */
 
-/** Return, if anything is displayed. Beware race conditions! **/
+/* xosd_is_onscreen -- Returns weather the display is show {{{ */
 int
 xosd_is_onscreen(xosd * osd)
 {
@@ -1258,8 +1268,9 @@ xosd_is_onscreen(xosd * osd)
     return -1;
   return osd->mapped;
 }
+/* }}} */
 
-/** Wait until nothing is displayed anymore. **/
+/* xosd_wait_until_no_display -- Wait until nothing is displayed {{{ */
 int
 xosd_wait_until_no_display(xosd * osd)
 {
@@ -1274,8 +1285,9 @@ xosd_wait_until_no_display(xosd * osd)
 
   return 0;
 }
+/* }}} */
 
-/** Set colour and force redraw. **/
+/* xosd_set_colour -- Change the colour of the display {{{ */
 int
 xosd_set_colour(xosd * osd, const char *colour)
 {
@@ -1292,9 +1304,9 @@ xosd_set_colour(xosd * osd, const char *colour)
 
   return retval;
 }
+/* }}} */
 
-
-/** Set shadow colour and force redraw. **/
+/* xosd_set_shadow_colour -- Change the colour of the shadow {{{ */
 int
 xosd_set_shadow_colour(xosd * osd, const char *colour)
 {
@@ -1311,7 +1323,9 @@ xosd_set_shadow_colour(xosd * osd, const char *colour)
 
   return retval;
 }
+/* }}} */
 
+/* xosd_set_outline_colour -- Change the colour of the outline {{{ */
 int
 xosd_set_outline_colour(xosd * osd, const char *colour)
 {
@@ -1329,9 +1343,10 @@ xosd_set_outline_colour(xosd * osd, const char *colour)
 
   return retval;
 }
+/* }}} */
 
-
-/** Set font. Might return error if fontset can't be created. **/
+/* xosd_set_font -- Change the text-display font {{{
+ * Might return error if fontset can't be created. **/
 int
 xosd_set_font(xosd * osd, const char *font)
 {
@@ -1351,6 +1366,7 @@ xosd_set_font(xosd * osd, const char *font)
 
   return ret;
 }
+/* }}} */
 
 static void
 update_pos(xosd * osd)
@@ -1398,6 +1414,7 @@ update_pos(xosd * osd)
   XMoveWindow(osd->display, osd->window, osd->x, osd->y);
 }
 
+/* xosd_set_shadow_offset -- Change the offset of the text shadow {{{ */
 int
 xosd_set_shadow_offset(xosd * osd, int shadow_offset)
 {
@@ -1414,7 +1431,9 @@ xosd_set_shadow_offset(xosd * osd, int shadow_offset)
 
   return 0;
 }
+/* }}} */
 
+/* xosd_set_outline_offset -- Change the offset of the text outline {{{ */
 int
 xosd_set_outline_offset(xosd * osd, int outline_offset)
 {
@@ -1431,7 +1450,9 @@ xosd_set_outline_offset(xosd * osd, int outline_offset)
 
   return 0;
 }
+/* }}} */
 
+/* xosd_set_vertical_offset -- Change the number of pixels the display is offset from the position {{{ */
 int
 xosd_set_vertical_offset(xosd * osd, int voffset)
 {
@@ -1446,7 +1467,9 @@ xosd_set_vertical_offset(xosd * osd, int voffset)
 
   return 0;
 }
+/* }}} */
 
+/* xosd_set_horizontal_offset -- Change the number of pixels the display is offset from the position {{{ */
 int
 xosd_set_horizontal_offset(xosd * osd, int hoffset)
 {
@@ -1461,7 +1484,9 @@ xosd_set_horizontal_offset(xosd * osd, int hoffset)
 
   return 0;
 }
+/* }}} */
 
+/* xosd_set_pos -- Change the vertical position of the display {{{ */
 int
 xosd_set_pos(xosd * osd, xosd_pos pos)
 {
@@ -1477,7 +1502,9 @@ xosd_set_pos(xosd * osd, xosd_pos pos)
 
   return 0;
 }
+/* }}} */
 
+/* xosd_set_align -- Change the horizontal alignment of the display {{{ */
 int
 xosd_set_align(xosd * osd, xosd_align align)
 {
@@ -1493,7 +1520,9 @@ xosd_set_align(xosd * osd, xosd_align align)
 
   return 0;
 }
+/* }}} */
 
+/* xosd_get_colour -- Gets the RGB value of the display's colour {{{ */
 int
 xosd_get_colour(xosd * osd, int *red, int *green, int *blue)
 {
@@ -1510,6 +1539,7 @@ xosd_get_colour(xosd * osd, int *red, int *green, int *blue)
 
   return 0;
 }
+/* }}} */
 
 /** Change automatic timeout. **/
 static void
@@ -1522,6 +1552,7 @@ set_timeout(xosd * osd)
   pthread_cond_signal(&osd->cond_time);
 }
 
+/* xosd_set_timeout -- Change the time before display is hidden. {{{ */
 int
 xosd_set_timeout(xosd * osd, int timeout)
 {
@@ -1534,7 +1565,7 @@ xosd_set_timeout(xosd * osd, int timeout)
   pthread_mutex_unlock(&osd->mutex);
   return 0;
 }
-
+/* }}} */
 
 /** Hide current lines. **/
 static void
@@ -1548,6 +1579,7 @@ hide(xosd * osd)
   pthread_cond_broadcast(&osd->cond_hide);
 }
 
+/* xosd_hide -- hide the display {{{ */
 int
 xosd_hide(xosd * osd)
 {
@@ -1562,6 +1594,7 @@ xosd_hide(xosd * osd)
   }
   return -1;
 }
+/* }}} */
 
 /** Show current lines (again). **/
 static void
@@ -1574,6 +1607,7 @@ show(xosd * osd)
   XFlush(osd->display);
 }
 
+/* xosd_show -- Show the display after being hidden {{{ */
 int
 xosd_show(xosd * osd)
 {
@@ -1588,10 +1622,9 @@ xosd_show(xosd * osd)
   }
   return -1;
 }
+/* }}} */
 
-/*
- * This function will scroll the display up "lines" number of lines 
- */
+/* xosd_scroll -- Scroll the display up "lines" number of lines {{{ */
 int
 xosd_scroll(xosd * osd, int lines)
 {
@@ -1623,7 +1656,9 @@ xosd_scroll(xosd * osd, int lines)
   pthread_mutex_unlock(&osd->mutex);
   return 0;
 }
+/* }}} */
 
+/* xosd_get_number_lines -- Get the maximum number of lines allowed {{{ */
 int
 xosd_get_number_lines(xosd * osd)
 {
@@ -1633,3 +1668,7 @@ xosd_get_number_lines(xosd * osd)
 
   return osd->number_lines;
 }
+/* }}} */
+
+/* vim: foldmethod=marker tabstop=2 shiftwidth=2 expandtab
+ */
