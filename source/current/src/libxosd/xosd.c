@@ -112,6 +112,8 @@ struct xosd
   XColor shadow_colour;
   unsigned int shadow_pixel;
   int outline_offset;
+  XColor outline_colour;
+  unsigned int outline_pixel;
   int bar_length; 
 
   int mapped;
@@ -266,7 +268,7 @@ static void expose_line(xosd *osd, int line)
       }
 
       if (osd->outline_offset) {
-        XSetForeground (osd->display, osd->gc, BlackPixel(osd->display, osd->screen));
+        XSetForeground (osd->display, osd->gc, osd->outline_pixel);
 
 
         draw_with_mask(osd, l, x + osd->outline_offset, y,
@@ -1057,6 +1059,21 @@ int xosd_set_shadow_colour (xosd *osd, const char *colour)
 
   return retval;
 }
+
+int xosd_set_outline_colour (xosd *osd, const char *colour)
+{
+  int retval = 0;
+
+  if (osd == NULL) return -1;
+
+  pthread_mutex_lock (&osd->mutex);
+  retval = parse_colour (osd, &osd->outline_colour, &osd->outline_pixel, colour);
+  force_redraw (osd, -1);
+  pthread_mutex_unlock (&osd->mutex);
+
+  return retval;
+}
+
 
 /** Set font. Might return error if fontset can't be created. **/
 int xosd_set_font (xosd *osd, const char *font)

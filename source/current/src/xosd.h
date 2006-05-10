@@ -17,6 +17,7 @@ extern char *xosd_error;
 extern const char* osd_default_font;
 extern const char* osd_default_colour;
 extern const char* osd_shadow_default_colour;
+extern const char* osd_outline_default_colour;
 
 /* The XOSD display "object" */
 typedef struct xosd xosd;
@@ -219,6 +220,19 @@ int xosd_set_shadow_offset (xosd *osd, int shadow_offset);
 */
 int xosd_set_outline_offset (xosd *osd, int outline_offset);
 
+
+/* xosd_set_outline_colour -- Change the colour of the outline
+ *
+ * ARGUMENTS
+ *     osd      The xosd "object".
+ *     colour   The new colour of the display.  (See "rgb.txt" in the
+ *              X11 distribution of a list of colours.)
+ *
+ * RETURNS
+ *   0 on success
+ *  -1 on failure, and colour is set to black
+ */
+int xosd_set_outline_colour(xosd* osd, const char *colour);
 
 /* xosd_set_shadow_colour -- Change the colour of the shadow
  *

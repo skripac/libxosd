@@ -9,6 +9,7 @@
 	Added support for having an outline around the text (Andy Heroff)
 	  it acts strangely for outline widths greater than 2 or so. 
 	  looks cool, but strange.
+	Added support for setting the outline colour (Tim Wright)
 	
 2.1.3:
        configurable pixmap directory (Philipp Matthias Hahn)
