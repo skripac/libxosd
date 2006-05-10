@@ -46,6 +46,8 @@
 
 #include "xosd.h"
 
+#define fail_if_null_osd(osd) if ( (osd) == NULL) { return -1; }
+
 /* if we have an osd structure currently allocated */
 static char xosd_active = 0;
 
@@ -98,7 +100,7 @@ struct xosd
    unsigned int pixel;   
    XColor colour;
    Colormap colourmap;
-
+     
    xosd_line *lines;
    int timeout;
    int timeout_time;
@@ -288,9 +290,9 @@ static void *event_loop (void *osdv)
       MUTEX_GET ();
       if (!XCheckWindowEvent (osd->display, osd->window, ExposureMask, &report))
 	 {
-	 MUTEX_RELEASE ();
-	 usleep (500);
-	 continue;
+	   MUTEX_RELEASE ();
+	   usleep (500);
+	   continue;
 	 }
       MUTEX_RELEASE ();
 
@@ -307,7 +309,6 @@ static void *event_loop (void *osdv)
 	    }
 	 
 	 default:
-	    printf ("%d\n", report.type);
 	 }
       }   
    
@@ -322,7 +323,7 @@ static void *timeout_loop (void *osdv)
    if (osdv==NULL) {
      return NULL;
    }
-   
+
    while (!osd->done)
       {
       usleep (1000);
@@ -332,9 +333,10 @@ static void *timeout_loop (void *osdv)
 	  osd->timeout_time <= time(NULL))
 	 {
 	   
-	 MUTEX_RELEASE ();
+	   MUTEX_RELEASE ();
 	 /* printf ("timeout_loop: hiding\n"); */
-	 xosd_hide (osd);
+	   xosd_hide (osd);
+
 	 }
       else
 	 MUTEX_RELEASE ();
@@ -345,8 +347,8 @@ static void *timeout_loop (void *osdv)
 
 static int display_string (xosd *osd, int line, char *string)
    {
-   assert (osd);
-   
+   fail_if_null_osd (osd);
+
    osd->lines[line].type = LINE_text;
    osd->lines[line].pixel = osd->pixel;
    
@@ -367,7 +369,7 @@ static int display_string (xosd *osd, int line, char *string)
 
 static int display_percentage (xosd *osd, int line, int percentage)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
    
    if (percentage < 0)
       percentage = 0;
@@ -383,7 +385,7 @@ static int display_percentage (xosd *osd, int line, int percentage)
 
 static int display_slider (xosd *osd, int line, int percentage)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
    
    if (percentage < 0)
       percentage = 0;
@@ -399,7 +401,7 @@ static int display_slider (xosd *osd, int line, int percentage)
 
 static int force_redraw (xosd *osd)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
    
    expose (osd);
 
@@ -421,8 +423,9 @@ static int set_font (xosd *osd, char *font)
    char *defstr;
    XFontSetExtents *extents;
 
-   assert (osd);
    XFontSet fontset;
+
+   fail_if_null_osd (osd);
 
    MUTEX_GET ();
 
@@ -434,7 +437,7 @@ static int set_font (xosd *osd, char *font)
       {
         xosd_error = "Invalid font";
         MUTEX_RELEASE();
-      return -1;
+        return -1;
       }
 
    /* free an existing fontset if there was one previously */
@@ -450,7 +453,7 @@ static int set_font (xosd *osd, char *font)
    XResizeWindow (osd->display, osd->window, osd->width, osd->height);
 
    if (osd->bitmap)
-   XFreePixmap (osd->display, osd->bitmap);
+       XFreePixmap (osd->display, osd->bitmap);
 
    osd->bitmap = XCreatePixmap (osd->display, osd->window,
 				osd->width, osd->height,
@@ -469,7 +472,8 @@ static int set_font (xosd *osd, char *font)
 
 static int set_colour (xosd *osd, char *colour)
    {
-   assert (osd);
+     int retval=0;
+   fail_if_null_osd (osd);
 
    MUTEX_GET ();
    
@@ -484,11 +488,13 @@ static int set_colour (xosd *osd, char *colour)
       else
 	 {
 	 osd->pixel = WhitePixel(osd->display, osd->screen);
+	 retval=-1;
 	 }
       }
    else
       {
       osd->pixel = WhitePixel(osd->display, osd->screen);
+      retval=-1;
       }      
 
    XSetForeground (osd->display, osd->gc, osd->pixel);
@@ -497,16 +503,16 @@ static int set_colour (xosd *osd, char *colour)
    
    MUTEX_RELEASE ();
    
-   return 0;
+   return retval;
+
    }
 
 
 
-static int set_timeout (xosd *osd, int timeout)
+static void set_timeout (xosd *osd, int timeout)
    {
    osd->timeout = timeout;
    osd->timeout_time = time (NULL) + timeout;
-   return 0;
    }
 
 xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset,
@@ -544,22 +550,22 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    
    pthread_mutex_init (&osd->mutex, NULL);
    pthread_cond_init (&osd->cond, NULL);
-   
+
    osd->display = XOpenDisplay (display);
    osd->screen = XDefaultScreen (osd->display);
    
    if (!osd->display)
       {
         xosd_error = "No display";
-      free(osd);
-      return NULL;
+        free(osd);
+        return NULL;
       }
    
    if (!XShapeQueryExtension (osd->display, &event_basep, &error_basep))
       {
         xosd_error = "No shape extensions";
-      free(osd);
-      return NULL;
+        free(osd);
+        return NULL;
       }
 
    osd->visual = DefaultVisual (osd->display, osd->screen);
@@ -611,13 +617,13 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
 		   WhitePixel (osd->display, osd->screen));
    XSetBackground (osd->display, osd->bitmap_gc,
 		   BlackPixel (osd->display, osd->screen));
-   
+
    set_colour (osd, colour);
    set_timeout (osd, timeout);
 
    inputmask = ExposureMask ;
    XSelectInput (osd->display, osd->window, inputmask);
-
+   
    data = 6;
    a = XInternAtom (osd->display, "_WIN_LAYER", True);
    if (a != None)
@@ -644,7 +650,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    
    pthread_create (&osd->event_thread, NULL, event_loop, osd);
    pthread_create (&osd->timeout_thread, NULL, timeout_loop, osd);
-   
+
    xosd_active = 1;
    return osd;
    }
@@ -653,7 +659,7 @@ int xosd_uninit (xosd *osd)
    {
    int i;
    
-   assert (osd);
+   fail_if_null_osd (osd);
 
    xosd_active = 0;
 
@@ -672,7 +678,7 @@ int xosd_uninit (xosd *osd)
       if (osd->lines[i].text)
 	 free (osd->lines[i].text);
       }
-   
+
    free(osd->lines);
    
    pthread_cond_destroy (&osd->cond);
@@ -690,12 +696,13 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
    char *string;
    int percent;
    
-   assert (osd);
    if (line < 0 || line >= osd->max_lines)
      {
        xosd_error = "Line out of range";
        return -1;
      }
+   
+   fail_if_null_osd (osd);
    
    osd->timeout_time = time(NULL) + osd->timeout;
 
@@ -732,7 +739,7 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
       default :
 	 {
            xosd_error = "Unknown command";
-	 len = -1;
+           len = -1;
 	 }
       }
    va_end (a);
@@ -762,19 +769,25 @@ int xosd_wait_until_no_display(xosd* osd) {
 
 int xosd_set_colour (xosd *osd, char *colour)
    {
-   set_colour (osd, colour);
+     int retval=0;
+  fail_if_null_osd(osd);
+
+   retval=set_colour (osd, colour);
    
-   return 0;
+   return retval;
    }
 
 
 int xosd_set_font (xosd *osd, char *font)
    {
-   set_font (osd, font);
+   int ret=0;
+  fail_if_null_osd(osd);
+
+   ret=set_font (osd, font);
    
    /* force_redraw (osd); */
    
-   return 0;
+   return ret;
    }
 
 static void xosd_update_pos (xosd *osd)
@@ -790,7 +803,7 @@ static void xosd_update_pos (xosd *osd)
 
 int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
    
    osd->shadow_offset = shadow_offset;
    
@@ -799,7 +812,7 @@ int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
 
 int xosd_set_offset (xosd *osd, int offset)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
 
    osd->offset = offset;   
 
@@ -810,7 +823,7 @@ int xosd_set_offset (xosd *osd, int offset)
 
 int xosd_set_pos (xosd *osd, xosd_pos pos)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
    
    osd->pos = pos;
    
@@ -821,7 +834,7 @@ int xosd_set_pos (xosd *osd, xosd_pos pos)
 
 int xosd_get_colour (xosd *osd, int *red, int *green, int *blue)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
    
    if (red)
       *red = osd->colour.red;
@@ -831,19 +844,21 @@ int xosd_get_colour (xosd *osd, int *red, int *green, int *blue)
       *green = osd->colour.green;
 
    return 0;
+
    }
 
 int xosd_set_timeout (xosd *osd, int timeout)
    {
-   set_timeout (osd, timeout);
-   /* xosd_show (osd); */
-   return 0;
+     fail_if_null_osd(osd);
+     set_timeout (osd, timeout);
+     /* xosd_show (osd); */
+     return 0;
    }
 
 
 int xosd_hide (xosd *osd)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
    
    if (osd->mapped)
       {
@@ -857,13 +872,13 @@ int xosd_hide (xosd *osd)
       } 
    else {
      return -1;
-      }
+   }
    
    }
 
 int xosd_show (xosd *osd)
    {
-   assert (osd);
+   fail_if_null_osd (osd);
    
    if (!osd->mapped)
       {
@@ -878,7 +893,7 @@ int xosd_show (xosd *osd)
      {
        return -1;
      }
-   
+     
    }
 
 /* This function will scroll the display up "lines" number of lines */
@@ -886,7 +901,8 @@ int xosd_scroll(xosd *osd,int lines)
 {
   int new_line=0;
 
-  assert(osd);
+  fail_if_null_osd(osd);
+
   assert(lines > 0 && lines <= osd->max_lines);
 
   /* First free everything no longer needed */
@@ -925,7 +941,7 @@ int xosd_scroll(xosd *osd,int lines)
 
 int xosd_get_number_lines(xosd* osd) {
 
-  assert(osd);
+  fail_if_null_osd(osd);
 
   return osd->max_lines;
 }

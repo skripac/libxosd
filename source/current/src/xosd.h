@@ -10,19 +10,19 @@ typedef struct xosd xosd;
 
 /* The type of data that can be displayed. */
 typedef enum
-   {
+  {
      XOSD_percentage, /* Percentage bar (like a progress bar) */
      XOSD_string,     /* Text */
      XOSD_printf,     /* Not implemented */
      XOSD_slider      /* Slider (like a volume control) */
-   } xosd_command;
+  } xosd_command;
 
 /* Position of the display */
 typedef enum
-   {
+  {
     XOSD_top,    /* Top of the screen. */
     XOSD_bottom  /* Bottom of the screen. */
-   } xosd_pos;
+  } xosd_pos;
 
 /* xosd_init -- Create a new xosd "object"
  *
