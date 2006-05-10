@@ -1,49 +1,28 @@
 #DPATCHLEVEL=0
-# Revert back to cache only one line instead of all
---- src/libxosd/xosd.c.orig	2004-08-05 10:06:48.000000000 +0200
-+++ src/libxosd/xosd.c	2004-08-05 10:36:40.000000000 +0200
-@@ -23,6 +23,9 @@
- #define SLIDER_SCALE_ON 0.7
- #define XOFFSET 10
+# Revert broken upstream changes and apply missing parts from my patch
+--- src/libxosd/xosd.c
++++ src/libxosd/xosd.c
+@@ -143,9 +143,6 @@
  
-+#define DEBUG_XSHAPE
-+#undef DEBUG_XSHAPE
-+
- const char *osd_default_font =
-   "-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
- #if 0
-@@ -102,7 +105,7 @@ draw_bar(xosd *osd, int line)
-   int is_slider = l->type == LINE_slider, nbars, on;
-   XRectangle p, m;
-   p.x = XOFFSET;
--  p.y = osd->line_height * line;
-+  p.y = 0;
-   p.width = -osd->extent->y / 2;
-   p.height = -osd->extent->y;
+   DEBUG(Dvalue, "percent=%d, nbars=%d, on=%d", l->value, nbars, on);
  
-@@ -174,7 +177,7 @@ _draw_text(xosd *osd, char *string, int 
- static void
- draw_text(xosd * osd, int line)
- {
--  int x = XOFFSET, y = osd->line_height * line - osd->extent->y;
-+  int x = XOFFSET, y = -osd->extent->y;
-   struct xosd_text *l = &osd->lines[line].text;
+-  /* adjust the y coordinate based on the line number */
+-  p.y += line*osd->line_height;
+-
+   /* Outline */
+   if (osd->outline_offset) {
+     m.x = m.y = -osd->outline_offset;
+@@ -210,9 +207,6 @@
+     break;
+   }
  
-   assert(osd);
-@@ -275,10 +278,10 @@ event_loop(void *osdv)
-                     osd->height);
-       XFreePixmap(osd->display, osd->mask_bitmap);
-       osd->mask_bitmap = XCreatePixmap(osd->display, osd->window,
--                                       osd->screen_width, osd->height, 1);
-+                                       osd->screen_width, osd->line_height, 1);
-       XFreePixmap(osd->display, osd->line_bitmap);
-       osd->line_bitmap = XCreatePixmap(osd->display, osd->window,
--                                       osd->screen_width, osd->height,
-+                                       osd->screen_width, osd->line_height,
-                                        osd->depth);
-     }
-     /* Show display requested. */
-@@ -295,14 +298,14 @@ event_loop(void *osdv)
+-  /* adjust the y coordinate based on the line number */
+-  y += line*osd->line_height;
+-
+   if (osd->shadow_offset) {
+     XSetForeground(osd->display, osd->gc, osd->shadow_pixel);
+     _draw_text(osd, l->string, x + osd->shadow_offset,
+@@ -309,14 +303,14 @@
        DEBUG(Dupdate, "UPD_lines");
        for (line = 0; line < osd->number_lines; line++) {
          int y = osd->line_height * line;
@@ -61,7 +40,7 @@
          }
          switch (osd->lines[line].type) {
          case LINE_text:
-@@ -314,16 +317,22 @@ event_loop(void *osdv)
+@@ -328,16 +322,22 @@
          case LINE_blank:
            break;
          }
@@ -88,7 +67,7 @@
        }
      }
      /* H/V offset or vertical positon was changed. Horizontal alignment is
-@@ -431,12 +440,8 @@ event_loop(void *osdv)
+@@ -445,12 +445,8 @@
               do {
               osd->lines[ytop].width = -1;
               } while (ytop++ < ybot);
