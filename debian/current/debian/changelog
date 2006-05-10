@@ -1,6 +1,13 @@
+xosd (2.2.12-3) unstable; urgency=medium
+
+  * Official upload to unstable.
+  * Ungency medium because of important bug fixes.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu,  4 Nov 2004 09:12:29 +0100
+
 xosd (2.2.12-2) experimental; urgency=low
 
-  * configure.ac: Remove dependency on libxt-dev (closes: #279513)
+  * 50_autoconf_xt.diff: Remove dependency on libxt-dev (closes: #279513)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed,  3 Nov 2004 18:08:16 +0100
 
@@ -8,9 +15,9 @@ xosd (2.2.12-1) experimental; urgency=low
 
   * New upstream version.
     - Applies my 4[0123] patches.
-  * 44_endofhex.diff: Fix potential buffer overflow.
+  * 44_endofhex.diff: Fix potential buffer overflow. (closes: #273374)
   * 45_timeout.diff: Fix negative timeouts. (closes: #277027)
-  * 46_event.diff: Fix hang. (closes: #269671,#279406,#271807)
+  * 46_event.diff: Fix hang. (closes: #269671,#279406,#271807,#272692)
   * 47_exposure.diff: Reduce events to improve speed.
   * 48_update.diff: Fix lost update problem.
   * 49_debug.diff: Debug X11 events.
