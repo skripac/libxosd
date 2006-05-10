@@ -2,6 +2,7 @@ xosd (2.2.9-pre1-1) experimental; urgency=low
 
   * New upstream version.
     - Applied my 0..30/26 patches, remove all expect 26_one_line.diff.
+  * 31_segv.diff: Crashes xmms after a short time (closes: #265561)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Mon, 16 Aug 2004 17:57:56 +0200
 
