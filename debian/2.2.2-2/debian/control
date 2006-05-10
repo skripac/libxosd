@@ -1,0 +1,49 @@
+Source: xosd
+Section: x11
+Priority: optional
+Maintainer: Philipp Matthias Hahn <pmhahn@debian.org>
+Build-Depends: libgtk1.2-dev, xmms-dev (>= 1.2.0-1), libtool, debhelper (>= 4.1.0), libgdk-pixbuf-dev, xlibs-pic, cdbs
+Build-Conflicts: libxosd-dev (<< ${Source-Version})
+Standards-Version: 3.5.10.0
+
+Package: libxosd2
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Conflicts: libxosd
+Replaces: libxosd, libxosd0
+Description: X On-Screen Display library - runtime
+ A library for displaying a TV-like on-screen display in X.
+ .
+ Homepage: http://www.ignavus.net/software.html
+
+Package: libxosd-dev
+Section: libdevel
+Architecture: any
+Depends: libxosd2 (= ${Source-Version}), xlibs-dev, xlibs-pic
+Conflicts: libxosd
+Description: X On-Screen Display library - development
+ A library for displaying a TV-like on-screen display in X.
+ .
+ This package contains the development headers needed for compiling
+ programs against libxosd.
+
+Package: xosd-bin
+Architecture: any
+Depends: libxosd2 (= ${Source-Version})
+Description: X On-Screen Display library - binary files
+ This package contains binary files shipped with the X OSD library:
+ osd_cat - a 'cat' like program which will display its output in an
+ OSD-like window
+ .
+ Homepage: http://www.ignavus.net/software.html
+
+Package: xmms-osd-plugin
+Section: sound
+Architecture: any
+Depends: xmms (>= 1.2.0), libxosd2 (= ${Source-Version})
+Description: XMMS plugin using xosd
+ An XMMS plugin which displays volume and track information like
+ on-screen displays on TVs and monitors. 
+ .
+ Homepage: http://www.ignavus.net/software.html
