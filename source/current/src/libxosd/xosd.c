@@ -710,74 +710,10 @@ set_colour(xosd * osd, const char *colour)
   return retval;
 }
 
-static Atom net_wm;
-static Atom net_wm_state;
-static Atom net_wm_top;
-
-#define _NET_WM_STATE_ADD           1   /* add/set property */
-
-/*
- * tested with kde 
- */
-static void
-net_wm_stay_on_top(Display * dpy, Window win)
+/* Tell window manager to put window topmost. {{{ */
+void stay_on_top(Display * dpy, Window win)
 {
-  XEvent e;
-
-  FUNCTION_START(Dfunction);
-  e.xclient.type = ClientMessage;
-  e.xclient.message_type = net_wm_state;
-  e.xclient.display = dpy;
-  e.xclient.window = win;
-  e.xclient.format = 32;
-  e.xclient.data.l[0] = _NET_WM_STATE_ADD;
-  e.xclient.data.l[1] = net_wm_top;
-  e.xclient.data.l[2] = 0l;
-  e.xclient.data.l[3] = 0l;
-  e.xclient.data.l[4] = 0l;
-
-  XSendEvent(dpy, DefaultRootWindow(dpy), False,
-             SubstructureRedirectMask, &e);
-}
-
-/*
- * ------------------------------------------------------------------------ 
- */
-
-static Atom gnome;
-static Atom gnome_layer;
-
-#define WIN_LAYER_ONTOP                  6
-
-/*
- * tested with icewm + WindowMaker 
- */
-static void
-gnome_stay_on_top(Display * dpy, Window win)
-{
-  XClientMessageEvent xev;
-
-  FUNCTION_START(Dfunction);
-  memset(&xev, 0, sizeof(xev));
-  xev.type = ClientMessage;
-  xev.window = win;
-  xev.message_type = gnome_layer;
-  xev.format = 32;
-  xev.data.l[0] = WIN_LAYER_ONTOP;
-
-  XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask,
-             (XEvent *) & xev);
-
-}
-
-/*
- * ------------------------------------------------------------------------ 
- */
-
-static void
-stay_on_top(Display * dpy, Window win)
-{
-  Atom type;
+  Atom gnome, net_wm, type;
   int format;
   unsigned long nitems, bytesafter;
   unsigned char *args = NULL;
@@ -787,14 +723,12 @@ stay_on_top(Display * dpy, Window win)
   /*
    * build atoms 
    */
-  net_wm = XInternAtom(dpy, "_NET_SUPPORTED", False);
-  net_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
-  net_wm_top = XInternAtom(dpy, "_NET_WM_STATE_STAYS_ON_TOP", False);
   gnome = XInternAtom(dpy, "_WIN_SUPPORTING_WM_CHECK", False);
-  gnome_layer = XInternAtom(dpy, "_WIN_LAYER", False);
+  net_wm = XInternAtom(dpy, "_NET_SUPPORTED", False);
 
   /*
    * gnome-compilant 
+   * tested with icewm + WindowMaker 
    */
   if (Success == XGetWindowProperty
       (dpy, root, gnome, 0, (65536 / sizeof(long)), False,
@@ -803,21 +737,51 @@ stay_on_top(Display * dpy, Window win)
     /*
      * FIXME: check capabilities 
      */
-    gnome_stay_on_top(dpy, win);
+    XClientMessageEvent xev;
+    Atom gnome_layer = XInternAtom(dpy, "_WIN_LAYER", False);
+
+    memset(&xev, 0, sizeof(xev));
+    xev.type = ClientMessage;
+    xev.window = win;
+    xev.message_type = gnome_layer;
+    xev.format = 32;
+    xev.data.l[0] = 6 /* WIN_LAYER_ONTOP */;
+
+    XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask,
+        (XEvent *) & xev);
     XFree(args);
   }
   /*
-   * netwm compliant 
+   * netwm compliant.
+   * tested with kde 
    */
   else if (Success == XGetWindowProperty
            (dpy, root, net_wm, 0, (65536 / sizeof(long)), False,
             AnyPropertyType, &type, &format, &nitems, &bytesafter, &args)
            && nitems > 0) {
-    net_wm_stay_on_top(dpy, win);
+    XEvent e;
+    Atom net_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
+    Atom net_wm_top = XInternAtom(dpy, "_NET_WM_STATE_STAYS_ON_TOP", False);
+
+    memset(&e, 0, sizeof(e));
+    e.xclient.type = ClientMessage;
+    e.xclient.message_type = net_wm_state;
+    e.xclient.display = dpy;
+    e.xclient.window = win;
+    e.xclient.format = 32;
+    e.xclient.data.l[0] = 1 /* _NET_WM_STATE_ADD */;
+    e.xclient.data.l[1] = net_wm_top;
+    e.xclient.data.l[2] = 0l;
+    e.xclient.data.l[3] = 0l;
+    e.xclient.data.l[4] = 0l;
+
+    XSendEvent(dpy, DefaultRootWindow(dpy), False,
+        SubstructureRedirectMask, &e);
     XFree(args);
   }
   XRaiseWindow(dpy, win);
 }
+/* }}} */
 
 /* xosd_init -- Create a new xosd "object" {{{
  * Deprecated: Use xosd_create. */
