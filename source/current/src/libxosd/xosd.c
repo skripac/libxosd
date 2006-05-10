@@ -921,11 +921,10 @@ int xosd_wait_until_no_display(xosd* osd)
 {
   if (osd == NULL) return -1;
 
-  while (xosd_is_onscreen(osd)) {
-    pthread_mutex_lock (&osd->mutex);
+  pthread_mutex_lock (&osd->mutex);
+  while (osd->mapped)
     pthread_cond_wait(&osd->cond_hide, &osd->mutex);
-    pthread_mutex_unlock (&osd->mutex);
-  }
+  pthread_mutex_unlock (&osd->mutex);
 
   return 0;
 }
