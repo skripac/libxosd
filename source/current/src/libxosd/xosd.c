@@ -43,6 +43,7 @@
 //#else
 #define XDRAWSTRING XmbDrawString
 //#endif
+#define SLIDER_WIDTH 0.8
 
 const char* osd_default_font="-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
 static const char* osd_default_colour="green";
@@ -125,7 +126,7 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
   barh = -osd->extent->y;
   barw = barh / 2;
 
-  nbars = (osd->width * 0.8) / barw;
+  nbars = (osd->width * SLIDER_WIDTH) / barw;
   on = nbars * percent / 100;
 
   for (i = 0; i < nbars; x += barw, i++) {
@@ -133,10 +134,10 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
     int yy = y;
 
     if (is_slider ? i == on : i < on) {
-      w *= 0.7;
+      w *= SLIDER_WIDTH-0.1;
     }
     else {
-      w *= 0.8;
+      w *= SLIDER_WIDTH;
       h /= 3;
       yy += h;
     }
@@ -196,19 +197,19 @@ static void expose_line(xosd *osd, int line)
 
     case LINE_percentage:
     case LINE_slider:
-      /*
+      
       if (osd->align)
 	{
 	  if (osd->align==XOSD_right)
 	    {
-	      x=osd->width*0.2;
+	      x=osd->width*(1-SLIDER_WIDTH);
 	    }
 	  else
 	    {
-	      x=osd->width*0.1;
+	      x=osd->width*((1-SLIDER_WIDTH)/2);
 	    }
 	}
-      */
+      
       draw_bar(osd,osd->mask_bitmap,osd->mask_gc,x,y,l->percentage, l->type==LINE_slider,0);
       draw_bar(osd,osd->window,osd->gc,x,y,l->percentage,l->type==LINE_slider,1);
 

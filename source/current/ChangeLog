@@ -3,6 +3,8 @@
 	new xosd_init function added. The other one will be
 	  removed eventually (Tim Wright)
 	xosd horizontal indent added (Etan Reisner with modifications by Tim Wright)
+	slider centering bugfix patch (Torsten Sievers because Tim Wright's thoughts 
+	  were wrong:)
 	
 1.1.1:
         X concurrency control patch (Tim Wright)
