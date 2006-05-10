@@ -20,8 +20,9 @@ typedef enum
 /* Position of the display */
 typedef enum
   {
-    XOSD_top,    /* Top of the screen. */
-    XOSD_bottom  /* Bottom of the screen. */
+    XOSD_top=0,    /* Top of the screen. */
+    XOSD_bottom,  /* Bottom of the screen. */
+    XOSD_middle  /* middle of the screen. */
   } xosd_pos;
 
 /* Alignment of the display */
@@ -49,11 +50,15 @@ typedef enum
  * RETURNS
  *     A new xosd structure.
  */
+
+xosd *xosd_create(int number_lines);
+
+/* deprecated */
 xosd *xosd_init (char *font, char *colour, int timeout,
 		 xosd_pos pos, int offset, int shadow_offset,
 		 int number_lines);
 
-/* xosd_uninit -- Destroy a xosd "object"
+/* xosd_destroy -- Destroy a xosd "object"
  *
  * ARGUMENTS
  *     osd  The xosd "object" to destroy.
@@ -62,6 +67,9 @@ xosd *xosd_init (char *font, char *colour, int timeout,
  *   0 on success
  *  -1 on failure
  */
+int xosd_destroy (xosd *osd);
+
+/* deprecated */
 int xosd_uninit (xosd *osd);
 
 /* xosd_display -- Display information
@@ -169,7 +177,7 @@ int xosd_set_align (xosd *osd, xosd_align align);
 */
 int xosd_set_shadow_offset (xosd *osd, int shadow_offset);
 
-/* xosd_set_offset -- Change the number of pixels the display is
+/* xosd_set_horizontal_offset -- Change the number of pixels the display is
  *                    offset from the position
  *
  * ARGUMENTS
@@ -182,7 +190,23 @@ int xosd_set_shadow_offset (xosd *osd, int shadow_offset);
  *  -1 on failure
  *
 */
-int xosd_set_offset (xosd *osd, int offset);
+int xosd_set_horizontal_offset (xosd *osd, int offset);
+
+
+/* xosd_set_vertical_offset -- Change the number of pixels the display is
+ *                    offset from the position
+ *
+ * ARGUMENTS
+ *     osd      The xosd "object".
+ *     offset   The number of pixels the display is offset from the
+ *              position.
+ *
+ * RETURNS
+ *   0 on success
+ *  -1 on failure
+ *
+*/
+int xosd_set_vertical_offset (xosd *osd, int offset);
 
 /* xosd_set_timeout -- Change the time before display is hidden.
  *
@@ -208,7 +232,7 @@ int xosd_set_timeout (xosd *osd, int timeout);
  *   0 on success
  *  -1 on failure, and colour is set to white
  */
-int xosd_set_colour (xosd *osd, char *colour);
+int xosd_set_colour (xosd *osd, const char *colour);
 
 /* xosd_set_font -- Change the text-display font
  *
@@ -220,7 +244,7 @@ int xosd_set_colour (xosd *osd, char *colour);
  *     0 on success
  *    -1 on failure
 */
-int xosd_set_font (xosd *osd, char *font);
+int xosd_set_font (xosd *osd, const char *font);
 
 /* xosd_get_colour -- Gets the RGB value of the display's colour
  *
