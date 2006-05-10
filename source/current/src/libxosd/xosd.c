@@ -334,8 +334,11 @@ event_loop(void *osdv)
                   osd->screen_width, osd->line_height, 0, y);
 #ifndef DEBUG_XSHAPE
         if (osd->update & UPD_mask) {
-          XCopyPlane(osd->display, osd->mask_bitmap, osd->mask_bitmap, osd->mask_gc_back, 0, 0, osd->screen_width, osd->line_height, 0, 0, (1<<0));
-          XShapeCombineMask(osd->display, osd->window, ShapeBounding, 0, y, osd->mask_bitmap, ShapeSubtract);
+          XCopyPlane(osd->display, osd->mask_bitmap, osd->mask_bitmap,
+                     osd->mask_gc_back, 0, 0, osd->screen_width,
+                     osd->line_height, 0, 0, (1 << 0));
+          XShapeCombineMask(osd->display, osd->window, ShapeBounding, 0, y,
+                            osd->mask_bitmap, ShapeSubtract);
         }
 #endif
       }
@@ -876,7 +879,7 @@ int
 xosd_display(xosd * osd, int line, xosd_command command, ...)
 {
   int ret = -1;
-  union xosd_line newline = { type: LINE_blank };
+union xosd_line newline = { type:LINE_blank };
   va_list a;
 
   FUNCTION_START(Dfunction);
@@ -937,12 +940,12 @@ xosd_display(xosd * osd, int line, xosd_command command, ...)
   _xosd_lock(osd);
   /* Free old entry */
   switch (osd->lines[line].type) {
-    case LINE_text:
-      free (osd->lines[line].text.string);
-    case LINE_blank:
-    case LINE_percentage:
-    case LINE_slider:
-      break;
+  case LINE_text:
+    free(osd->lines[line].text.string);
+  case LINE_blank:
+  case LINE_percentage:
+  case LINE_slider:
+    break;
   }
   osd->lines[line] = newline;
   osd->update |= UPD_content | UPD_timer | UPD_show;
