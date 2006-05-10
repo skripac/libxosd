@@ -4,6 +4,7 @@
 	Added "Apply" button to xmms plugin config dialog
 	Fixed a bug in set_font which caused it to crash if the font was 
 		non-existant
+	Added GPL to the top of xmms_osd.c
 
 0.6.1:  Fixed bug on non-Gnome compliant window managers
 
