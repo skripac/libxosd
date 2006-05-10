@@ -38,6 +38,8 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
+@BUILD_NEW_PLUGIN_TRUE@am__append_1 = libxmms_osd.la
+@BUILD_OLD_PLUGIN_TRUE@am__append_2 = libxmms_osd_old.la
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
 AMDEP_TRUE = @AMDEP_TRUE@
@@ -46,6 +48,10 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BUILD_NEW_PLUGIN_FALSE = @BUILD_NEW_PLUGIN_FALSE@
+BUILD_NEW_PLUGIN_TRUE = @BUILD_NEW_PLUGIN_TRUE@
+BUILD_OLD_PLUGIN_FALSE = @BUILD_OLD_PLUGIN_FALSE@
+BUILD_OLD_PLUGIN_TRUE = @BUILD_OLD_PLUGIN_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -61,12 +67,11 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 GDK_PIXBUF_CFLAGS = @GDK_PIXBUF_CFLAGS@
+GDK_PIXBUF_CONFIG = @GDK_PIXBUF_CONFIG@
 GDK_PIXBUF_LIBS = @GDK_PIXBUF_LIBS@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
-HAVE_XINERAMA_FALSE = @HAVE_XINERAMA_FALSE@
-HAVE_XINERAMA_TRUE = @HAVE_XINERAMA_TRUE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -96,15 +101,22 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
-SELECTED_PLUGINS = @SELECTED_PLUGINS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
 XMMS_CFLAGS = @XMMS_CFLAGS@
+XMMS_CONFIG = @XMMS_CONFIG@
+XMMS_DATA_DIR = @XMMS_DATA_DIR@
+XMMS_EFFECT_PLUGIN_DIR = @XMMS_EFFECT_PLUGIN_DIR@
+XMMS_GENERAL_PLUGIN_DIR = @XMMS_GENERAL_PLUGIN_DIR@
+XMMS_INPUT_PLUGIN_DIR = @XMMS_INPUT_PLUGIN_DIR@
 XMMS_LIBS = @XMMS_LIBS@
+XMMS_OUTPUT_PLUGIN_DIR = @XMMS_OUTPUT_PLUGIN_DIR@
 XMMS_PIXMAPDIR = @XMMS_PIXMAPDIR@
 XMMS_PLUGIN_DIR = @XMMS_PLUGIN_DIR@
+XMMS_VERSION = @XMMS_VERSION@
+XMMS_VISUALIZATION_PLUGIN_DIR = @XMMS_VISUALIZATION_PLUGIN_DIR@
 X_CFLAGS = @X_CFLAGS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_LIBS = @X_LIBS@
@@ -125,7 +137,6 @@ build_os = @build_os@
 build_vendor = @build_vendor@
 datadir = @datadir@
 exec_prefix = @exec_prefix@
-gdk_pixbuf_config_script = @gdk_pixbuf_config_script@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -145,29 +156,43 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-xmms_config_script = @xmms_config_script@
 
-AM_CFLAGS = @XMMS_CFLAGS@ @GTK_CFLAGS@ @GDK_PIXBUF_CFLAGS@ -I$(top_srcdir)/src
+AM_CFLAGS = @XMMS_CFLAGS@ @GTK_CFLAGS@ @GDK_PIXBUF_CFLAGS@ \
+	-I$(top_srcdir)/src -DXMMS_PIXMAPDIR=\"$(XMMS_PIXMAPDIR)\"
 
-xmmsplugindir = ${XMMS_PLUGIN_DIR}
 
-xmmsplugin_LTLIBRARIES = libxmms_osd.la
-libxmms_osd_la_SOURCES = xmms_osd.c
+xmmsplugindir = @XMMS_PLUGIN_DIR@
+
+xmmsplugin_LTLIBRARIES = $(am__append_1) $(am__append_2)
+
+libxmms_osd_la_SOURCES = xmms_osd.c dlg_config.c dlg_font.c dlg_colour.c xmms_osd.h
 libxmms_osd_la_LIBADD = $(top_builddir)/src/libxosd/libxosd.la
 libxmms_osd_la_LDFLAGS = -module -avoid-version @GDK_PIXBUF_LIBS@
+
+libxmms_osd_old_la_SOURCES = xmms_osd.c dlg_config_old.c dlg_font.c dlg_colour.c xmms_osd.h
+libxmms_osd_old_la_LIBADD = $(top_builddir)/src/libxosd/libxosd.la
+libxmms_osd_old_la_LDFLAGS = -module -avoid-version
 subdir = src/xmms_plugin
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(xmmsplugin_LTLIBRARIES)
 
 libxmms_osd_la_DEPENDENCIES = $(top_builddir)/src/libxosd/libxosd.la
-am_libxmms_osd_la_OBJECTS = xmms_osd.lo
+am_libxmms_osd_la_OBJECTS = xmms_osd.lo dlg_config.lo dlg_font.lo \
+	dlg_colour.lo
 libxmms_osd_la_OBJECTS = $(am_libxmms_osd_la_OBJECTS)
+libxmms_osd_old_la_DEPENDENCIES = $(top_builddir)/src/libxosd/libxosd.la
+am_libxmms_osd_old_la_OBJECTS = xmms_osd.lo dlg_config_old.lo \
+	dlg_font.lo dlg_colour.lo
+libxmms_osd_old_la_OBJECTS = $(am_libxmms_osd_old_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/xmms_osd.Plo
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/dlg_colour.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/dlg_config.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/dlg_config_old.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/dlg_font.Plo ./$(DEPDIR)/xmms_osd.Plo
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -175,15 +200,15 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(libxmms_osd_la_SOURCES)
+DIST_SOURCES = $(libxmms_osd_la_SOURCES) $(libxmms_osd_old_la_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in
-SOURCES = $(libxmms_osd_la_SOURCES)
+SOURCES = $(libxmms_osd_la_SOURCES) $(libxmms_osd_old_la_SOURCES)
 
 all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
 	  $(AUTOMAKE) --gnu  src/xmms_plugin/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -218,6 +243,8 @@ clean-xmmspluginLTLIBRARIES:
 	done
 libxmms_osd.la: $(libxmms_osd_la_OBJECTS) $(libxmms_osd_la_DEPENDENCIES) 
 	$(LINK) -rpath $(xmmsplugindir) $(libxmms_osd_la_LDFLAGS) $(libxmms_osd_la_OBJECTS) $(libxmms_osd_la_LIBADD) $(LIBS)
+libxmms_osd_old.la: $(libxmms_osd_old_la_OBJECTS) $(libxmms_osd_old_la_DEPENDENCIES) 
+	$(LINK) -rpath $(xmmsplugindir) $(libxmms_osd_old_la_LDFLAGS) $(libxmms_osd_old_la_OBJECTS) $(libxmms_osd_old_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -225,6 +252,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlg_colour.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlg_config.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlg_config_old.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlg_font.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xmms_osd.Plo@am__quote@
 
 distclean-depend:
