@@ -1,3 +1,9 @@
+xosd (0.6.1-2) unstable; urgency=low
+
+  * Fix override disparity
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Fri, 19 Jan 2001 09:35:53 +0100
+
 xosd (0.6.1-1) unstable; urgency=low
 
   * New upstream version
