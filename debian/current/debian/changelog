@@ -1,5 +1,6 @@
 xosd (2.2.13-2) experimental; urgency=low
 
+  * 51_timeout.diff: Fix timeout code again.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 10 Nov 2004 16:32:19 +0100
 
