@@ -1,0 +1,18 @@
+--- src/libxosd/xosd.c.orig
++++ src/libxosd/xosd.c
+@@ -1183,6 +1183,7 @@
+ 
+ 	pthread_mutex_lock (&osd->mutex);
+ 	osd->pos = pos;
++	update_pos (osd);
+ 	force_redraw(osd, -1);
+ 	pthread_mutex_unlock (&osd->mutex);
+ 
+@@ -1195,6 +1196,7 @@
+ 
+ 	pthread_mutex_lock (&osd->mutex);
+ 	osd->align = align;
++	update_pos (osd);
+ 	force_redraw (osd, -1);
+ 	pthread_mutex_unlock (&osd->mutex);
+ 
