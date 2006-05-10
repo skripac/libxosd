@@ -1,3 +1,7 @@
+1.0.2: 
+       Autoconf fixes:
+        Cleaned up autoconf scripts (patch from Philipp Matthias Hahn)
+	
 1.0.1:	
 	Merged xosd code-clean and alignment branch (Hans Verkuil's branch)
 	  this branch also implements XOSD_printf, fixes a bug
