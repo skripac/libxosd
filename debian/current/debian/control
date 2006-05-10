@@ -45,6 +45,6 @@ Architecture: any
 Depends: xmms (>= 1.2.0), ${shlibs:Depends}
 Description: XMMS plugin using xosd
  An XMMS plugin which displays volume and track information like
- on-screen displays on TVs and monitors. 
+ on-screen displays on TVs and monitors.
  .
  Homepage: http://www.ignavus.net/software.html
