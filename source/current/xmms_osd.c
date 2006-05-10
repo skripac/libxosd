@@ -34,7 +34,7 @@ GeneralPlugin gp =
 
 xosd *osd;
 guint timeout_tag;
-int previous_song, previous_length, previous_volume;
+int previous_song, previous_length, previous_volume, previous_balance;
 gboolean previous_playing, previous_paused, previous_repeat, previous_shuffle;
 gchar *font;
 gchar *colour;
@@ -431,7 +431,7 @@ static void replace_hexcodes (gchar *text)
 
 static gint timeout_func(gpointer data)
    {
-   gint pos, length, volume;
+   gint pos, length, volume, balance;
    gboolean playing, paused, repeat, shuffle;
    gchar *text;
 
@@ -447,6 +447,7 @@ static gint timeout_func(gpointer data)
    volume = xmms_remote_get_main_volume (gp.xmms_session);
    shuffle = xmms_remote_is_shuffle (gp.xmms_session);
    repeat = xmms_remote_is_repeat (gp.xmms_session);
+   balance = (xmms_remote_get_balance(gp.xmms_session) + 100) / 2;
    
    if (pos != previous_song || length != previous_length)
       {
@@ -462,6 +463,7 @@ static gint timeout_func(gpointer data)
       previous_song = pos;
       previous_length = length;      
       }
+
    else if (playing != previous_playing)
       {
       if (playing)
@@ -502,6 +504,14 @@ static gint timeout_func(gpointer data)
       xosd_display (osd, 0, XOSD_string, "Volume");
       xosd_display (osd, 1, XOSD_percentage, volume);
       previous_volume = volume;
+      }
+   
+   else if (balance != previous_balance)
+      {
+      xosd_display (osd, 0, XOSD_string, "Balance");
+      xosd_display (osd, 1, XOSD_slider, balance);
+      
+      previous_balance = balance;
       }
 
    else if (repeat != previous_repeat)
