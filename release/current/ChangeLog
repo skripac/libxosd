@@ -7,6 +7,8 @@
 	debug patch (P Hahn)
 	configure.ac patch (P Hahn)
 	beep media player plugin (G Washk)
+	configure patch so xosd compiles when beep media player not 
+	  installed (T Wright)
 
 2.2.12: 
 	Applied three patches from the debian maintainer. The first cleans
