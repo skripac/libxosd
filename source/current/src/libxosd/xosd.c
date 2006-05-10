@@ -312,7 +312,7 @@ event_loop(void *osdv)
         y = osd->screen_height - osd->height - osd->voffset;
         break;
       case XOSD_middle:
-        y = osd->screen_height / 2 - osd->height - osd->voffset;
+        y = (osd->screen_height - osd->height) / 2 - osd->voffset;
         break;
       case XOSD_top:
         y = osd->voffset;
