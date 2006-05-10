@@ -588,37 +588,13 @@ static void stay_on_top(Display *dpy, Window win)
   XRaiseWindow(dpy, win);
 }
 
-xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int voffset, int shadow_offset, int number_lines)
+/** Deprecated init. */
+xosd *xosd_create (int number_lines) 
 {
-
-  xosd *osd = xosd_create(number_lines);
-  
-  if (osd == NULL) {
-    return NULL;
-  }
-
-  if (set_font(osd, font) == -1) {
-    if (set_font(osd, osd_default_font) == -1) {
-      xosd_destroy (osd);
-      /* 
-	 we do not set xosd_error, as set_font has already
-	 set it to a sensible error message. 
-      */
-      return NULL;
-    } 
-  }
-  set_colour(osd, colour);
-  set_timeout(osd, timeout);
-  xosd_set_pos(osd, pos);
-  xosd_set_vertical_offset(osd, voffset);
-  xosd_set_shadow_offset(osd, shadow_offset);
-  
-  resize(osd);
-
-  return osd;
+  return xosd_init (osd_default_font, osd_default_colour, -1, XOSD_top, 0, 0, number_lines);
 }
 
-xosd *xosd_create (int number_lines) 
+xosd *xosd_init (const char *font, const char *colour, int timeout, xosd_pos pos, int voffset, int shadow_offset, int number_lines)
 {
   xosd *osd;
   int event_basep, error_basep, i;
@@ -726,9 +702,9 @@ xosd *xosd_create (int number_lines)
   XStoreName (osd->display, osd->window, "XOSD");
 
   DEBUG("setting pos");
-  xosd_set_pos(osd, 0);
+  xosd_set_pos (osd, pos);
   DEBUG("setting vertical offset");
-  xosd_set_vertical_offset (osd, 0);
+  xosd_set_vertical_offset (osd, voffset);
   DEBUG("setting horizontal offset");
   xosd_set_horizontal_offset (osd, 0); 
 
@@ -748,19 +724,20 @@ xosd *xosd_create (int number_lines)
 
 
   DEBUG("setting colour");
-  set_colour (osd, osd_default_colour); 
-
+  set_colour (osd, colour); 
+  DEBUG("setting shadow offset");
+  xosd_set_shadow_offset(osd, shadow_offset);
   DEBUG("setting timeout");
-  set_timeout (osd, -1); 
+  xosd_set_timeout (osd, timeout); 
 
   DEBUG("Request exposure events");
   XSelectInput (osd->display, osd->window, ExposureMask);
 
   DEBUG("stay on top");
   stay_on_top(osd->display, osd->window);
-
-
- 
+  
+  DEBUG("finale resize");
+  resize(osd); /* Shoule be inside lock, but no threads yet */
 
   DEBUG("initializing event thread");
   pthread_create (&osd->event_thread, NULL, event_loop, osd);

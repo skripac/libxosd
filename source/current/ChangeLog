@@ -9,6 +9,7 @@
  	Start using assert()
  	More const parameters
  	Use switch() instead of nested if()
+ 	Base deprecated osd_create() on newer osd_init()
 
 2.1.0:
         New xmms plugin! well, actually the plugin from 2.0.0 has been 
