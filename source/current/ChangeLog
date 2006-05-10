@@ -1,6 +1,7 @@
 2.2.6:
         FontSet fixes (Philipp Matthias Hahn)
 	Title change fix (Philipp Matthias Hahn)
+	Memory leak patch (Philipp Matthias Hahn)
 	New TODO list  (Philipp Matthias Hahn)
 	
 2.2.5:

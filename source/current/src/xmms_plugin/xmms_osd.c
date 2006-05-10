@@ -325,8 +325,8 @@ timeout_func (gpointer data)
 {
   struct state current;
   char *text = NULL;
-  char *title = NULL;
   char *title2 = NULL;
+  gint playlist_length;
 
   DEBUG ("timeout func");
 
@@ -346,7 +346,8 @@ timeout_func (gpointer data)
 
   /* Get the current title only if the playlist is not empty. Otherwise
    * it'll crash. Don't forget to free the title! */
-  current.title = xmms_remote_get_playlist_length (gp.xmms_session)
+  playlist_length = xmms_remote_get_playlist_length (gp.xmms_session);
+  current.title = playlist_length
     ? xmms_remote_get_playlist_title (gp.xmms_session, current.pos) : NULL;
   if (current.title)
     {
@@ -372,14 +373,11 @@ timeout_func (gpointer data)
     {
       if (show.trackname)
 	{
-	  title = current.title;
-	  if (title != NULL)
+	  if (current.title != NULL)
 	    {
 	      title2 = malloc (strlen (current.title) + 26);
 	      sprintf (title2, "%i/%i: %s",
-		       xmms_remote_get_playlist_pos (gp.xmms_session) + 1,
-		       xmms_remote_get_playlist_length (gp.xmms_session),
-		       current.title);
+		       current.pos + 1, playlist_length, current.title);
 	    }
 	}
     }
@@ -399,10 +397,10 @@ timeout_func (gpointer data)
 	    {
 	      if (current.title != NULL)
 		{
-		  title2 = malloc (strlen (current.title) + 52);
+		  title2 = realloc (title2, strlen (current.title) + 52);
 		  sprintf (title2, "%i/%i: %s (%.2i:%.2i)",
-			   xmms_remote_get_playlist_pos (gp.xmms_session) + 1,
-			   xmms_remote_get_playlist_length (gp.xmms_session),
+			   current.pos + 1,
+			   playlist_length,
 			   current.title,
 			   xmms_remote_get_output_time (gp.xmms_session) /
 			   1000 / 60,
