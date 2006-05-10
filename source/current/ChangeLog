@@ -1,3 +1,5 @@
+1.0.0-pre1: New maintainer: Tim Wright (tnw13@cosc.canterbury.ac.nz)
+
 0.7.0:  Added "XOSD_Slider" type to possible display types
 	Added balance display to xmms plugin
 	Fixed spelling mistake in osd_cat man page
