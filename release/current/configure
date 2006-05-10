@@ -876,7 +876,7 @@ fi
 
 PACKAGE=xosd
 
-VERSION=1.0.0pre3
+VERSION=1.0.2
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { echo "configure: error: source directory already configured; run "make distclean" there first" 1>&2; exit 1; }
@@ -960,7 +960,7 @@ fi
 
 
 PACKAGE=xosd
-VERSION=1.0.0
+VERSION=1.0.2
 
 
 echo $ac_n "checking whether to enable maintainer-specific portions of Makefiles""... $ac_c" 1>&6
@@ -6310,7 +6310,7 @@ M4DATADIR="$datadir/aclocal"
 # version crud
 LT_CURRENT=1
 LT_AGE=0
-LT_REVISION=1
+LT_REVISION=2
 
 
 
@@ -7011,10 +7011,12 @@ else
 fi
 
 
+SELECTED_PLUGINS=
+
 # Extract the first word of "xmms-config", so it can be a program name with args.
 set dummy xmms-config; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:7018: checking for $ac_word" >&5
+echo "configure:7020: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_xmms_config_script'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -7048,9 +7050,7 @@ else
 fi
 
 if test "x$xmms_config_script" = "xnone" ; then
-	echo "*** xmms-config script not found!  Do you have xmms-devel"
-	echo "*** installed??"
-	{ echo "configure: error: xmms-config not found" 1>&2; exit 1; }
+	echo "*** xmms-config script not found. xmms plugin will not be built"
 else
 	XMMS_CFLAGS=`$xmms_config_script --cflags`
 	XMMS_LIBS=`$xmms_config_script --libs`
@@ -7063,7 +7063,10 @@ echo "configure:7059: checking for xmms plugin directory" >&5
 	
 	
 	
+	SELECTED_PLUGINS="$SELECTED_PLUGINS xmms_plugin"
 fi
+
+
 
 cat >> confdefs.h <<EOF
 #define XOSD_VERSION "${VERSION}"
@@ -7186,6 +7189,8 @@ ac_given_INSTALL="$INSTALL"
 trap 'rm -fr `echo "
 Makefile
 src/Makefile
+src/libxosd/Makefile
+src/xmms_plugin/Makefile
 macros/Makefile
 man/Makefile
 script/Makefile
@@ -7271,6 +7276,7 @@ s%@xmms_config_script@%$xmms_config_script%g
 s%@XMMS_CFLAGS@%$XMMS_CFLAGS%g
 s%@XMMS_LIBS@%$XMMS_LIBS%g
 s%@XMMS_PLUGIN_DIR@%$XMMS_PLUGIN_DIR%g
+s%@SELECTED_PLUGINS@%$SELECTED_PLUGINS%g
 
 CEOF
 EOF
@@ -7314,6 +7320,8 @@ cat >> $CONFIG_STATUS <<EOF
 
 CONFIG_FILES=\${CONFIG_FILES-"Makefile
 src/Makefile
+src/libxosd/Makefile
+src/xmms_plugin/Makefile
 macros/Makefile
 man/Makefile
 script/Makefile
