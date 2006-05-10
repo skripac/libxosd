@@ -6,6 +6,7 @@
 	new man pages (Michael JasonSmith --- we're moving to an XML file
 	  format for man pages)
 	cool xmms plugin patch (Michael JasonSmith)
+	osd_cat incorrect argument patch (Tim Wright)
 	
 2.0.0: 
         XMMS plugin configure patch (Michael JasonSmith)
