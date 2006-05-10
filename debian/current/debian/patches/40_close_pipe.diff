@@ -1,0 +1,13 @@
+#DPATCHLEVEL=0
+# Close pipes on destroy (#270722)
+--- src/libxosd/xosd.c~	2004-09-02 23:46:16.000000000 +0200
++++ src/libxosd/xosd.c	2004-09-09 10:47:35.000000000 +0200
+@@ -836,6 +836,8 @@ xosd_destroy(xosd * osd)
+   pthread_cond_destroy(&osd->cond_wait);
+   pthread_mutex_destroy(&osd->mutex_sync);
+   pthread_mutex_destroy(&osd->mutex);
++  close(osd->pipefd[0]);
++  close(osd->pipefd[1]);
+ 
+   DEBUG(Dtrace, "freeing osd structure");
+   free(osd);
