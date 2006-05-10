@@ -665,21 +665,20 @@ static gint timeout_func(gpointer data)
 	   
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
 	  if (text) {
-	  replace_hexcodes (text);
-	   
-	  /** 
-	   * Check to see if the title of the song has changed.
-	   */
-	  if ( !previous_title || 
-	       g_strcasecmp(text, previous_title) != 0 ) { 
-	    if (show_stop) {
-	      xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
-	      xosd_display (osd, 1, XOSD_string, text);		       
+	    replace_hexcodes (text);
+	     
+	    /** 
+	     * Check to see if the title of the song has changed.
+	     */
+	    if ( !previous_title || 
+		 g_strcasecmp(text, previous_title) != 0 ) { 
+	      if (show_stop) {
+		xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
+		xosd_display (osd, 1, XOSD_string, text);		       
+	      }
 	    }
-	  }
 
-	  save_previous_title( text );
-	  g_free (text);
+	    save_previous_title( text );
 	  }
 	} else { 
 	  /** No song titles available. */
@@ -699,10 +698,9 @@ static gint timeout_func(gpointer data)
 	  xosd_display (osd, 0, XOSD_string, "Play");
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
 	  if (text) {
-	  replace_hexcodes (text);
-	  xosd_display (osd, 1, XOSD_string, text);
-	  save_previous_title ( text );
-	  g_free (text);
+	    replace_hexcodes (text);
+	    xosd_display (osd, 1, XOSD_string, text);
+	    save_previous_title ( text );
 	  }
 	}
       else if (!playing && show_stop )
@@ -726,10 +724,9 @@ static gint timeout_func(gpointer data)
 	  xosd_display (osd, 0, XOSD_string, "Unpaused");
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
 	  if (text) {
-	  replace_hexcodes (text);
-	  xosd_display (osd, 1, XOSD_string, text);
-	  save_previous_title( text );
-	  g_free (text);
+	    replace_hexcodes (text);
+	    xosd_display (osd, 1, XOSD_string, text);
+	    save_previous_title( text );
 	  }
 	}
       previous_paused = paused;
