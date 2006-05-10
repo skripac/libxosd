@@ -3,6 +3,7 @@
 	  this branch also implements XOSD_printf, fixes a bug
 	  in xosd_scroll, fixes flickering, and has minor speed 
 	  improvements. Shouts out to Hans :)
+	Removed Xutf8 calls. Weren't working on some platforms (Tim Wright).
 
 1.0.0:
 	Applied proper xosd-multiline patch (Damien Elmes)

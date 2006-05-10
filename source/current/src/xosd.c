@@ -34,13 +34,6 @@
 #include <X11/extensions/shape.h>
 #include <X11/Xatom.h>
 
-#ifdef X_HAVE_UTF8_STRING
-#define XDRAWSTRING Xutf8DrawString
-#else
-#define XDRAWSTRING XmbDrawString
-#endif
-
-
 #include "xosd.h"
 
 typedef enum {LINE_blank, LINE_text, LINE_percentage, LINE_slider} line_type;
@@ -161,16 +154,16 @@ static void expose_line(xosd *osd, int line)
       }
 
       if (osd->shadow_offset) {
-        XDRAWSTRING (osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc,
+        XmbDrawString (osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc,
             x + osd->shadow_offset, y - osd->extent->y + osd->shadow_offset, l->text, l->length);
         XSetForeground (osd->display, osd->gc, BlackPixel(osd->display, osd->screen));
-        XDRAWSTRING (osd->display, osd->line_bitmap, osd->fontset, osd->gc,
+        XmbDrawString (osd->display, osd->line_bitmap, osd->fontset, osd->gc,
             x + osd->shadow_offset, -osd->extent->y + osd->shadow_offset, l->text, l->length);
       }
-      XDRAWSTRING (osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc,
+      XmbDrawString (osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc,
                      x, y - osd->extent->y, l->text, l->length);
       XSetForeground (osd->display, osd->gc, osd->pixel);
-      XDRAWSTRING (osd->display, osd->line_bitmap, osd->fontset, osd->gc,
+      XmbDrawString (osd->display, osd->line_bitmap, osd->fontset, osd->gc,
           x, -osd->extent->y, l->text, l->length);
       XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0, 
           osd->width, osd->line_height, 0, y);
