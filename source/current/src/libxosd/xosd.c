@@ -109,6 +109,8 @@ struct xosd
   int hoffset;
   int voffset;
   int shadow_offset;
+  XColor shadow_colour;
+  unsigned int shadow_pixel;
   int bar_length; 
 
   int mapped;
@@ -194,6 +196,30 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
   }
 }
 
+static void draw_with_mask(xosd* osd, xosd_line* l, int inX, int inPlace, int inY) 
+{
+  XDRAWSTRING (osd->display,
+    osd->mask_bitmap,
+    osd->fontset,
+    osd->mask_gc,
+    inX,
+    inPlace + inY,
+    l->text,
+    l->length);
+
+
+
+  XDRAWSTRING (osd->display,
+    osd->line_bitmap,
+    osd->fontset,
+    osd->gc,
+    inX,
+    inY,
+    l->text,
+    l->length);				
+
+}
+
 static void expose_line(xosd *osd, int line)
 {
   int x = 10;
@@ -228,17 +254,19 @@ static void expose_line(xosd *osd, int line)
       }
 
      if (osd->shadow_offset) {
-        XDRAWSTRING (osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc,
-            x + osd->shadow_offset, y - osd->extent->y + osd->shadow_offset, l->text, l->length);
-        XSetForeground (osd->display, osd->gc, BlackPixel(osd->display, osd->screen));
-        XDRAWSTRING (osd->display, osd->line_bitmap, osd->fontset, osd->gc,
-            x + osd->shadow_offset, -osd->extent->y + osd->shadow_offset, l->text, l->length);
+
+        XSetForeground (osd->display, osd->gc, osd->shadow_pixel);
+
+        draw_with_mask(osd, l,
+          x + osd->shadow_offset,
+          y,
+          osd->shadow_offset - osd->extent->y );
+
       }
-      XDRAWSTRING (osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc,
-                     x, y - osd->extent->y, l->text, l->length);
+
       XSetForeground (osd->display, osd->gc, osd->pixel);
-      XDRAWSTRING (osd->display, osd->line_bitmap, osd->fontset, osd->gc,
-          x, -osd->extent->y, l->text, l->length);
+
+      draw_with_mask(osd, l, x, y, -osd->extent->y);
 
       XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
 					  osd->screen_width, osd->line_height, 0, y);
@@ -469,34 +497,44 @@ static int set_font (xosd *osd, const char *font) /* Requires mutex lock. */
   return 0;
 }
 
+static int parse_colour(xosd* osd, XColor* col, int* pixel, const char* colour) 
+{
+  int retval = 0;
+
+  DEBUG("getting colourmap");
+  osd->colourmap = DefaultColormap (osd->display, osd->screen);
+
+  DEBUG("parsing colour");
+  if (XParseColor (osd->display, osd->colourmap, colour, col)) {
+
+    DEBUG("attempting to allocate colour");
+    if (XAllocColor(osd->display, osd->colourmap, col)) {
+      DEBUG("allocation sucessful");
+      *pixel = col->pixel;
+    }
+    else {
+      DEBUG("defaulting to white. could not allocate colour");
+      *pixel = WhitePixel(osd->display, osd->screen);
+      retval = -1;
+    }
+  }
+  else {
+    DEBUG("could not poarse colour. defaulting to white");
+    *pixel = WhitePixel(osd->display, osd->screen);
+    retval = -1;
+  }
+
+  return retval;
+}
+
+
 static int set_colour (xosd *osd, const char *colour) /* Requires mutex lock. */
 {
   int retval = 0;
 
   assert (osd);
 
-  DEBUG("getting colourmap");
-  osd->colourmap = DefaultColormap (osd->display, osd->screen);
-
-  DEBUG("parsing colour");
-  if (XParseColor (osd->display, osd->colourmap, colour, &osd->colour)) {
-
-    DEBUG("attempting to allocate colour");
-    if (XAllocColor(osd->display, osd->colourmap, &osd->colour)) {
-      DEBUG("allocation sucessful");
-      osd->pixel = osd->colour.pixel;
-    }
-    else {
-      DEBUG("defaulting to white. could not allocate colour");
-      osd->pixel = WhitePixel(osd->display, osd->screen);
-      retval = -1;
-    }
-  }
-  else {
-    DEBUG("could not poarse colour. defaulting to white");
-    osd->pixel = WhitePixel(osd->display, osd->screen);
-    retval = -1;
-  }
+  retval=parse_colour(osd, & osd->colour, & osd->pixel, colour);
 
   DEBUG("setting foreground");
   XSetForeground (osd->display, osd->gc, osd->pixel);
@@ -985,6 +1023,21 @@ int xosd_set_colour (xosd *osd, const char *colour)
   return retval;
 }
 
+
+/** Set shadow colour and force redraw. **/
+int xosd_set_shadow_colour (xosd *osd, const char *colour)
+{
+  int retval = 0;
+
+  if (osd == NULL) return -1;
+
+  pthread_mutex_lock (&osd->mutex);
+  retval = parse_colour (osd, &osd->shadow_colour, &osd->shadow_pixel, colour);
+  force_redraw (osd, -1);
+  pthread_mutex_unlock (&osd->mutex);
+
+  return retval;
+}
 
 /** Set font. Might return error if fontset can't be created. **/
 int xosd_set_font (xosd *osd, const char *font)
