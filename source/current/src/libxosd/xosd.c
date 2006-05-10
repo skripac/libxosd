@@ -373,30 +373,16 @@ expose_line(xosd * osd, int line)
       XSetForeground(osd->display, osd->gc, osd->outline_pixel);
       int draw_line_bitmap = !(osd->fill_mask & FILL_OUTLINE);
 
+      /* FIXME: echo . | osd_cat -O 50 -p middle -A center */
       for (i = 1; i <= osd->outline_offset; i++) {
-        draw_with_mask(osd, l, x + i, y, i - osd->extent->y,
-                       draw_line_bitmap);
-
-        draw_with_mask(osd, l, x + i, y, -i - osd->extent->y,
-                       draw_line_bitmap);
-
-
-        draw_with_mask(osd, l, x - i, y, -i - osd->extent->y,
-                       draw_line_bitmap);
-
-        draw_with_mask(osd, l, x - i, y, i - osd->extent->y,
-                       draw_line_bitmap);
-
-
-
-        draw_with_mask(osd, l, x, y, i - osd->extent->y, draw_line_bitmap);
-
-        draw_with_mask(osd, l, x, y, -i - osd->extent->y, draw_line_bitmap);
-
-
-        draw_with_mask(osd, l, x + i, y, -osd->extent->y, draw_line_bitmap);
-
-        draw_with_mask(osd, l, x - i, y, -osd->extent->y, draw_line_bitmap);
+        draw_with_mask(osd, l, x - i, y, -i - osd->extent->y, draw_line_bitmap);
+        draw_with_mask(osd, l, x    , y, -i - osd->extent->y, draw_line_bitmap);
+        draw_with_mask(osd, l, x + i, y, -i - osd->extent->y, draw_line_bitmap);
+        draw_with_mask(osd, l, x - i, y,     -osd->extent->y, draw_line_bitmap);
+        draw_with_mask(osd, l, x + i, y,     -osd->extent->y, draw_line_bitmap);
+        draw_with_mask(osd, l, x - i, y,  i - osd->extent->y, draw_line_bitmap);
+        draw_with_mask(osd, l, x    , y,  i - osd->extent->y, draw_line_bitmap);
+        draw_with_mask(osd, l, x + i, y,  i - osd->extent->y, draw_line_bitmap);
       }
     }
 
