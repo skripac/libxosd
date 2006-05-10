@@ -176,14 +176,14 @@ int main (int argc, char *argv[])
 	      gettimeofday(&new_age,0);
 	      if ((new_age.tv_sec - old_age.tv_sec) > scroll_age)
 		{
-		  xosd_scroll(osd,xosd_get_number_lines(osd));
+					if (lines > 1) xosd_scroll(osd,xosd_get_number_lines(osd));
 		  screen_line=0;
 		}
 	    }
 
 	  if (screen_line >= xosd_get_number_lines(osd))
 	    {
-	      xosd_scroll(osd,1);
+				if (lines > 1) xosd_scroll(osd,1);
 	      screen_line = xosd_get_number_lines(osd)-1;
 	    }
 	  if ((newline = strchr (buffer, '\n')))
