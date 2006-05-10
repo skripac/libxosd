@@ -812,9 +812,13 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
   int percent;
   xosd_line *l = &osd->lines[line];
 
-  assert (line >= 0 && line < osd->number_lines);
 
   if (osd == NULL) return -1;
+
+  if (line < 0 || line >= osd->number_lines) {
+    xosd_error="xosd_display: Invalid Line Number";
+    return -1;
+  }
 
   osd->timeout_time = time(NULL) + osd->timeout;
 
