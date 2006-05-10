@@ -49,11 +49,11 @@ _wait_until_update(xosd * osd, int generation)
 
 /* Serialize access to the X11 connection. {{{
  *
- * Background: xosd needs a thread which handles X11 exposures. XWindowEvent()
+ * Background: xosd needs a thread which handles X11 exposures. XNextEvent()
  * blocks and would deny any other thread - especially the thread which calls
  * the xosd API - the usage of the same X11 connection. XInitThreads() can't be
  * used, because xosd is a library which can be loaded dynamically way after
- * the loading application has done its firse X11 call, after which calling
+ * the loading application has done its first X11 call, after which calling
  * XInitThreads() is no longer possible. (Debian-Bug #252170)
  *
  * The exposure-thread gets the MUTEX and sleeps on a select([X11,pipe]). When
