@@ -502,7 +502,7 @@ static int set_font (xosd *osd, const char *font) /* Requires mutex lock. */
 	extents = XExtentsOfFontSet(osd->fontset);
 	osd->extent = &extents->max_logical_extent;
 
-	osd->line_height = osd->extent->height + osd->shadow_offset;
+	osd->line_height = osd->extent->height + osd->shadow_offset + 2*osd->outline_offset;
 	osd->height = osd->line_height * osd->number_lines;
 	for (line = 0; line < osd->number_lines; line++) {
 		xosd_line *l = &osd->lines[line];
@@ -1133,6 +1133,7 @@ int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
 {
 	if (osd == NULL) return -1;
 
+	if (shadow_offset<0) return -1;
 	pthread_mutex_lock (&osd->mutex);
 	osd->shadow_offset = shadow_offset;
 	force_redraw (osd, -1);
@@ -1144,7 +1145,8 @@ int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
 int xosd_set_outline_offset (xosd *osd, int outline_offset)
 {
 	if (osd == NULL) return -1;
-
+	
+	if (outline_offset<0) return -1;
 	pthread_mutex_lock (&osd->mutex);
 	osd->outline_offset = outline_offset;
 	force_redraw (osd, -1);
