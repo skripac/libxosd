@@ -1,3 +1,19 @@
+xosd (2.1.2-1) unstable; urgency=low
+
+  * New upstream version.
+    - Fix wrong deprecation.
+    - Small manual page fix.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 26 Feb 2003 20:53:25 +0100
+
+xosd (2.1.1-1) unstable; urgency=low
+
+  * New upstream version.
+    - Includes my patches from 2.1.0-1
+    - New configure options for xmms plugin selection.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue, 18 Feb 2003 08:37:52 +0100
+
 xosd (2.1.0-1) unstable; urgency=low
 
   * New upstream version.
@@ -6,8 +22,16 @@ xosd (2.1.0-1) unstable; urgency=low
   * Fix segfault with insufficient fontset (closes: #167587).
   * Change timeout loop from "busy loop" to proper event mechanism.
   * Don't do "busy waiting" in X11 event loop (closes: #177551)
+    The xmms plugin is still doing busy things.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Mon, 17 Feb 2003 14:00:54 +0100
+
+xosd (2.0.2-1) unstable; urgency=low
+
+  * New upstream version.
+    - Fix several segfaults.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Mon, 20 Jan 2003 09:57:39 +0100
 
 xosd (2.0.1-1) unstable; urgency=low
 
