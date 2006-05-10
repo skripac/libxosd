@@ -361,6 +361,7 @@ static int set_font (xosd *osd, char *font)
     xosd_error="Requested font not found";
     return -1;
   }
+  XFreeStringList (missing);
 
   extents = XExtentsOfFontSet(osd->fontset);
   osd->extent = &extents->max_logical_extent;
@@ -532,7 +533,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   DEBUG("getting display");
   display = getenv ("DISPLAY");
   if (!display) {
-    xosd_error= "No display";
+    xosd_error = "No display";
     return NULL;
   }
 
@@ -541,10 +542,11 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
 
   DEBUG("Mallocing osd");
   osd = malloc (sizeof (xosd));
+  memset (osd, 0, sizeof (xosd));
   if (osd == NULL)
     {
       xosd_error = "Out of memory";
-      return NULL;
+      goto error0;
     }
 
   DEBUG("initializing mutex");
@@ -558,9 +560,12 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   if (osd->lines == NULL)
     {
       xosd_error = "Out of memory";
-      free (osd);
-      return NULL;
+      goto error1;
     }
+  for (i = 0; i < osd->number_lines; i++) {
+    osd->lines[i].type = LINE_text;
+    osd->lines[i].text = NULL;
+  }
 
   DEBUG("misc osd variable initialization");
   osd->mapped = 0;
@@ -568,27 +573,26 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->align = XOSD_left;
   osd->shadow_offset = shadow_offset;
   osd->display = XOpenDisplay (display);
-  osd->screen = XDefaultScreen (osd->display);
 
   DEBUG("Display query");
   if (!osd->display) {
-    xosd_error="Cannot open display";
-    free(osd);
-    return NULL;
+    xosd_error = "Cannot open display";
+    goto error2;
   }
+
+  osd->screen = XDefaultScreen (osd->display);
 
   DEBUG("x shape extension query");
   if (!XShapeQueryExtension (osd->display, &event_basep, &error_basep)) {
-    xosd_error="X-Server does not support shape extension";
-    free(osd);
-    return NULL;
+    xosd_error = "X-Server does not support shape extension";
+    goto error3;
   }
 
   osd->visual = DefaultVisual (osd->display, osd->screen);
   osd->depth = DefaultDepth (osd->display, osd->screen);
 
   DEBUG("font selection info");
-  osd->fontset=NULL;
+  osd->fontset = NULL;
   if (set_font (osd, font)) {
     /* If we didn't get a fontset, default to default font */
     font = osd_default_font;
@@ -597,8 +601,8 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
 
   if (osd->fontset == NULL) {
     /* if we still don't have a fontset, then abort */
-    xosd_error="Requested font not found";
-    return NULL;
+    xosd_error = "Requested font not found";
+    goto error3;
   }
 
   DEBUG("width and height initialization");
@@ -643,12 +647,6 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   DEBUG("stay on top");
   stay_on_top(osd->display, osd->window);
 
-  for (i = 0; i < osd->number_lines; i++) {
-    osd->lines[i].type = LINE_text;
-    osd->lines[i].text = NULL;
-  }
-
- 
   DEBUG("initializing event thread");
   pthread_create (&osd->event_thread, NULL, event_loop, osd);
 
@@ -656,6 +654,15 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   pthread_create (&osd->timeout_thread, NULL, timeout_loop, osd);
   
   return osd;
+
+ error3:
+  XCloseDisplay (osd->display);
+ error2:
+  free (osd->lines);
+ error1:
+  free (osd);
+ error0:
+  return NULL;
 }
 
 int xosd_uninit (xosd *osd)
@@ -674,13 +681,17 @@ int xosd_uninit (xosd *osd)
   pthread_join (osd->event_thread, NULL);
   pthread_join (osd->timeout_thread, NULL);
 
-  XFreePixmap (osd->display, osd->mask_bitmap);
   DEBUG("freeing X resources");
 
+  XFreeGC (osd->display, osd->gc);
+  XFreeGC (osd->display, osd->mask_gc);
+  XFreeGC (osd->display, osd->mask_gc_back);
   XFreePixmap (osd->display, osd->line_bitmap);
   XFreeFontSet (osd->display, osd->fontset);
+  XFreePixmap (osd->display, osd->mask_bitmap);
   XDestroyWindow (osd->display, osd->window);
 
+  XCloseDisplay (osd->display);
 
   DEBUG("freeing lines");
   for (i = 0; i < osd->number_lines; i++) {
