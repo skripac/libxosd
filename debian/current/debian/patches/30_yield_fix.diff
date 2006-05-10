@@ -1,0 +1,127 @@
+#DPATCHLEVEL=0
+# Wait after forced shows
+# Get rid of yield(), because it's unsafe with real-time scheduling
+# Rename (cond|mutex)_wait to (cond|mutex)_sync.
+--- src/libxosd/xosd.c~	2004-08-13 12:51:26.000000000 +0200
++++ src/libxosd/xosd.c	2004-08-13 13:06:36.000000000 +0200
+@@ -70,7 +70,6 @@ static /*inline*/ void _xosd_unlock(xosd
+   read(osd->pipefd[0], &c, sizeof(c));
+   pthread_cond_signal(&osd->cond_wait);
+   pthread_mutex_unlock(&osd->mutex);
+-  if (osd->update & UPD_show) pthread_yield();
+   FUNCTION_END(Dlocking);
+ }
+ /* }}} */
+@@ -352,10 +351,7 @@ event_loop(void *osdv)
+       DEBUG(Dupdate, "UPD_hide");
+       if (osd->mapped) {
+         XUnmapWindow(osd->display, osd->window);
+-        pthread_mutex_lock(&osd->mutex_hide);
+         osd->mapped = 0;
+-        pthread_cond_broadcast(&osd->cond_hide);
+-        pthread_mutex_unlock(&osd->mutex_hide);
+       }
+     }
+     /* Flush all pennding X11 requests, if any. */
+@@ -387,6 +383,11 @@ event_loop(void *osdv)
+       }
+     }
+ 
++    /* Signal update */
++    pthread_mutex_lock(&osd->mutex_sync);
++    pthread_cond_broadcast(&osd->cond_sync);
++    pthread_mutex_unlock(&osd->mutex_sync);
++
+     /* Wait for the next X11 event or an API request via the pipe. */
+     retval = select(max+1, &readfds, NULL, NULL, tvp);
+     DEBUG(Dvalue, "SELECT=%d PIPE=%d X11=%d", retval, FD_ISSET(osd->pipefd[0], &readfds), FD_ISSET(xfd, &readfds));
+@@ -616,10 +617,10 @@ xosd_create(int number_lines)
+ 
+   DEBUG(Dtrace, "initializing mutex");
+   pthread_mutex_init(&osd->mutex, NULL);
+-  pthread_mutex_init(&osd->mutex_hide, NULL);
++  pthread_mutex_init(&osd->mutex_sync, NULL);
+   DEBUG(Dtrace, "initializing condition");
+   pthread_cond_init(&osd->cond_wait, NULL);
+-  pthread_cond_init(&osd->cond_hide, NULL);
++  pthread_cond_init(&osd->cond_sync, NULL);
+ 
+   DEBUG(Dtrace, "initializing number lines");
+   osd->number_lines = number_lines;
+@@ -747,9 +748,9 @@ error3:
+ error2:
+   free(osd->lines);
+ error1:
+-  pthread_cond_destroy(&osd->cond_hide);
++  pthread_cond_destroy(&osd->cond_sync);
+   pthread_cond_destroy(&osd->cond_wait);
+-  pthread_mutex_destroy(&osd->mutex_hide);
++  pthread_mutex_destroy(&osd->mutex_sync);
+   pthread_mutex_destroy(&osd->mutex);
+   close(osd->pipefd[0]);
+   close(osd->pipefd[1]);
+@@ -806,9 +807,9 @@ xosd_destroy(xosd * osd)
+   free(osd->lines);
+ 
+   DEBUG(Dtrace, "destroying condition and mutex");
+-  pthread_cond_destroy(&osd->cond_hide);
++  pthread_cond_destroy(&osd->cond_sync);
+   pthread_cond_destroy(&osd->cond_wait);
+-  pthread_mutex_destroy(&osd->mutex_hide);
++  pthread_mutex_destroy(&osd->mutex_sync);
+   pthread_mutex_destroy(&osd->mutex);
+ 
+   DEBUG(Dtrace, "freeing osd structure");
+@@ -912,6 +913,11 @@ xosd_display(xosd * osd, int line, xosd_
+   osd->update |= UPD_content | UPD_timer | UPD_show;
+   _xosd_unlock(osd);
+ 
++  /* Wait for update */
++  pthread_mutex_lock(&osd->mutex_sync);
++  pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
++  pthread_mutex_unlock(&osd->mutex_sync);
++
+ error:
+   va_end(a);
+   return ret;
+@@ -937,12 +943,12 @@ xosd_wait_until_no_display(xosd * osd)
+   if (osd == NULL)
+     return -1;
+ 
+-  pthread_mutex_lock(&osd->mutex_hide);
++  pthread_mutex_lock(&osd->mutex_sync);
+   while (osd->mapped) {
+     DEBUG(Dtrace, "waiting %d", osd->mapped);
+-    pthread_cond_wait(&osd->cond_hide, &osd->mutex_hide);
++    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
+   }
+-  pthread_mutex_unlock(&osd->mutex_hide);
++  pthread_mutex_unlock(&osd->mutex_sync);
+ 
+   FUNCTION_END(Dfunction);
+   return 0;
+@@ -1212,6 +1218,11 @@ xosd_show(xosd * osd)
+     _xosd_lock(osd);
+     osd->update |= (osd->update & ~UPD_hide) | UPD_show | UPD_timer;
+     _xosd_unlock(osd);
++
++    /* Wait for update */
++    pthread_mutex_lock(&osd->mutex_sync);
++    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
++    pthread_mutex_unlock(&osd->mutex_sync);
+     return 0;
+   }
+   return -1;
+--- src/libxosd/intern.h~	2004-08-13 13:09:33.000000000 +0200
++++ src/libxosd/intern.h	2004-08-13 13:10:06.000000000 +0200
+@@ -86,8 +86,8 @@ struct xosd
+   pthread_cond_t cond_wait;     /* CONST signal X11 done */
+   int pipefd[2];                /* CONST signal X11 needed */
+ 
+-  pthread_mutex_t mutex_hide;   /* CONST mutual exclusion for show/hide */
+-  pthread_cond_t cond_hide;     /* CONST signal hide events */
++  pthread_mutex_t mutex_sync;   /* CONST mutual exclusion event notify */
++  pthread_cond_t cond_sync;     /* CONST signal events */
+ 
+   Display *display;             /* CONST x11 */
+   int screen;                   /* CONST x11 */
