@@ -380,6 +380,8 @@ event_loop(void *osdv)
       osd->update = UPD_none;
       if (osd->timeout > 0)
         gettimeofday(&osd->timeout_start, NULL);
+      else
+        timerclear(&osd->timeout_start);
     } else if (timerisset(&osd->timeout_start)) {
       gettimeofday(&tv, NULL);
       tv.tv_sec -= osd->timeout;

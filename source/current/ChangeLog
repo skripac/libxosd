@@ -1,5 +1,6 @@
 2.2.13:
        buffer overflow patch (P Hahn)
+	timeout patch (P Hahn)
 
 2.2.12: 
 	Applied three patches from the debian maintainer. The first cleans
