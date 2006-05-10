@@ -75,7 +75,7 @@ else
 	XMMS_LIBS=`$xmms_config_script --libs`
 	AC_MSG_CHECKING(for xmms plugin directory)
 	if test "x$XMMS_PLUGIN_DIR" = "x" ; then
-		XMMS_PLUGIN_DIR=`$xmms_config_script --plugin-dir`
+		XMMS_PLUGIN_DIR=`$xmms_config_script --general-plugin-dir`
 	fi
 	AC_MSG_RESULT($XMMS_PLUGIN_DIR)
 	AC_SUBST(XMMS_CFLAGS)

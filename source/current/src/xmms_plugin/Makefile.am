@@ -2,7 +2,7 @@
 
 CFLAGS=@CFLAGS@ ${GTK_CFLAGS} -I..
 
-xmmsplugindir = ${XMMS_PLUGIN_DIR}/General/
+xmmsplugindir = ${XMMS_PLUGIN_DIR}
 
 # Don't build a static library
 LIBTOOL = $(top_builddir)/libtool-disable-static
