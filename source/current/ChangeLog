@@ -10,6 +10,7 @@
 	Added Drop Shadows, as well as new function to set them (NOTE: This
 		changes the number of args xosd_init takes, so old programs 
 		will be incompatible. Sorry)
+	Updated man page to reflect API change
 
 0.6.1:  Fixed bug on non-Gnome compliant window managers
 
