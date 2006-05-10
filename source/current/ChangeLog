@@ -1,3 +1,6 @@
+2.2.1:
+        Made the underscores disappear correctly (James Roberts-Thomson)
+
 2.2.0:
 	Man pages for xosd_is_onscreen and xosd_set_bar_length (Michael JasonSmith)
 	Makefile patches (Philipp Matthias Hahn)

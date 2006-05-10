@@ -78,7 +78,6 @@ static gboolean show_trackname;
 static gboolean show_stop;
 static gboolean show_repeat;
 static gboolean show_shuffle;
-static gboolean conv_underscore;
 
 static GtkObject *timeout_obj, *offset_obj, *h_offset_obj, *shadow_obj;
 static GtkWidget *configure_win, *font_entry, *colour_entry,
@@ -188,7 +187,6 @@ static void read_config (void)
 	show_stop = 1;
 	show_repeat = 1;
 	show_shuffle = 1;
-	conv_underscore=1;
   
 	DEBUG("read_config");
 
@@ -223,7 +221,6 @@ static void read_config (void)
 		xmms_cfg_read_int (cfgfile, "osd", "show_stop", &show_stop );
 		xmms_cfg_read_int (cfgfile, "osd", "show_repeat", &show_repeat );
 		xmms_cfg_read_int (cfgfile, "osd", "show_shuffle", &show_shuffle );
-		xmms_cfg_read_int (cfgfile, "xmms", "convert_underscore", &conv_underscore);
 		xmms_cfg_free(cfgfile);
     }
 
@@ -840,7 +837,7 @@ static void save_previous_title ( gchar * title ) {
  */
 static void replace_hexcodes (gchar *text)
 {
-
+	ConfigFile *cfgfile;
 	gchar hex_number[] = "FF";
 	gchar *tmp, *tmp2;
 	DEBUG("replace_hexcodes");
@@ -866,11 +863,16 @@ static void replace_hexcodes (gchar *text)
 		}
     }
 
-	/* replace underscors with spaces if necessary */
-	if (conv_underscore)
-		while ((tmp=strchr(text,'_')) != NULL)
-			*tmp = ' ';
+	/* replace underscores with spaces if necessary */
+	if ((cfgfile = xmms_cfg_open_default_file()) != NULL) {
+		gboolean conv_underscore;
+		xmms_cfg_read_int (cfgfile, "xmms", "convert_underscore", &conv_underscore);
+		xmms_cfg_free(cfgfile);
+		if (conv_underscore)
+			while ((tmp=strchr(text,'_')) != NULL)
+				*tmp = ' ';
 
+	}
 }
 
 /*
