@@ -120,7 +120,7 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
   barw = barh / 2;
 
   nbars = (osd->width * 0.8) / barw;
-  on = (nbars - 1) * percent / 100;
+  on = nbars * percent / 100;
 
   for (i = 0; i < nbars; x += barw, i++) {
     int w = barw, h = barh;
@@ -155,17 +155,21 @@ static void expose_line(xosd *osd, int line)
   XFillRectangle (osd->display, osd->mask_bitmap, osd->mask_gc_back,
                   0, y, osd->width, osd->line_height);
 
+
+  if (osd->align) {
+    if (osd->align == XOSD_right) {
+      x = osd->width - l->width - x;
+    } else {
+      x = (osd->width - l->width) / 2;
+    }
+  }
+  
   switch (l->type) {
     case LINE_blank:
       break;
 
     case LINE_text:
       if (!l->text || !l->length) break;
-
-      if (osd->align) {
-        if (osd->align == XOSD_right) x = osd->width - l->width - x;
-        else x = (osd->width - l->width) / 2;
-      }
 
       if (osd->shadow_offset) {
         XDRAWSTRING (osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc,
@@ -185,8 +189,27 @@ static void expose_line(xosd *osd, int line)
 
     case LINE_percentage:
     case LINE_slider:
-      draw_bar(osd, osd->mask_bitmap, osd->mask_gc, x, y, l->percentage, l->type == LINE_slider, 0);
-      draw_bar(osd, osd->window, osd->gc, x, y, l->percentage, l->type == LINE_slider, 1);
+      /*
+      if (osd->align)
+	{
+	  if (osd->align==XOSD_right)
+	    {
+	      x=osd->width*0.2;
+	    }
+	  else
+	    {
+	      x=osd->width*0.1;
+	    }
+	}
+      */
+      draw_bar(osd,osd->mask_bitmap,osd->mask_gc,x,y,l->percentage, l->type==LINE_slider,0);
+      draw_bar(osd,osd->window,osd->gc,x,y,l->percentage,l->type==LINE_slider,1);
+
+      /*
+	draw_bar(osd, osd->mask_bitmap, osd->mask_gc, x, y, l->percentage, l->type == LINE_slider, 0);
+	draw_bar(osd, osd->window, osd->gc, x, y, l->percentage, l->type == LINE_slider, 1);
+      */
+
       break;
   }
 }
