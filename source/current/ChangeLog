@@ -1,5 +1,6 @@
 2.0.1:  
 	xosd.h header file patch (Tim Wright)
+	set_font patch (Jan Starzynski)
 	
 2.0.0: 
         XMMS plugin configure patch (Michael JasonSmith)

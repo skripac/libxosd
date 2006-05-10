@@ -403,7 +403,7 @@ static int set_font (xosd *osd, const char *font)
   for (line = 0; line < osd->number_lines; line++) {
     xosd_line *l = &osd->lines[line];
 
-    if (l->type == LINE_text) {
+    if (l->type == LINE_text && l->text != NULL) {
       XRectangle rect;
 
       XmbTextExtents(osd->fontset, l->text, l->length, NULL, &rect);
