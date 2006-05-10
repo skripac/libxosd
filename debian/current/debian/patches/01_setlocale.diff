@@ -1,7 +1,17 @@
 #DPATCHLEVEL=0
+# BUG: A library must not change the locale
 --- src/libxosd/xosd.c~	2004-07-05 00:29:06.000000000 +0200
 +++ src/libxosd/xosd.c	2004-07-08 09:52:57.000000000 +0200
-@@ -898,9 +898,6 @@ xosd_create(int number_lines)
+@@ -30,8 +30,6 @@
+ #include <pthread.h>
+ #include <errno.h>
+ 
+-#include <locale.h>
+-
+ #include <X11/Xlib.h>
+ #include <X11/Xutil.h>
+ #include <X11/extensions/shape.h>
+@@ -898,9 +896,6 @@ xosd_create(int number_lines)
      return NULL;
    }
  

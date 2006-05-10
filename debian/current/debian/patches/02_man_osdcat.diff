@@ -1,4 +1,5 @@
 #DPATCHLEVEL=0
+# Document new fatures and update formatting
 --- man/osd_cat.1~	2004-07-08 10:55:23.000000000 +0200
 +++ man/osd_cat.1	2004-07-08 10:55:08.000000000 +0200
 @@ -4,56 +4,72 @@
