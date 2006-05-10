@@ -5,6 +5,7 @@
 	xosd_display segfault fix with invalid line number (Tim Wright)
 	work on xosd.spec file and autoconf stuff (Tim Wright)
 	updated testprog to have error reporting and do cooler stuff (Tim Wright)
+	applied track name change patch (Robert Hart)
 	
 2.0.1:  
 	xosd.h header file patch (Tim Wright)
