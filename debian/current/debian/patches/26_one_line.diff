@@ -12,7 +12,7 @@
  const char *osd_default_font =
    "-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
  #if 0
-@@ -97,7 +100,7 @@ draw_bar(xosd *osd, int line)
+@@ -102,7 +105,7 @@ draw_bar(xosd *osd, int line)
    int is_slider = l->type == LINE_slider, nbars, on;
    XRectangle p, m;
    p.x = XOFFSET;
@@ -21,64 +21,64 @@
    p.width = -osd->extent->y / 2;
    p.height = -osd->extent->y;
  
-@@ -166,7 +169,7 @@ _draw_text(xosd *osd, char *string, int 
+@@ -174,7 +177,7 @@ _draw_text(xosd *osd, char *string, int 
  static void
- draw_text(xosd *osd, int line)
+ draw_text(xosd * osd, int line)
  {
 -  int x = XOFFSET, y = osd->line_height * line - osd->extent->y;
 +  int x = XOFFSET, y = -osd->extent->y;
    struct xosd_text *l = &osd->lines[line].text;
  
    assert(osd);
-@@ -262,10 +265,10 @@ event_loop(void *osdv)
-       XResizeWindow(osd->display, osd->window, osd->screen_width, osd->height);
+@@ -275,10 +278,10 @@ event_loop(void *osdv)
+                     osd->height);
        XFreePixmap(osd->display, osd->mask_bitmap);
        osd->mask_bitmap = XCreatePixmap(osd->display, osd->window,
--          osd->screen_width, osd->height, 1);
-+          osd->screen_width, osd->line_height, 1);
+-                                       osd->screen_width, osd->height, 1);
++                                       osd->screen_width, osd->line_height, 1);
        XFreePixmap(osd->display, osd->line_bitmap);
        osd->line_bitmap = XCreatePixmap(osd->display, osd->window,
--          osd->screen_width, osd->height, osd->depth);
-+          osd->screen_width, osd->line_height, osd->depth);
+-                                       osd->screen_width, osd->height,
++                                       osd->screen_width, osd->line_height,
+                                        osd->depth);
      }
      /* Show display requested. */
-     if (osd->update & UPD_show) {
-@@ -281,14 +284,14 @@ event_loop(void *osdv)
+@@ -295,14 +298,14 @@ event_loop(void *osdv)
        DEBUG(Dupdate, "UPD_lines");
        for (line = 0; line < osd->number_lines; line++) {
          int y = osd->line_height * line;
--#if 0 /* Turn on for debugging */
+-#if 0                           /* Turn on for debugging */
 +#ifdef DEBUG_XSHAPE
          XSetForeground(osd->display, osd->gc, osd->outline_pixel);
          XFillRectangle(osd->display, osd->line_bitmap, osd->gc, 0,
--            y, osd->screen_width, osd->line_height);
-+            0, osd->screen_width, osd->line_height);
+-                       y, osd->screen_width, osd->line_height);
++                       0, osd->screen_width, osd->line_height);
  #endif
          if (osd->update & UPD_mask) {
            XFillRectangle(osd->display, osd->mask_bitmap, osd->mask_gc_back, 0,
--              y, osd->screen_width, osd->line_height);
-+              0, osd->screen_width, osd->line_height);
+-                         y, osd->screen_width, osd->line_height);
++                         0, osd->screen_width, osd->line_height);
          }
          switch (osd->lines[line].type) {
-           case LINE_blank:
-@@ -301,16 +304,22 @@ event_loop(void *osdv)
-             draw_bar(osd, line);
-             break;
+         case LINE_text:
+@@ -314,16 +317,22 @@ event_loop(void *osdv)
+         case LINE_blank:
+           break;
          }
--#if 1 /* Turn off for debugging */
+-#if 1                           /* Turn off for debugging */
 +#ifndef DEBUG_XSHAPE
          /* More than colours was changed, update XShape. */
          if (osd->update & UPD_mask) {
            DEBUG(Dupdate, "UPD_mask");
 -          XShapeCombineMask(osd->display, osd->window, ShapeBounding, 0, 0,
--              osd->mask_bitmap, ShapeSet);
+-                            osd->mask_bitmap, ShapeSet);
 +          XShapeCombineMask(osd->display, osd->window, ShapeBounding, 0, y,
-+              osd->mask_bitmap, ShapeUnion);
++                            osd->mask_bitmap, ShapeUnion);
          }
  #endif
 -        XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, y,
 +        XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
-             osd->screen_width, osd->line_height, 0, y);
+                   osd->screen_width, osd->line_height, 0, y);
 +#ifndef DEBUG_XSHAPE
 +        if (osd->update & UPD_mask) {
 +          XCopyPlane(osd->display, osd->mask_bitmap, osd->mask_bitmap, osd->mask_gc_back, 0, 0, osd->screen_width, osd->line_height, 0, 0, (1<<0));
@@ -88,13 +88,16 @@
        }
      }
      /* H/V offset or vertical positon was changed. Horizontal alignment is
-@@ -413,9 +422,8 @@ event_loop(void *osdv)
-           do {
-             osd->lines[ytop].width = -1;
-           } while (ytop++ < ybot);
--          osd->update |= UPD_lines;
-           */
--          XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, report.xexpose.x, report.xexpose.y, report.xexpose.width, report.xexpose.height, report.xexpose.x, report.xexpose.y);
+@@ -431,12 +440,8 @@ event_loop(void *osdv)
+              do {
+              osd->lines[ytop].width = -1;
+              } while (ytop++ < ybot);
+-             osd->update |= UPD_lines;
+            */
+-          XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc,
+-                    report.xexpose.x, report.xexpose.y, report.xexpose.width,
+-                    report.xexpose.height, report.xexpose.x,
+-                    report.xexpose.y);
 +          osd->update |= UPD_lines;
          }
          break;
