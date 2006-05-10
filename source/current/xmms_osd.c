@@ -64,7 +64,7 @@ static void init(void)
    previous_volume = previous_length = previous_song = 
       0;   
 
-   osd = xosd_init (font, colour, timeout, XOSD_bottom, offset);
+   osd = xosd_init (font, colour, timeout, pos, offset);
    timeout_tag = gtk_timeout_add (100, timeout_func, NULL);
    }
 
