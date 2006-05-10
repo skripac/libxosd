@@ -836,6 +836,8 @@ xosd_destroy(xosd * osd)
   pthread_cond_destroy(&osd->cond_wait);
   pthread_mutex_destroy(&osd->mutex_sync);
   pthread_mutex_destroy(&osd->mutex);
+  close(osd->pipefd[0]);
+  close(osd->pipefd[1]);
 
   DEBUG(Dtrace, "freeing osd structure");
   free(osd);
