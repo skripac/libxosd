@@ -3,6 +3,7 @@ xosd (2.2.12-1) experimental; urgency=low
   * New upstream version.
     - Applies my 4[0123] patches.
   * 44_endofhex.diff: Fix potential buffer overflow.
+  * 45_timeout.diff: Fix negative timeouts. (closes: #277027)
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed,  3 Nov 2004 14:26:21 +0100
 
