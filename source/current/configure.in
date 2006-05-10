@@ -88,6 +88,8 @@ AC_DEFINE_UNQUOTED(XOSD_VERSION, "${VERSION}")
 AC_OUTPUT([
 Makefile
 src/Makefile
+src/libxosd/Makefile
+src/xmms_plugin/Makefile
 macros/Makefile
 man/Makefile
 script/Makefile
