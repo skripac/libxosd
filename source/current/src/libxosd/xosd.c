@@ -916,9 +916,10 @@ static void xosd_update_pos (xosd *osd)
   } else if (osd->align == XOSD_center) {
     osd->x = osd->hoffset; /* which direction should this default to, left or right offset */
   } else if (osd->align == XOSD_right) {
-    /*  		osd->x = XDisplayWidth (osd->display, osd->screen) - osd->width - osd->hoffset; */
-    osd->x = (osd->hoffset); /* neither of these work right, I want the offset to flip so
-			     * +offset is to the left instead of to the right when aligned right */
+    // osd->x = XDisplayWidth (osd->display, osd->screen) - osd->width - osd->hoffset; 
+    osd->x = -(osd->hoffset); 
+    /* neither of these work right, I want the offset to flip so
+     * +offset is to the left instead of to the right when aligned right */
   }
 
   XMoveWindow (osd->display, osd->window, osd->x, osd->y);
