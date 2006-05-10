@@ -1,0 +1,141 @@
+1.1.1:
+        X concurrency control patch (Tim Wright)
+        misc bug fixes (Philipp Matthias Hahn)
+        osd_cat man page patch (Philipp Matthias Hahn)
+        Updated version numbers to be in line with Debian (Philipp Matthias Hahn)
+	Applied X Display leak (Damien Elmes)
+	Fixed center not working for sliders (Tim Wright based on
+	  suggestions from Torsten Sievers)
+	
+1.0.4:
+        Eungkyu Song's "xmms hanging in some non-C locale's patch" (Eungkyu Song)
+	xmms plugin uses xosd default font (Tim Wright)
+
+1.0.3:
+	Man page affect/effect spelling patch (John McPherson)
+	Many Autoconf and automake patches (Philipp Matthias Hahn)
+	better default font for osd_cat and xosd (Tim Wright with hints from 
+	  Philipp Matthias Hahn)
+	xmms plugin segfault bugfix (Philipp Matthias Hahn)
+	Fontset related memory leak (Philipp Matthias Hahn)
+	KDE stay-on-top patch (Hans Verkuil) [he says it doesn't work,
+	  but I'll leave it in anyway]
+
+1.0.2: 
+       Autoconf fixes:
+        Cleaned up autoconf scripts (patch from Philipp Matthias Hahn)
+	Changed references to libxosd-config to xosd-config (Tim Wright)
+	Code Clean (Philipp Matthias Hahn)
+	Package Maintainers (that I know about):
+		Debian Package Maintainer is Philipp Matthias Hahn.
+		Mandrake Package Maintainer is Goetz Waschk.
+	Miscellaneous (and many) thanks to the Package Maintainers (Tim Wright)
+	Put the xmms plugin and libxosd libraries in subdirectories of src/.
+	  this was done to emable people to build libxosd without building the xmms
+	  plugin. This might have broken the redhat packaging stuff.
+	  (Tim Wright, based on patch by Mathieu Seigneurin)
+	
+1.0.1:	
+	Merged xosd code-clean and alignment branch (Hans Verkuil's branch)
+	  this branch also implements XOSD_printf, fixes a bug
+	  in xosd_scroll, fixes flickering, and has minor speed 
+	  improvements. Shouts out to Hans :)
+	Removed Xutf8 calls. Weren't working on some platforms (Tim Wright).
+	Better error reporting for osd_cat (Tim Wright)
+	More features in the xmms plugin (Tim Wright)
+	osd_cat alignment option: -A (Tim Wright)
+	
+1.0.0:
+	Applied proper xosd-multiline patch (Damien Elmes)
+	Modified xosd_init to take an extra param (the number of lines)
+	  (Tim Wright)
+	Finally got libtool and autoconf and automake all going
+	  (Tim Wright with lots of help from Martijn van de Streek and 
+	  Goetz Waschk --- it's easy once ya know how:)
+	Fixed the RedHat Packaging stuff (Oron Peled)
+	
+1.0.0pre3:
+	Applied man pages patch - all xosd functions now
+	 have their own man page (Michael JasonSmith)
+	Applied XOSD Multicolour patch (Bjorn Bringert)
+	Fixed internationalization calls based on patch by 
+	 Michael JasonSmith
+	Applied configure patches (Oron Peled)
+	Looked into AutoConf issues (Tim Wright)
+	Applied xosd-multiline patch (Damien Elmes and Tim Wright)
+	Applied misc speed and code niceness patch (Damien Elmes)
+	Upgraded the libtool version (I hope)
+	Changed version numbering to conform to RedHat numbering 
+	  (as suggested by Oron Peled)
+	
+1.0.0-pre2:
+	Applied xosd.h comment and compile-error patch 
+	         (Michael JasonSmith)
+	Applied xmms_osd automake linking patch (Goetz Waschk)
+	Needed Andre's help to get the automake linking patch
+	         working (Tim Wright and Andre Renaud)
+	Applied xmms_osd "don't show volume and balance" patch 
+	         (Adrian Brewt)
+	Fixed bugs introduced by that patch because Adrian's 
+	         patch was context free (Tim Wright)
+	 - remember "diff -rc3 orig-xosd-dir your-modified-xosd-dir"
+	         (or something like that anyway)
+	Fixed "can't enable/disable xosd lots" bug (Tim Wright)	
+	Completly fucked the automake system (again), but managed to 
+	         back out of those changes (Tim Wright)
+	
+1.0.0-pre1: New maintainer: Tim Wright (tnw13@cosc.canterbury.ac.nz)
+	Applied autoconf patch
+	Applied DTM's xmms_osd patch
+	Applied Locale patch (unknown author)
+	Applied segfault fix:unknown font (unknown author)
+	Applied showstreamname patch (unknown author)
+	Rejected mtv patch - shouldn't need to modify xosd.{h,c} to do this
+	Applied shadow and offset patch   (Malcolm Valentine <farkit@iprimus.com.au>)
+	Applied Concurrency Control patch (Tim Wright)
+
+0.6.0:  Fixed problem in Makefile which caused it to link against an older 
+		version of the library
+ 	Added command line parameters to osd_cat
+        Added a manual page to osd_cat
+        Fixed manual page xosd.3
+        Cleand up the Makefile 
+
+0.5.0:  Fixed problem when using multiple screens, no longer fixed to first
+		screen
+	Fixed bug in xmms plugin which was forcing it to always display at the
+		bottom of screen
+	Fixed bug in osd_cat causing problems if osd couldn't be initialized
+	Added ability to never timeout (set timeout to -1)
+	Fixed bug when enlarging font and it getting cut off
+	Again attempted to update always on top... this is annoying
+
+0.4.0:  Added unicode character support (thanks for the patch)
+	Added error messages if shape extension is unavailable
+	Update Configuration Dialog, now looks much nicer
+
+0.3.0:  Added program osd_cat (useful (sortof) for xconsole type display)
+	Fixed segfault with empty playlist while XOSD is running
+	Another attempt at getting always on top to go (ARGH!)
+	Added font selection dialog to config dialog
+	Added colour selection dialog to config dialog
+	Updates window size when font changes
+	Updated percentage display to use proper bars, not '|' & '-'
+
+0.2.0:
+	Added option to change offset & position of xosd display
+	Fixed another crash on exit bug, no longer segfaults xmms now
+		(at least on my machine)
+	Fixed always on top to use the correct hint. Damn magic numbers
+
+0.1.0:
+	Added option to change timeout length (default: 3 secs)
+	Fixed it to  dynamically apply changes, colour, font, timeout etc..
+	Now always on top
+	Fixed crash on exit bug, although I think another still exists
+
+0.0.3: Added Config Dialog
+
+0.0.2: I can't remember what changes I made
+
+0.0.1: Initial Release
