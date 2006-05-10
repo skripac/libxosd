@@ -3,6 +3,7 @@
         misc bug fixes (Philipp Matthias Hahn)
         osd_cat man page patch (Philipp Matthias Hahn)
         Updated version numbers to be in line with Debian (Philipp Matthias Hahn)
+	Applied X Display leak (Damien Elmes)
 	
 1.0.4:
         Eungkyu Song's "xmms hanging in some non-C locale's patch" (Eungkyu Song)
