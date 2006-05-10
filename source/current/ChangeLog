@@ -1,5 +1,6 @@
 2.2.4:  outline/shadow cut fix (Tomas Janousek)
 	xmms_plugin: added outline (Ondrej Novy)
+		     added playlist_pos/playlist_length (Ondrej Novy)
 
 2.2.3:
         Alignment patch (Philipp Matthias Hahn)

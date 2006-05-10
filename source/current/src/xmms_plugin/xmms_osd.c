@@ -322,6 +322,7 @@ timeout_func (gpointer data)
 	struct state current;
 	char *text = NULL;
 	char *title = NULL;
+        char *title2 = NULL;
 
 	DEBUG("timeout func");
 
@@ -337,6 +338,7 @@ timeout_func (gpointer data)
 	current.pos = xmms_remote_get_playlist_pos (gp.xmms_session);
 	current.volume = xmms_remote_get_main_volume (gp.xmms_session);
 	current.balance = (xmms_remote_get_balance (gp.xmms_session) + 100) / 2;
+	
 
 	/* Get the current title only if the playlist is not empty. Otherwise
 	 * it'll crash. Don't forget to free the title! */
@@ -366,11 +368,18 @@ timeout_func (gpointer data)
 			 (g_strcasecmp (previous.title, current.title) != 0)))
 	{
 		if (show.trackname)
-			title = current.title;
+		{
+		 title=current.title;
+		 if (title!=NULL)
+		 {
+       	          title2=malloc(strlen(current.title)+26);
+		  sprintf(title2,"%i/%i: %s",xmms_remote_get_playlist_pos (gp.xmms_session)+1,xmms_remote_get_playlist_length (gp.xmms_session),current.title);
+		 }
+ 		}
 	}
 
 	/* Determine right text depending on state and title change. */
-	if (!current.playing && (title || previous.playing))
+	if (!current.playing && (title2 || previous.playing))
 	{
 		if (show.stop)
 			text = "Stopped";
@@ -385,7 +394,7 @@ timeout_func (gpointer data)
 		if (show.pause)
 			text = "Unpaused";
 	}
-	else if (current.playing && (title || !previous.playing))
+	else if (current.playing && (title2 || !previous.playing))
 	{
 		text = "Play";
 	}
@@ -394,7 +403,7 @@ timeout_func (gpointer data)
 	if (text)
 	{
 		xosd_display (osd, 0, XOSD_string, text);
-		xosd_display (osd, 1, XOSD_string, title ? title : "");
+		xosd_display (osd, 1, XOSD_string, title2 ? title2 : "");
 	}
 	else if (current.volume != previous.volume && show.volume)
 	{
@@ -417,6 +426,8 @@ timeout_func (gpointer data)
 		xosd_display (osd, 1, XOSD_string, current.shuffle ? "On" : "Off");
 	}
 
+	if (title2) free(title2);
+
 	/* copy current state (including title) for future comparison. Free old
 	 * title first. */
 	if (previous.title)
@@ -425,6 +436,7 @@ timeout_func (gpointer data)
 
 	GDK_THREADS_LEAVE ();
 
+    
 	return TRUE;
 }
 /* vim: tabstop=8 shiftwidth=8 noexpandtab
