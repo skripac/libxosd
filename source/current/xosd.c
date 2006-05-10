@@ -229,7 +229,9 @@ static void *timeout_loop (void *osdv)
       {
       usleep (1000);
       MUTEX_GET ();
-      if (osd->mapped && osd->timeout_time <= time(NULL))
+      if (osd->timeout != -1 && 
+	  osd->mapped && 
+	  osd->timeout_time <= time(NULL))
 	 {
 	 MUTEX_RELEASE ();
 	 /* printf ("timeout_loop: hiding\n"); */
@@ -245,7 +247,7 @@ static void *timeout_loop (void *osdv)
 static int display_string (xosd *osd, int line, char *string)
    {
    assert (osd);
-
+   
    osd->lines[line].type = LINE_text;
    osd->lines[line].text =
       realloc (osd->lines[line].text, strlen (string) + 1);

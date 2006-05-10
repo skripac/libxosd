@@ -3,6 +3,7 @@
 	Fixed bug in xmms plugin which was forcing it to always display at the
 		bottom of screen
 	Fixed bug in osd_cat causing problems if osd couldn't be initialized
+	Added ability to never timeout (set timeout to -1)
 
 0.4.0:  Added unicode character support (thanks for the patch)
 	Added error messages if shape extension is unavailable
