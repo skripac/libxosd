@@ -34,7 +34,6 @@
 #include <X11/extensions/shape.h>
 #include <X11/Xatom.h>
 
-#define NLINES 2 /* The number of lines displayed on the screen */
 #ifdef X_HAVE_UTF8_STRING
 #define XDRAWSTRING Xutf8DrawString
 #else
@@ -46,6 +45,9 @@
 #define MUTEX_RELEASE() pthread_mutex_unlock (&osd->mutex)
 
 #include "xosd.h"
+
+/* if we have an osd structure currently allocated */
+static char xosd_active = 0;
 
 /* stores the current error string if applicable */
 char *xosd_error = "";
@@ -97,9 +99,14 @@ struct xosd
    XColor colour;
    Colormap colourmap;
 
-   xosd_line lines[NLINES];
+   xosd_line *lines;
    int timeout;
    int timeout_time;
+
+   /* maximum number of lines to print on the screen. can be changed provided
+      xosd_active is not true  */
+   int max_lines;
+
    };
 
 static void draw_bar (xosd *osd, Drawable d, GC gc, int x, int y, 
@@ -163,7 +170,7 @@ static void expose (xosd *osd)
 		   0, 0, osd->width, osd->height);
    extents = XExtentsOfFontSet(osd->fontset);
    
-   for (line = 0; line < NLINES; line ++)
+   for (line = 0; line < osd->max_lines; line ++)
       {
       x = 10;
       y = extents->max_logical_extent.height * (line + 1);
@@ -438,7 +445,7 @@ static int set_font (xosd *osd, char *font)
    extents = XExtentsOfFontSet(osd->fontset);
    
    osd->width = XDisplayWidth (osd->display, osd->screen);
-   osd->height = extents->max_logical_extent.height * NLINES + 10;
+   osd->height = extents->max_logical_extent.height * osd->max_lines + 10;
 
    XResizeWindow (osd->display, osd->window, osd->width, osd->height);
 
@@ -503,7 +510,7 @@ static int set_timeout (xosd *osd, int timeout)
    }
 
 xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset,
-		 int shadow_offset)
+		 int shadow_offset, int number_lines)
    {
    xosd *osd;
    int event_basep, error_basep, inputmask, i;
@@ -516,8 +523,6 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    XFontSetExtents *extents;
    Atom a;
 
-   
-   /* fprintf(stderr, "Hello!\n"); */
    display = getenv ("DISPLAY");
    if (!display)
       {
@@ -528,6 +533,14 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    setlocale(LC_ALL, "");
 
    osd = malloc (sizeof (xosd));
+   osd->max_lines=number_lines;
+
+   osd->lines = malloc(sizeof(xosd_line) * osd->max_lines);
+   if (osd->lines == NULL)
+     {
+       xosd_error = "Out of memory";
+       return NULL;
+     }
    
    pthread_mutex_init (&osd->mutex, NULL);
    pthread_cond_init (&osd->cond, NULL);
@@ -623,7 +636,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    osd->done = 0;
    osd->shadow_offset = shadow_offset;
 
-   for (i = 0; i < NLINES; i++)
+   for (i = 0; i < osd->max_lines; i++)
       {
       osd->lines[i].type = LINE_text;
       osd->lines[i].text = NULL;
@@ -632,6 +645,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    pthread_create (&osd->event_thread, NULL, event_loop, osd);
    pthread_create (&osd->timeout_thread, NULL, timeout_loop, osd);
    
+   xosd_active = 1;
    return osd;
    }
 
@@ -640,6 +654,8 @@ int xosd_uninit (xosd *osd)
    int i;
    
    assert (osd);
+
+   xosd_active = 0;
 
    MUTEX_GET ();   
    osd->done = 1;
@@ -651,11 +667,13 @@ int xosd_uninit (xosd *osd)
    XFreePixmap (osd->display, osd->bitmap);
    XDestroyWindow (osd->display, osd->window);
 
-   for (i = 0; i < NLINES; i++)
+   for (i = 0; i < osd->max_lines; i++)
       {
       if (osd->lines[i].text)
 	 free (osd->lines[i].text);
       }
+   
+   free(osd->lines);
    
    pthread_cond_destroy (&osd->cond);
    pthread_mutex_destroy (&osd->mutex);
@@ -672,8 +690,12 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
    char *string;
    int percent;
    
-   assert (line >= 0 && line < NLINES);
    assert (osd);
+   if (line < 0 || line >= osd->max_lines)
+     {
+       xosd_error = "Line out of range";
+       return -1;
+     }
    
    osd->timeout_time = time(NULL) + osd->timeout;
 
@@ -858,3 +880,56 @@ int xosd_show (xosd *osd)
      }
    
    }
+
+/* This function will scroll the display up "lines" number of lines */
+int xosd_scroll(xosd *osd,int lines)
+{
+  int new_line=0;
+
+  assert(osd);
+  assert(lines > 0 && lines <= osd->max_lines);
+
+  /* First free everything no longer needed */
+  while (new_line < lines)
+   {
+    if ((osd->lines[new_line].type == LINE_text) && (osd->lines[new_line].text != NULL))
+     {
+      free(osd->lines[new_line].text);
+      osd->lines[new_line].text = NULL;
+      osd->lines[new_line].type = LINE_blank;
+     }
+    
+    new_line++;
+   }
+
+  /* Do the scroll */
+  new_line=0;
+  while (new_line < (osd->max_lines-lines))
+   {
+    osd->lines[new_line].type = osd->lines[new_line+lines].type;
+    osd->lines[new_line].text = osd->lines[new_line+lines].text;
+    osd->lines[new_line].percentage = osd->lines[new_line+lines].percentage;
+    
+    new_line++;
+   }
+
+  /* Clear the lines opened up by scrolling, need because of the use of realloc in display string */
+  while (new_line < osd->max_lines)
+   {
+    osd->lines[new_line].text = NULL;
+    new_line++;
+   }
+
+  return 0;
+}
+
+int xosd_get_number_lines(xosd* osd) {
+
+  assert(osd);
+
+  return osd->max_lines;
+}
+
+/* Local Variables: */
+/*   tab-width: 8 */
+/* End: */

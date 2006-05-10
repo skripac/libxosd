@@ -42,7 +42,8 @@ typedef enum
  *     A new xosd structure.
  */
 xosd *xosd_init (char *font, char *colour, int timeout, 
-		 xosd_pos pos, int offset, int shadow_offset);
+		 xosd_pos pos, int offset, int shadow_offset,
+		 int number_lines);
 
 /* xosd_uninit -- Destroy a xosd "object"
  *
@@ -213,5 +214,28 @@ int xosd_set_font (xosd *osd, char *font);
  *  -1 on failure
 */
 int xosd_get_colour (xosd *osd, int *red, int *green, int *blue);
+
+/* xosd_scroll -- Scroll the display
+ *
+ * ARGUMENTS
+ *     osd      The xosd "object".
+ *     lines    The number of lines to scroll the display.
+ *
+ * RETURNS
+ *   0 on success
+ *  -1 on failure
+*/
+int xosd_scroll(xosd *osd, int lines); 
+
+/* xosd_get_number_lines -- Get the maximum number of lines allowed
+ *
+ * ARGUMENTS
+ *     osd      The xosd "object".
+ *
+ * RETURNS
+ *   the number of lines on success  
+ *  -1 on failure
+*/
+int xosd_get_number_lines(xosd* osd);
 
 #endif

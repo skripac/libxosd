@@ -1,9 +1,16 @@
+
+1.0.0:
+	Applied proper xosd-multiline patch (Damien Elmes)
+	Modified xosd_init to take an extra param (the number of lines)
+	 (Tim Wright)
+	
 1.0.0pre3:
 	Applied man pages patch - all xosd functions now
 	 have their own man page (Michael JasonSmith)
 	Applied XOSD Multicolour patch (Bjorn Bringert)
 	Fixed internationalization calls based on patch by 
 	 Michael JasonSmith
+	Applied xosd-multiline patch (Damien Elmes and Tim Wright)
 	
 1.0.0-pre2:
 	Applied xosd.h comment and compile-error patch
