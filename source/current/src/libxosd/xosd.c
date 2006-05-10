@@ -36,7 +36,7 @@
 
 #include "xosd.h"
 
-#define DEBUG(args...) /* fprintf (stderr, "%s: %s: %d: ", __FILE__, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, args); fprintf(stderr, "\n") */
+#define DEBUG(args...) /*fprintf (stderr, "%s: %s: %d: ", __FILE__, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, args); fprintf(stderr, "\n")*/
 
 //#ifdef X_HAVE_UTF8_STRING
 //#define XDRAWSTRING Xutf8DrawString

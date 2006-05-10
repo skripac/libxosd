@@ -1,4 +1,5 @@
-
+2.1.0:
+	
 2.0.2:  
 	xosd_init font related segfault bug fix (Damien Elmes)
 	xosd not resizing properly now and then fix (Damien Elmes)
