@@ -5,6 +5,7 @@
 	  improvements. Shouts out to Hans :)
 	Removed Xutf8 calls. Weren't working on some platforms (Tim Wright).
 	Better error reporting for osd_cat (Tim Wright)
+	More features in the xmms plugin (Tim Wright)
 
 1.0.0:
 	Applied proper xosd-multiline patch (Damien Elmes)
