@@ -2,6 +2,7 @@ xosd (2.2.13-2) experimental; urgency=low
 
   * 51_timeout.diff: Fix timeout code again.
   * 52_bmp.diff: Fix buffer overflow also in duplicate code.
+  * 53_documentation.diff: Fix one type and one missed change.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 10 Nov 2004 16:32:19 +0100
 
