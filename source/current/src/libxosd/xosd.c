@@ -450,26 +450,40 @@ event_loop(void *osdv)
       /* ignore sent by server/manual send flag */
       switch (report.type & 0x7f) {
       case Expose:
-        /* http://x.holovko.ru/Xlib/chap10.html#10.9.1 */
-        DEBUG(Dvalue, "expose %d: x=%d y=%d w=%d h=%d", report.xexpose.count,
-              report.xexpose.x, report.xexpose.y, report.xexpose.width,
-              report.xexpose.height);
+        {
+          XExposeEvent *XE = &report.xexpose;
+          /* http://x.holovko.ru/Xlib/chap10.html#10.9.1 */
+          DEBUG(Dvalue, "expose %d: x=%d y=%d w=%d h=%d", XE->count,
+                XE->x, XE->y, XE->width, XE->height);
 #if 0
-        if (report.xexpose.count == 0) {
-          int ytop, ybot;
-          ytop = report.xexpose.y / osd->line_height;
-          ybot =
-            (report.xexpose.y + report.xexpose.height) / osd->line_height;
-          do {
-            osd->lines[ytop].width = -1;
-          } while (ytop++ < ybot);
-        }
+          if (report.xexpose.count == 0) {
+            int ytop, ybot;
+            ytop = report.xexpose.y / osd->line_height;
+            ybot =
+              (report.xexpose.y + report.xexpose.height) / osd->line_height;
+            do {
+              osd->lines[ytop].width = -1;
+            } while (ytop++ < ybot);
+          }
 #endif
-        XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc,
-                  report.xexpose.x, report.xexpose.y, report.xexpose.width,
-                  report.xexpose.height, report.xexpose.x, report.xexpose.y);
-        break;
+          XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc,
+                    report.xexpose.x, report.xexpose.y, report.xexpose.width,
+                    report.xexpose.height, report.xexpose.x, report.xexpose.y);
+          break;
+        }
+      case GraphicsExpose:
+        {
+          XGraphicsExposeEvent *XE = &report.xgraphicsexpose;
+          DEBUG(Dvalue, "gfxexpose %d: x=%d y=%d w=%d h=%d code=%d",
+                XE->count, XE->x, XE->y, XE->width, XE->height, XE->major_code);
+          break;
+        }
       case NoExpose:
+        {
+          XNoExposeEvent *XE = &report.xnoexpose;
+          DEBUG(Dvalue, "noexpose: code=%d", XE->major_code);
+          break;
+        }
       default:
         DEBUG(Dvalue, "XEvent=%d", report.type);
         break;
