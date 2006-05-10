@@ -39,17 +39,18 @@ static gint timeout_func(gpointer);
 static void read_config (void);
 static void configure (void);
 static show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on);
+static void save_previous_title ( gchar * title );
 
 GeneralPlugin gp =
   {
-    NULL,		/* handle */
-    NULL,		/* filename */
-    -1,			/* xmms_session */
-    "On Screen Display",	/* Description */
-    init,
-    NULL,
-    configure,                /* Configure */
-    cleanup,
+    .handle = NULL,
+    .filename = NULL,
+    .xmms_session = -1,
+    .description = "On Screen Display",
+    .init = init,
+    .about = NULL,
+    .configure = configure,
+    .cleanup = cleanup,
   };
 
 static xosd *osd=NULL;
@@ -83,11 +84,17 @@ static GtkToggleButton
   *stop_on,  *repeat_on,
   *shuffle_on;
 
+/*
+ * Return plugin structure.
+ */
 GeneralPlugin *get_gplugin_info(void)
 {
   return &gp;
 }
 
+/*
+ * Initialize plugin.
+ */
 static void init(void)
 {
   /* font = "-ttf-lucida console-*-r-*-*-60-*-*-*-*-*-*-*"; */
@@ -117,6 +124,9 @@ static void init(void)
     timeout_tag = gtk_timeout_add (100, timeout_func, NULL);
 }
 
+/*
+ * Free memory and release resources.
+ */
 static void cleanup(void)
 {
   DEBUG("cleanup");
@@ -135,10 +145,16 @@ static void cleanup(void)
     colour=NULL;
   }   
 
+  save_previous_title( 0 );
+
+  xosd_hide (osd);
   xosd_uninit (osd);
   osd=NULL;
 }
 
+/*
+ * Read configuration and initialize variables.
+ */
 static void read_config (void)
 {
 
@@ -186,12 +202,17 @@ static void read_config (void)
     colour = g_strdup ("green");
 }
 
+/*
+ * Return state of check button.
+ */
 static gboolean isactive(GtkToggleButton *item) {
   return gtk_toggle_button_get_active (item)? 1 : 0;
 }
 
+/*
+ * Apply changed from configuration dialog.
+ */
 static void configure_apply_cb (gpointer data)
-
 {
 
   ConfigFile *cfgfile;
@@ -253,6 +274,9 @@ static void configure_apply_cb (gpointer data)
   xmms_cfg_free(cfgfile);
 }
 
+/*
+ * Apply changes and close configuration dialog.
+ */
 static void configure_ok_cb (gpointer data)
 {
   DEBUG("configure_ok_cb");
@@ -262,6 +286,9 @@ static void configure_ok_cb (gpointer data)
   configure_win = NULL;
 }
 
+/*
+ * Apply font change and close dialog.
+ */
 static int font_dialog_ok (GtkButton *button, gpointer user_data)
 {
   GtkWidget *font_dialog = user_data;
@@ -280,6 +307,9 @@ static int font_dialog_ok (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Apply changes to font selection.
+ */
 static int font_dialog_apply (GtkButton *button, gpointer user_data)
 {
   GtkWidget *font_dialog = user_data;
@@ -296,6 +326,9 @@ static int font_dialog_apply (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Create dialog window for font selection.
+ */
 static int font_dialog_window (GtkButton *button, gpointer user_data)
 {
   GtkWidget *font_dialog;
@@ -340,6 +373,9 @@ static int font_dialog_window (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Apply colour changes and close window.
+ */
 static int colour_dialog_ok (GtkButton *button, gpointer user_data)
 {
   GtkWidget *colour_dialog = user_data;
@@ -363,6 +399,9 @@ static int colour_dialog_ok (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Create dialog window for colour selection.
+ */
 static int colour_dialog_window (GtkButton *button, gpointer user_data)
 {
   GtkWidget *colour_dialog;
@@ -403,6 +442,9 @@ static int colour_dialog_window (GtkButton *button, gpointer user_data)
   return 0;
 }
 
+/*
+ * Create dialog window for configuration.
+ */
 static void configure (void)
 {
   GtkWidget *vbox, *bbox, *ok, *cancel, *apply, *hbox, *label, 
@@ -601,6 +643,9 @@ static void save_previous_title ( gchar * title ) {
   previous_title = title;
 }
 
+/*
+ * Convert hexcode to ASCII.
+ */
 static void replace_hexcodes (gchar *text)
 {
   gchar hex_number[] = "FF";
@@ -629,6 +674,9 @@ static void replace_hexcodes (gchar *text)
 
 }
 
+/*
+ * Callback funtion to handle delayed display.
+ */
 static gint timeout_func(gpointer data)
 {
   gint pos, volume, balance;
@@ -660,20 +708,22 @@ static gint timeout_func(gpointer data)
 	{
 	   
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
-	  replace_hexcodes (text);
-	   
-	  /** 
-	   * Check to see if the title of the song has changed.
-	   */
-	  if ( !previous_title || 
-	       g_strcasecmp(text, previous_title) != 0 ) { 
-	    if (show_stop) {
-	      xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
-	      xosd_display (osd, 1, XOSD_string, text);		       
+	  if (text) {
+	    replace_hexcodes (text);
+	     
+	    /** 
+	     * Check to see if the title of the song has changed.
+	     */
+	    if ( !previous_title || 
+		 g_strcasecmp(text, previous_title) != 0 ) { 
+	      if (show_stop) {
+		xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
+		xosd_display (osd, 1, XOSD_string, text);		       
+	      }
 	    }
-	  }
 
-	  save_previous_title( text );
+	    save_previous_title( text );
+	  }
 	} else { 
 	  /** No song titles available. */
 	  if (show_stop) {
@@ -691,9 +741,11 @@ static gint timeout_func(gpointer data)
 	{
 	  xosd_display (osd, 0, XOSD_string, "Play");
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
-	  replace_hexcodes (text);
-	  xosd_display (osd, 1, XOSD_string, text);
-	  save_previous_title ( text );
+	  if (text) {
+	    replace_hexcodes (text);
+	    xosd_display (osd, 1, XOSD_string, text);
+	    save_previous_title ( text );
+	  }
 	}
       else if (!playing && show_stop )
 	{
@@ -715,9 +767,11 @@ static gint timeout_func(gpointer data)
 	{
 	  xosd_display (osd, 0, XOSD_string, "Unpaused");
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
-	  replace_hexcodes (text);
-	  xosd_display (osd, 1, XOSD_string, text);
-	  save_previous_title( text );
+	  if (text) {
+	    replace_hexcodes (text);
+	    xosd_display (osd, 1, XOSD_string, text);
+	    save_previous_title( text );
+	  }
 	}
       previous_paused = paused;
     }
@@ -758,7 +812,10 @@ static gint timeout_func(gpointer data)
   return TRUE;
 }
 
-show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on)
+/*
+ * Add item to configuration dialog.
+ */
+static show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on)
 {
   //GtkWidget  *hbox, *label;
   //GSList *group = NULL;
@@ -783,6 +840,4 @@ show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButto
   */
   
   gtk_toggle_button_set_active (*on, selected);
-
-  
 }

@@ -2,6 +2,7 @@
        Autoconf fixes:
         Cleaned up autoconf scripts (patch from Philipp Matthias Hahn)
 	Changed references to libxosd-config to xosd-config (Tim Wright)
+	Code Clean (Philipp Matthias Hahn)
 	
 1.0.1:	
 	Merged xosd code-clean and alignment branch (Hans Verkuil's branch)
