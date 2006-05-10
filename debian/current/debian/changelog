@@ -5,6 +5,7 @@ xosd (2.2.12-1) experimental; urgency=low
   * 44_endofhex.diff: Fix potential buffer overflow.
   * 45_timeout.diff: Fix negative timeouts. (closes: #277027)
   * 46_event.diff: Fix hang. (closes: #269671,#279406,#271807)
+  * 47_exposure.diff: Reduce events to improve speed.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed,  3 Nov 2004 14:26:21 +0100
 
