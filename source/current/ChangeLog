@@ -6,6 +6,7 @@
 	work on xosd.spec file and autoconf stuff (Tim Wright)
 	updated testprog to have error reporting and do cooler stuff (Tim Wright)
 	applied track name change patch (Robert Hart)
+	only compile xmms plugin if gdk_pixbuf is installed (Daniel Ahlberg)
 	
 2.0.1:  
 	xosd.h header file patch (Tim Wright)
