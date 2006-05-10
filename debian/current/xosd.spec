@@ -2,7 +2,7 @@
 %define	aclocaldir	%(aclocal --print-ac-dir)
 
 Name:		xosd
-Version:	@VERSION@
+Version:	1.0.2
 Release:	1
 Vendor:		Andre Renaud <andre@ignavus.net>
 Copyright:	GPL

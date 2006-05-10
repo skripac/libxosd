@@ -81,6 +81,7 @@ OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
+SELECTED_PLUGINS = @SELECTED_PLUGINS@
 STRIP = @STRIP@
 VERSION = @VERSION@
 XMMS_CFLAGS = @XMMS_CFLAGS@
@@ -88,31 +89,26 @@ XMMS_LIBS = @XMMS_LIBS@
 XMMS_PLUGIN_DIR = @XMMS_PLUGIN_DIR@
 xmms_config_script = @xmms_config_script@
 
-bin_PROGRAMS = osd_cat 
+bin_PROGRAMS = osd_cat
 noinst_PROGRAMS = testprog
 
 osd_cat_SOURCES = osd_cat.c
 testprog_SOURCES = testprog.c
 
-osd_cat_LDADD = libxosd.la
-testprog_LDADD = libxosd.la
-
-# Libraries.  Put libxmms_osd into xmms' plugin dir.
-lib_LTLIBRARIES = libxosd.la 
-libxosd_la_SOURCES = xosd.c  xosd.h
-libxosd_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+osd_cat_LDADD = libxosd/libxosd.la
+testprog_LDADD = libxosd/libxosd.la
 
 include_HEADERS = xosd.h
 
 CFLAGS = @CFLAGS@ ${GTK_CFLAGS}
-xmmsplugindir = ${XMMS_PLUGIN_DIR}/General/
-xmmsplugin_LTLIBRARIES = libxmms_osd.la
-libxmms_osd_la_SOURCES = xmms_osd.c
-libxmms_osd_la_LIBADD = ${XMMS_LIBS} ${GTK_LIBS} libxosd.la
-libxmms_osd_la_LDFLAGS = -module -avoid-version
+
+# Plugins (configure will determine what to build)
+SUBDIRS = libxosd @SELECTED_PLUGINS@ 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
-LTLIBRARIES =  $(lib_LTLIBRARIES) $(xmmsplugin_LTLIBRARIES)
+bin_PROGRAMS =  osd_cat$(EXEEXT)
+noinst_PROGRAMS =  testprog$(EXEEXT)
+PROGRAMS =  $(bin_PROGRAMS) $(noinst_PROGRAMS)
 
 
 DEFS = @DEFS@ -I. -I$(srcdir) 
@@ -123,19 +119,11 @@ X_CFLAGS = @X_CFLAGS@
 X_LIBS = @X_LIBS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
-libxosd_la_LIBADD = 
-libxosd_la_OBJECTS =  xosd.lo
-libxmms_osd_la_DEPENDENCIES =  libxosd.la
-libxmms_osd_la_OBJECTS =  xmms_osd.lo
-bin_PROGRAMS =  osd_cat$(EXEEXT)
-noinst_PROGRAMS =  testprog$(EXEEXT)
-PROGRAMS =  $(bin_PROGRAMS) $(noinst_PROGRAMS)
-
 osd_cat_OBJECTS =  osd_cat.$(OBJEXT)
-osd_cat_DEPENDENCIES =  libxosd.la
+osd_cat_DEPENDENCIES =  libxosd/libxosd.la
 osd_cat_LDFLAGS = 
 testprog_OBJECTS =  testprog.$(OBJEXT)
-testprog_DEPENDENCIES =  libxosd.la
+testprog_DEPENDENCIES =  libxosd/libxosd.la
 testprog_LDFLAGS = 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -150,115 +138,19 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/osd_cat.P .deps/testprog.P .deps/xmms_osd.P \
-.deps/xosd.P
-SOURCES = $(libxosd_la_SOURCES) $(libxmms_osd_la_SOURCES) $(osd_cat_SOURCES) $(testprog_SOURCES)
-OBJECTS = $(libxosd_la_OBJECTS) $(libxmms_osd_la_OBJECTS) $(osd_cat_OBJECTS) $(testprog_OBJECTS)
+SOURCES = $(osd_cat_SOURCES) $(testprog_SOURCES)
+OBJECTS = $(osd_cat_OBJECTS) $(testprog_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .lo .o .obj .s
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps src/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-
-mostlyclean-libLTLIBRARIES:
-
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-
-distclean-libLTLIBRARIES:
-
-maintainer-clean-libLTLIBRARIES:
-
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libdir)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
-	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
-	  else :; fi; \
-	done
-
-uninstall-libLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
-	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
-	done
-
-mostlyclean-xmmspluginLTLIBRARIES:
-
-clean-xmmspluginLTLIBRARIES:
-	-test -z "$(xmmsplugin_LTLIBRARIES)" || rm -f $(xmmsplugin_LTLIBRARIES)
-
-distclean-xmmspluginLTLIBRARIES:
-
-maintainer-clean-xmmspluginLTLIBRARIES:
-
-install-xmmspluginLTLIBRARIES: $(xmmsplugin_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(xmmsplugindir)
-	@list='$(xmmsplugin_LTLIBRARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(xmmsplugindir)/$$p"; \
-	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(xmmsplugindir)/$$p; \
-	  else :; fi; \
-	done
-
-uninstall-xmmspluginLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	list='$(xmmsplugin_LTLIBRARIES)'; for p in $$list; do \
-	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(xmmsplugindir)/$$p; \
-	done
-
-# FIXME: We should only use cygpath when building on Windows,
-# and only if it is available.
-.c.obj:
-	$(COMPILE) -c `cygpath -w $<`
-
-.s.o:
-	$(COMPILE) -c $<
-
-.S.o:
-	$(COMPILE) -c $<
-
-mostlyclean-compile:
-	-rm -f *.o core *.core
-	-rm -f *.$(OBJEXT)
-
-clean-compile:
-
-distclean-compile:
-	-rm -f *.tab.c
-
-maintainer-clean-compile:
-
-.s.lo:
-	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
-
-.S.lo:
-	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
-
-mostlyclean-libtool:
-	-rm -f *.lo
-
-clean-libtool:
-	-rm -rf .libs _libs
-
-distclean-libtool:
-
-maintainer-clean-libtool:
-
-libxosd.la: $(libxosd_la_OBJECTS) $(libxosd_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(libxosd_la_LDFLAGS) $(libxosd_la_OBJECTS) $(libxosd_la_LIBADD) $(LIBS)
-
-libxmms_osd.la: $(libxmms_osd_la_OBJECTS) $(libxmms_osd_la_DEPENDENCIES)
-	$(LINK) -rpath $(xmmsplugindir) $(libxmms_osd_la_LDFLAGS) $(libxmms_osd_la_OBJECTS) $(libxmms_osd_la_LIBADD) $(LIBS)
 
 mostlyclean-binPROGRAMS:
 
@@ -294,6 +186,50 @@ distclean-noinstPROGRAMS:
 
 maintainer-clean-noinstPROGRAMS:
 
+.c.o:
+	$(COMPILE) -c $<
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.c.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
 osd_cat$(EXEEXT): $(osd_cat_OBJECTS) $(osd_cat_DEPENDENCIES)
 	@rm -f osd_cat$(EXEEXT)
 	$(LINK) $(osd_cat_LDFLAGS) $(osd_cat_OBJECTS) $(osd_cat_LDADD) $(LIBS)
@@ -317,6 +253,61 @@ uninstall-includeHEADERS:
 	  rm -f $(DESTDIR)$(includedir)/$$p; \
 	done
 
+# This directory's subdirectories are mostly independent; you can cd
+# into them and run `make' without going through this Makefile.
+# To change the values of `make' variables: instead of editing Makefiles,
+# (1) if the variable is set in `config.status', edit `config.status'
+#     (which will cause the Makefiles to be regenerated when you run `make');
+# (2) otherwise, pass the desired values on the `make' command line.
+
+@SET_MAKE@
+
+all-recursive install-data-recursive install-exec-recursive \
+installdirs-recursive install-recursive uninstall-recursive  \
+check-recursive installcheck-recursive info-recursive dvi-recursive:
+	@set fnord $(MAKEFLAGS); amf=$$2; \
+	dot_seen=no; \
+	target=`echo $@ | sed s/-recursive//`; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    dot_seen=yes; \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	   || case "$$amf" in *=*) exit 1;; *k*) fail=yes;; *) exit 1;; esac; \
+	done; \
+	if test "$$dot_seen" = "no"; then \
+	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
+	fi; test -z "$$fail"
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+maintainer-clean-recursive:
+	@set fnord $(MAKEFLAGS); amf=$$2; \
+	dot_seen=no; \
+	rev=''; list='$(SUBDIRS)'; for subdir in $$list; do \
+	  rev="$$subdir $$rev"; \
+	  test "$$subdir" != "." || dot_seen=yes; \
+	done; \
+	test "$$dot_seen" = "no" && rev=". $$rev"; \
+	target=`echo $@ | sed s/-recursive//`; \
+	for subdir in $$rev; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	   || case "$$amf" in *=*) exit 1;; *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+tags-recursive:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) tags); \
+	done
+
 tags: TAGS
 
 ID: $(HEADERS) $(SOURCES) $(LISP)
@@ -327,9 +318,14 @@ ID: $(HEADERS) $(SOURCES) $(LISP)
 	here=`pwd` && cd $(srcdir) \
 	  && mkid -f$$here/ID $$unique $(LISP)
 
-TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
 	tags=; \
 	here=`pwd`; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+   if test "$$subdir" = .; then :; else \
+	    test -f $$subdir/TAGS && tags="$$tags -i $$here/$$subdir/TAGS"; \
+   fi; \
+	done; \
 	list='$(SOURCES) $(HEADERS)'; \
 	unique=`for i in $$list; do echo $$i; done | \
 	  awk '    { files[$$0] = 1; } \
@@ -351,11 +347,6 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = src
 
 distdir: $(DISTFILES)
-	here=`cd $(top_builddir) && pwd`; \
-	top_distdir=`cd $(top_distdir) && pwd`; \
-	distdir=`cd $(distdir) && pwd`; \
-	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu src/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -366,65 +357,45 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
+	for subdir in $(SUBDIRS); do \
+	  if test "$$subdir" = .; then :; else \
+	    test -d $(distdir)/$$subdir \
+	    || mkdir $(distdir)/$$subdir \
+	    || exit 1; \
+	    chmod 777 $(distdir)/$$subdir; \
+	    (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) top_distdir=../$(top_distdir) distdir=../$(distdir)/$$subdir distdir) \
+	      || exit 1; \
+	  fi; \
+	done
+osd_cat.o: osd_cat.c xosd.h
+testprog.o: testprog.c xosd.h
 
-DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
-
--include $(DEP_FILES)
-
-mostlyclean-depend:
-
-clean-depend:
-
-distclean-depend:
-	-rm -rf .deps
-
-maintainer-clean-depend:
-
-%.o: %.c
-	@echo '$(COMPILE) -c $<'; \
-	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
-	@-cp .deps/$(*F).pp .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm .deps/$(*F).pp
-
-%.lo: %.c
-	@echo '$(LTCOMPILE) -c $<'; \
-	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
-	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
-	  < .deps/$(*F).pp > .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm -f .deps/$(*F).pp
 info-am:
-info: info-am
+info: info-recursive
 dvi-am:
-dvi: dvi-am
+dvi: dvi-recursive
 check-am: all-am
-check: check-am
+check: check-recursive
 installcheck-am:
-installcheck: installcheck-am
-install-exec-am: install-libLTLIBRARIES install-binPROGRAMS
-install-exec: install-exec-am
+installcheck: installcheck-recursive
+install-exec-am: install-binPROGRAMS
+install-exec: install-exec-recursive
 
-install-data-am: install-xmmspluginLTLIBRARIES install-includeHEADERS
-install-data: install-data-am
+install-data-am: install-includeHEADERS
+install-data: install-data-recursive
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
-install: install-am
-uninstall-am: uninstall-libLTLIBRARIES uninstall-xmmspluginLTLIBRARIES \
-		uninstall-binPROGRAMS uninstall-includeHEADERS
-uninstall: uninstall-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
-all-redirect: all-am
+install: install-recursive
+uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS
+uninstall: uninstall-recursive
+all-am: Makefile $(PROGRAMS) $(HEADERS)
+all-redirect: all-recursive
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
-installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(xmmsplugindir) \
-		$(DESTDIR)$(bindir) $(DESTDIR)$(includedir)
+installdirs: installdirs-recursive
+installdirs-am:
+	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(includedir)
 
 
 mostlyclean-generic:
@@ -436,63 +407,53 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-mostlyclean-am:  mostlyclean-libLTLIBRARIES \
-		mostlyclean-xmmspluginLTLIBRARIES mostlyclean-compile \
-		mostlyclean-libtool mostlyclean-binPROGRAMS \
-		mostlyclean-noinstPROGRAMS mostlyclean-tags \
-		mostlyclean-depend mostlyclean-generic
+mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-noinstPROGRAMS \
+		mostlyclean-compile mostlyclean-libtool \
+		mostlyclean-tags mostlyclean-generic
 
-mostlyclean: mostlyclean-am
+mostlyclean: mostlyclean-recursive
 
-clean-am:  clean-libLTLIBRARIES clean-xmmspluginLTLIBRARIES \
-		clean-compile clean-libtool clean-binPROGRAMS \
-		clean-noinstPROGRAMS clean-tags clean-depend \
-		clean-generic mostlyclean-am
+clean-am:  clean-binPROGRAMS clean-noinstPROGRAMS clean-compile \
+		clean-libtool clean-tags clean-generic mostlyclean-am
 
-clean: clean-am
+clean: clean-recursive
 
-distclean-am:  distclean-libLTLIBRARIES distclean-xmmspluginLTLIBRARIES \
-		distclean-compile distclean-libtool \
-		distclean-binPROGRAMS distclean-noinstPROGRAMS \
-		distclean-tags distclean-depend distclean-generic \
-		clean-am
+distclean-am:  distclean-binPROGRAMS distclean-noinstPROGRAMS \
+		distclean-compile distclean-libtool distclean-tags \
+		distclean-generic clean-am
 	-rm -f libtool
 
-distclean: distclean-am
+distclean: distclean-recursive
 
-maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
-		maintainer-clean-xmmspluginLTLIBRARIES \
+maintainer-clean-am:  maintainer-clean-binPROGRAMS \
+		maintainer-clean-noinstPROGRAMS \
 		maintainer-clean-compile maintainer-clean-libtool \
-		maintainer-clean-binPROGRAMS \
-		maintainer-clean-noinstPROGRAMS maintainer-clean-tags \
-		maintainer-clean-depend maintainer-clean-generic \
+		maintainer-clean-tags maintainer-clean-generic \
 		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
-maintainer-clean: maintainer-clean-am
+maintainer-clean: maintainer-clean-recursive
 
-.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
-clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
-uninstall-libLTLIBRARIES install-libLTLIBRARIES \
-mostlyclean-xmmspluginLTLIBRARIES distclean-xmmspluginLTLIBRARIES \
-clean-xmmspluginLTLIBRARIES maintainer-clean-xmmspluginLTLIBRARIES \
-uninstall-xmmspluginLTLIBRARIES install-xmmspluginLTLIBRARIES \
+.PHONY: mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
+maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
+mostlyclean-noinstPROGRAMS distclean-noinstPROGRAMS \
+clean-noinstPROGRAMS maintainer-clean-noinstPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile mostlyclean-libtool distclean-libtool \
-clean-libtool maintainer-clean-libtool mostlyclean-binPROGRAMS \
-distclean-binPROGRAMS clean-binPROGRAMS maintainer-clean-binPROGRAMS \
-uninstall-binPROGRAMS install-binPROGRAMS mostlyclean-noinstPROGRAMS \
-distclean-noinstPROGRAMS clean-noinstPROGRAMS \
-maintainer-clean-noinstPROGRAMS uninstall-includeHEADERS \
-install-includeHEADERS tags mostlyclean-tags distclean-tags clean-tags \
-maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
-clean-depend maintainer-clean-depend info-am info dvi-am dvi check \
-check-am installcheck-am installcheck install-exec-am install-exec \
-install-data-am install-data install-am install uninstall-am uninstall \
-all-redirect all-am all installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+clean-libtool maintainer-clean-libtool uninstall-includeHEADERS \
+install-includeHEADERS install-data-recursive uninstall-data-recursive \
+install-exec-recursive uninstall-exec-recursive installdirs-recursive \
+uninstalldirs-recursive all-recursive check-recursive \
+installcheck-recursive info-recursive dvi-recursive \
+mostlyclean-recursive distclean-recursive clean-recursive \
+maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
+dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs-am \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
