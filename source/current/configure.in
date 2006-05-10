@@ -4,10 +4,10 @@ AC_INIT(src/testprog.c)
 # version crud for libraries
 LT_CURRENT=2
 LT_AGE=0
-LT_REVISION=0
+LT_REVISION=1
 
 # version for tar file
-VERSION=2.0.0
+VERSION=2.0.1
 
 AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_AGE)
