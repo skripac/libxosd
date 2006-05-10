@@ -20,8 +20,9 @@ typedef enum
 /* Position of the display */
 typedef enum
   {
-    XOSD_top,    /* Top of the screen. */
-    XOSD_bottom  /* Bottom of the screen. */
+    XOSD_top=0,    /* Top of the screen. */
+    XOSD_bottom,  /* Bottom of the screen. */
+    XOSD_middle  /* middle of the screen. */
   } xosd_pos;
 
 /* Alignment of the display */

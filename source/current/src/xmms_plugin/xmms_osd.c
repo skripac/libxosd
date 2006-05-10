@@ -269,6 +269,8 @@ static void configure_apply_cb (gpointer data)
 
   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pos_top)))
     pos = XOSD_top;
+  else if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (pos_middle)))
+    pos = XOSD_middle;
   else
     pos = XOSD_bottom;
 
@@ -624,12 +626,16 @@ static void configure (void)
 		    GTK_FILL, GTK_FILL, 0, 0);
   pos_top = gtk_radio_button_new_with_label (NULL, "Top");
   group = gtk_radio_button_group (GTK_RADIO_BUTTON (pos_top));
+  pos_middle = gtk_radio_button_new_with_label (group, "Middle");
   pos_bottom = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (pos_top), "Bottom");
   gtk_box_pack_start (GTK_BOX (vbox2), pos_top, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox2), pos_middle, FALSE, FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox2), pos_bottom, FALSE, FALSE, 0);
 
   if (pos == XOSD_top)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pos_top), TRUE);
+  else  if (pos == XOSD_middle)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pos_middle), TRUE);
   else 
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pos_bottom), TRUE);
 

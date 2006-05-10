@@ -902,10 +902,15 @@ static void xosd_update_pos (xosd *osd)
 {
   osd->x = 0;
   pthread_mutex_lock (&osd->mutex);
-  if (osd->pos == XOSD_bottom)
+  if (osd->pos == XOSD_bottom) {
     osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->voffset;
-  else
+  }
+  else if (osd->pos == XOSD_middle) {
+    osd->y = XDisplayHeight (osd->display, osd->screen)/2 - osd->height - osd->voffset;
+  }
+  else {
     osd->y = osd->voffset;
+  }
 
   if (osd->align == XOSD_left)
     osd->x = osd->hoffset;
