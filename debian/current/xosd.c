@@ -1,7 +1,6 @@
 /* XOSD
- 
- Copyright (c) 2000 Andre Renaud (andre@ignavus.net)
 
+ Copyright (c) 2000 Andre Renaud (andre@ignavus.net)
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -515,6 +514,12 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
 
    osd->fontset = XCreateFontSet (osd->display, font,
                                   &missing, &nmissing, &defstr);
+   if (!osd->fontset)
+      {
+      fprintf (stderr, "Requested font: `%s' not found\n", font);
+      return NULL;
+      }
+
    extents = XExtentsOfFontSet(osd->fontset);
    
    osd->width = XDisplayWidth (osd->display, osd->screen);
