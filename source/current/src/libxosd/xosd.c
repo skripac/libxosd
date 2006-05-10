@@ -135,6 +135,7 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
   int barw, barh;
   int nbars, on, i;
   int so = osd->shadow_offset;
+  assert (osd);
 
   barh = -osd->extent->y;
   barw = barh / 2;
@@ -150,12 +151,17 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
     DEBUG("percent=%d, nbars==%d, on == %d", percent, nbars, on);
 
     //fix x coord
-    if (osd->align) {
-      if (osd->align == XOSD_right) {
-	x = osd->width - (nbars*barw) - x;
-      } else {
-	x = (osd->width - (nbars*barw)) / 2;
-      }
+    switch (osd->align) {
+      case XOSD_left:
+        break;
+      case XOSD_center:
+        x = (osd->width - (nbars*barw)) / 2;
+        break;
+      case XOSD_right:
+        x = osd->width - (nbars*barw) - x;
+        break;
+      default:
+        break;
     }
   }
 
@@ -187,14 +193,13 @@ static void expose_line(xosd *osd, int line)
   int x = 10;
   int y = osd->line_height * line;
   xosd_line *l = &osd->lines[line];
+  assert (osd);
 
   /* don't need to lock here because functions that call expose_line should
      have already locked the mutex */
   XFillRectangle (osd->display, osd->mask_bitmap, osd->mask_gc_back,
                   0, y, osd->width, osd->line_height);
 
-
-   
   switch (l->type) {
     case LINE_blank:
       break;
@@ -203,12 +208,17 @@ static void expose_line(xosd *osd, int line)
       if (!l->text || !l->length) break;
       if (!osd->fontset) { DEBUG("CRITICAL: No fontset"); return; }
 
-      if (osd->align) {
-	if (osd->align == XOSD_right) {
-	  x = osd->width - l->width - x;
-	} else {
-	  x = (osd->width - l->width) / 2;
-	}
+      switch (osd->align) {
+        case XOSD_left:
+          break;
+        case XOSD_center:
+          x = (osd->width - l->width) / 2;
+          break;
+        case XOSD_right:
+          x = osd->width - l->width - x;
+          break;
+        default:
+          break;
       }
 
      if (osd->shadow_offset) {
@@ -231,17 +241,18 @@ static void expose_line(xosd *osd, int line)
     case LINE_percentage:
     case LINE_slider:
       
-      if (osd->align)
-	{
-	  if (osd->align==XOSD_right)
-	    {
-	      x=osd->width*(1-SLIDER_WIDTH);
-	    }
-	  else
-	    {
-	      x=osd->width*((1-SLIDER_WIDTH)/2);
-	    }
-	}
+      switch (osd->align) {
+        case XOSD_left:
+          break;
+        case XOSD_center:
+          x=osd->width*((1-SLIDER_WIDTH)/2);
+          break;
+        case XOSD_right:
+          x=osd->width*(1-SLIDER_WIDTH);
+          break;
+        default:
+          break;
+      }
       
       draw_bar(osd,osd->mask_bitmap,osd->mask_gc,x,y,l->percentage, l->type==LINE_slider,0);
       draw_bar(osd,osd->window,osd->gc,x,y,l->percentage,l->type==LINE_slider,1);
@@ -265,6 +276,7 @@ static void *event_loop (void *osdv)
   int line, y;
 
   DEBUG("event thread started");
+  assert (osd);
   usleep (500);
 
   while (!osd->done) {
@@ -311,8 +323,7 @@ static void *event_loop (void *osdv)
 static void *timeout_loop (void *osdv)
 {
   xosd *osd = osdv;
-
-  if (osdv == NULL) return NULL;
+  assert (osd);
 
   pthread_mutex_lock (&osd->mutex);
   while (!osd->done) {
@@ -336,7 +347,7 @@ static int display_string (xosd *osd, xosd_line *l, char *string)
 {
   XRectangle rect;
 
-  if (osd == NULL) return -1;
+  assert (osd);
   if (!osd->fontset) { DEBUG("CRITICAL: No fontset"); return -1; }
 
   l->type = LINE_text;
@@ -361,7 +372,7 @@ static int display_string (xosd *osd, xosd_line *l, char *string)
 
 static int display_percentage (xosd *osd, xosd_line *l, int percentage)
 {
-  if (osd == NULL) return -1;
+  assert (osd);
 
   if (percentage < 0) percentage = 0;
   if (percentage > 100 ) percentage = 100;
@@ -374,7 +385,7 @@ static int display_percentage (xosd *osd, xosd_line *l, int percentage)
 
 static int display_slider (xosd *osd, xosd_line *l, int percentage)
 {
-  if (osd == NULL) return -1;
+  assert (osd);
 
   if (percentage < 0) percentage = 0;
   if (percentage > 100 ) percentage = 100;
@@ -387,6 +398,7 @@ static int display_slider (xosd *osd, xosd_line *l, int percentage)
 
 static void resize(xosd *osd) /* Requires mutex lock. */
 {
+  assert (osd);
   XResizeWindow (osd->display, osd->window, osd->width, osd->height);
   XFreePixmap (osd->display, osd->mask_bitmap);
   osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, osd->height, 1);
@@ -397,6 +409,7 @@ static void resize(xosd *osd) /* Requires mutex lock. */
 
 static int force_redraw (xosd *osd, int line) /* Requires mutex lock. */
 {
+  assert (osd);
   resize(osd);
   for (line = 0; line < osd->number_lines; line++) {
     expose_line (osd, line);
@@ -418,8 +431,7 @@ static int set_font (xosd *osd, const char *font) /* Requires mutex lock. */
 
   XFontSetExtents *extents;
 
-  if (osd == NULL) return -1;
-
+  assert (osd);
   if (osd->fontset) {
     XFreeFontSet (osd->display, osd->fontset);
     osd->fontset = NULL;
@@ -456,7 +468,7 @@ static int set_colour (xosd *osd, const char *colour) /* Requires mutex lock. */
 {
   int retval = 0;
 
-  if (osd == NULL) return -1;
+  assert (osd);
 
   DEBUG("getting colourmap");
   osd->colourmap = DefaultColormap (osd->display, osd->screen);
@@ -972,25 +984,37 @@ int xosd_set_font (xosd *osd, const char *font)
 
 static void update_pos (xosd *osd) /* Requires mutex lock. */
 {
-  if (osd->pos == XOSD_bottom) {
-    osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->voffset;
-  }
-  else if (osd->pos == XOSD_middle) {
-    osd->y = XDisplayHeight (osd->display, osd->screen)/2 - osd->height - osd->voffset;
-  }
-  else {
-    osd->y = osd->voffset;
+  assert (osd);
+  switch (osd->pos) {
+    case XOSD_bottom:
+      osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->voffset;
+      break;
+    case XOSD_middle:
+      osd->y = XDisplayHeight (osd->display, osd->screen)/2 - osd->height - osd->voffset;
+      break;
+    case XOSD_top:
+    default:
+      osd->y = osd->voffset;
+      break;
   }
 
-  if (osd->align == XOSD_left) {
-    osd->x = osd->hoffset;
-  } else if (osd->align == XOSD_center) {
-    osd->x = osd->hoffset; /* which direction should this default to, left or right offset */
-  } else if (osd->align == XOSD_right) {
-    // osd->x = XDisplayWidth (osd->display, osd->screen) - osd->width - osd->hoffset; 
-    osd->x = -(osd->hoffset); 
-    /* neither of these work right, I want the offset to flip so
-     * +offset is to the left instead of to the right when aligned right */
+  switch (osd->align) {
+    case XOSD_left:
+      osd->x = osd->hoffset;
+      break;
+    case XOSD_center:
+      osd->x = osd->hoffset;
+      /* which direction should this default to, left or right offset */
+      break;
+    case XOSD_right:
+      // osd->x = XDisplayWidth (osd->display, osd->screen) - osd->width - osd->hoffset; 
+      osd->x = -(osd->hoffset); 
+      /* neither of these work right, I want the offset to flip so
+       * +offset is to the left instead of to the right when aligned right */
+      break;
+    default:
+      osd->x = 0;
+      break;
   }
 
   XMoveWindow (osd->display, osd->window, osd->x, osd->y);
@@ -1070,6 +1094,7 @@ int xosd_get_colour (xosd *osd, int *red, int *green, int *blue)
 /** Change automatic timeout. **/
 static void set_timeout (xosd *osd) /* Requires mutex lock. */
 {
+  assert (osd);
   osd->timeout_time.tv_sec = (osd->timeout > 0)
     ? osd->timeout_time.tv_sec = time (NULL) + osd->timeout
     : 0;
@@ -1089,6 +1114,7 @@ int xosd_set_timeout (xosd *osd, int timeout)
 /** Hide current lines. **/
 static void hide (xosd *osd) /* Requires mutex lock. */
 {
+  assert (osd);
   osd->mapped = 0;
   XUnmapWindow (osd->display, osd->window);
   XFlush (osd->display);
@@ -1110,6 +1136,7 @@ int xosd_hide (xosd *osd)
 /** Show current lines (again). **/
 static void show (xosd *osd) /* Requires mutex lock. */
 {
+  assert (osd);
   osd->mapped = 1;
   XMapRaised (osd->display, osd->window);
   XFlush (osd->display);

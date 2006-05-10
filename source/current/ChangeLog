@@ -6,6 +6,9 @@
  	Use blocking X11 calls to fix xmms with realtime scheduling.
  	Add lots of comments
  	Move locking and checking osd!=NULL to xosd_* wrappers
+ 	Start using assert()
+ 	More const parameters
+ 	Use switch() instead of nested if()
 
 2.1.0:
         New xmms plugin! well, actually the plugin from 2.0.0 has been 
