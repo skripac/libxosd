@@ -39,6 +39,9 @@
 
 #include "xosd.h"
 
+/* stores the current error string if applicable */
+char *xosd_error = "";
+
 typedef enum {LINE_blank, LINE_text, LINE_percentage, LINE_slider} line_type;
 
 typedef struct
@@ -410,7 +413,7 @@ static int set_font (xosd *osd, char *font)
                                   &missing, &nmissing, &defstr);
    if (fontset == NULL)
       {
-      fprintf (stderr, "Requested font: `%s' not found\n", font);
+        xosd_error = "Invalid font";
         MUTEX_RELEASE();
       return -1;
       }
@@ -435,6 +438,7 @@ static int set_font (xosd *osd, char *font)
 				1);
    if (!osd->bitmap)
      {
+       xosd_error = "Couldn't create pixmap";
        MUTEX_RELEASE ();
        return -1;
      }
@@ -505,8 +509,8 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    display = getenv ("DISPLAY");
    if (!display)
       {
-      perror ("No display\n");
-      return NULL;
+        xosd_error = "No display";
+        return NULL;
       }
    
    osd = malloc (sizeof (xosd));
@@ -519,14 +523,14 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    
    if (!osd->display)
       {
-      perror ("Cannot open display\n");
+        xosd_error = "No display";
       free(osd);
       return NULL;
       }
    
    if (!XShapeQueryExtension (osd->display, &event_basep, &error_basep))
       {
-      fprintf (stderr, "X-Server does not support shape extension\n");
+        xosd_error = "No shape extensions";
       free(osd);
       return NULL;
       }
@@ -691,8 +695,8 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
       
       default :
 	 {
+           xosd_error = "Unknown command";
 	 len = -1;
-	 fprintf (stderr, "xosd_display: Unknown command: %d\n", command);
 	 }
       }
    va_end (a);
