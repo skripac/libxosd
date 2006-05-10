@@ -4,6 +4,8 @@
 	Memory leak patch (Philipp Matthias Hahn)
 	New, improved timeout_func (Philipp Matthias Hahn)
 	New TODO list  (Philipp Matthias Hahn)
+	Fixed bug where osd displays after clicking 'apply' in XMMS 
+	config dialogue (Tim Wright)
 	
 2.2.5:
         set font patch (Joachim "nomeata" Breitner)

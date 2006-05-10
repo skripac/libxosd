@@ -550,8 +550,9 @@ force_redraw (xosd * osd, int line)	/* Requires mutex lock. */
   XShapeCombineMask (osd->display, osd->window, ShapeBounding, 0, 0,
 		     osd->mask_bitmap, ShapeSet);
   XFlush (osd->display);
-  if (!osd->mapped)
-    show (osd);
+
+  /*if (!osd->mapped)
+    show (osd);*/
 
   return 0;
 }
@@ -1149,6 +1150,8 @@ xosd_display (xosd * osd, int line, xosd_command command, ...)
 
   pthread_mutex_lock (&osd->mutex);
   force_redraw (osd, line);
+  if (!osd->mapped)
+	  show(osd);
   set_timeout (osd);
   pthread_mutex_unlock (&osd->mutex);
 
