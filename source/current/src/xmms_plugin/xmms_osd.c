@@ -264,9 +264,8 @@ apply_config (void)
   if (osd)
     {
       if (xosd_set_font (osd, font) == -1)
-	{
-	  DEBUG ("invalid font %s", font);
-	}
+	DEBUG ("invalid font %s", font);
+
       xosd_set_colour (osd, colour);
       xosd_set_timeout (osd, timeout);
       xosd_set_shadow_offset (osd, shadow_offset);
