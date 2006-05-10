@@ -559,6 +559,7 @@ force_redraw (xosd * osd, int line)	/* Requires mutex lock. */
 static int
 set_font (xosd * osd, const char *font)	/* Requires mutex lock. */
 {
+  XFontSet fontset2;
   char **missing;
   int nmissing;
   char *defstr;
@@ -567,20 +568,23 @@ set_font (xosd * osd, const char *font)	/* Requires mutex lock. */
   XFontSetExtents *extents;
 
   assert (osd);
+
+  /* Try to create the new font. If it doesn't succeed, keep old font. */
+  fontset2 =
+    XCreateFontSet (osd->display, font, &missing, &nmissing, &defstr);
+  XFreeStringList (missing);
+  if (fontset2 == NULL)
+    {
+      xosd_error = "Requested font not found";
+      return -1;
+    }
+
   if (osd->fontset)
     {
       XFreeFontSet (osd->display, osd->fontset);
       osd->fontset = NULL;
     }
-
-  osd->fontset =
-    XCreateFontSet (osd->display, font, &missing, &nmissing, &defstr);
-  if (osd->fontset == NULL)
-    {
-      xosd_error = "Requested font not found";
-      return -1;
-    }
-  XFreeStringList (missing);
+  osd->fontset = fontset2;
 
   extents = XExtentsOfFontSet (osd->fontset);
   osd->extent = &extents->max_logical_extent;
