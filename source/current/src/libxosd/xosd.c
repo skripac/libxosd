@@ -150,8 +150,6 @@ struct xosd
 
   int timeout;                  /* delta time */
   struct timeval timeout_start; /* Absolute start of timeout */
-
-  enum { FILL_OUTLINE = 1, FILL_SHADOW = 2, FILL_FACE = 4 } fill_mask;
 };
 
 /** Global error string. */
@@ -347,23 +345,6 @@ expose_line(xosd * osd, int line)
   int y = osd->line_height * line;
   assert(osd && osd->fontset);
   FUNCTION_START(Dfunction);
-
-  osd->fill_mask = osd->outline_offset ? FILL_OUTLINE :
-    osd->shadow_offset ? FILL_SHADOW : FILL_FACE;
-
-  switch (osd->fill_mask) {
-  case FILL_FACE:
-    XSetForeground(osd->display, osd->gc, osd->pixel);
-    break;
-  case FILL_SHADOW:
-    XSetForeground(osd->display, osd->gc, osd->shadow_pixel);
-    break;
-  case FILL_OUTLINE:
-    XSetForeground(osd->display, osd->gc, osd->outline_pixel);
-    break;
-  }
-  XFillRectangle(osd->display, osd->line_bitmap, osd->gc,
-      0, y, osd->screen_width, osd->line_height);
 
   // Clear the XShape mask
   XFillRectangle(osd->display, osd->mask_bitmap, osd->mask_gc_back,
