@@ -41,14 +41,14 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
-AC_PATH_XTRA
+AC_PATH_XTRA([X11],[X11/Xlib.h],[XrmInitialize()])
 # We need two libtools, one that builds both shared and static, and
 # one that builds only static.  This is because the resulting libtool
 # does not allow us to choose which to build at runtime.
 sed -e 's/^build_old_libs=yes/build_old_libs=no/' libtool > libtool-disable-static
 chmod +x libtool-disable-static
 
-LIBS="$LIBS $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
+LIBS="$LIBS $X_LIBS $X_EXTRA_LIBS"
 CFLAGS="$CFLAGS $X_CFLAGS -Wall"
 M4DATADIR="$datadir/aclocal"
 AC_SUBST(M4DATADIR)
@@ -60,7 +60,6 @@ AC_CHECK_LIB(X11, XInitThreads,,
 	     AC_MSG_ERROR([*** X11 not threadsafe ***]))
 AC_CHECK_LIB(Xext, XShapeQueryExtension,,
 	     AC_MSG_ERROR([*** X11 Shape extension not found ***]))
-AC_CHECK_LIB(Xt, main)
 AC_CHECK_LIB(pthread, pthread_create,,
 	     AC_MSG_ERROR([*** POSIX thread support not found ***]))
 
@@ -95,8 +94,8 @@ then
                                     AC_DEFINE(HAVE_XINERAMA,1,[Define this if you have libXinerama
 installed])
                                     ac_have_xinerama="yes"],,
-                                    [$X_LIBS $X_PRE_LIBS -lXext $X_EXTRA_LIBS]),
-                     [$X_LIBS $X_PRE_LIBS -lXext $X_EXTRA_LIBS])
+                                    [$X_LIBS -lXext $X_EXTRA_LIBS]),
+                     [$X_LIBS -lXext $X_EXTRA_LIBS])
 fi
 
 

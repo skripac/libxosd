@@ -5,6 +5,7 @@
 	x event patch (P Hahn)
 	synchronous update patch (P Hahn)
 	debug patch (P Hahn)
+	configure.ac patch (P Hahn)
 
 2.2.12: 
 	Applied three patches from the debian maintainer. The first cleans
