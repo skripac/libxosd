@@ -189,6 +189,7 @@ static void expose_line(xosd *osd, int line)
 
     case LINE_text:
       if (!l->text || !l->length) break;
+      if (!osd->fontset) { DEBUG("CRITICAL: No fontset"); return; }
 
       if (osd->align) {
 	if (osd->align == XOSD_right) {
@@ -321,6 +322,7 @@ static int display_string (xosd *osd, xosd_line *l, char *string)
   XRectangle rect;
 
   if (osd == NULL) return -1;
+  if (!osd->fontset) { DEBUG("CRITICAL: No fontset"); return -1; }
 
   l->type = LINE_text;
 
@@ -685,16 +687,16 @@ xosd *xosd_create (int number_lines)
 
   DEBUG("font selection info");
   osd->fontset=NULL;
-  set_font(osd, osd_default_font);
 
-  if (osd->fontset == NULL) {
-    /* if we still don't have a fontset, then abort */
-    xosd_error="Default font not found";
-    goto error3;
+  if (font && set_font(osd, font) == -1) {
+    if (osd_default_font && set_font(osd, osd_default_font) == -1) {
+      /* if we still don't have a fontset, then abort */
+      xosd_error = "Default font not found";
+    }
+    /* else inherit error message from set_fontset() */
   }
-
-  DEBUG("setting pos");
-
+  if (!osd->fontset)
+    goto error3;
 
   DEBUG("width and height initialization"); 
   osd->width = XDisplayWidth (osd->display, osd->screen); 

@@ -147,7 +147,12 @@ int main (int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  xosd_set_font(osd, font);
+  if (xosd_set_font(osd, font))
+    {
+      /* This is critical, because fontset=NULL, will segfault later! */
+      fprintf (stderr, "ABORT: %s\n", xosd_error);
+      return EXIT_FAILURE;
+    }
   xosd_set_colour(osd, colour);
   xosd_set_timeout(osd, delay);
   xosd_set_pos(osd, pos);

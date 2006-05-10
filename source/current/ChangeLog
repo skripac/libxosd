@@ -1,5 +1,6 @@
 2.1.1: Philipp Matthias Hahn (the Debian Maintainer) sent in a huge patch:
  	Fix library version number schema
+ 	Fail on missing fontset instead of crashing
 
 2.1.0:
         New xmms plugin! well, actually the plugin from 2.0.0 has been 
