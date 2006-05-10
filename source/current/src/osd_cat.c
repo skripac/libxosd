@@ -113,7 +113,7 @@ int main (int argc, char *argv[])
   osd = xosd_init (font, color, delay, pos, offset, shadow, lines);
   if (!osd)
     {
-      fprintf (stderr, "Error initializing osd\n");
+      fprintf (stderr, "Error initializing osd: %s\n", xosd_error);
       return EXIT_FAILURE;
     }
    
