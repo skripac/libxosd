@@ -1,3 +1,12 @@
+xosd (1.0.1-1) unstable; urgency=low
+
+  * New upstream version. (closes: #154847,#143901)
+  * Drop patches because upstream includes them:
+    - fontset
+    - shadow
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue, 13 Aug 2002 15:27:28 +0200
+
 xosd (0.7.0-4) unstable; urgency=low
 
   * Make libxosd-dev depend on xlibs-dev (closes: #123160) 
