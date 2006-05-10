@@ -1,6 +1,7 @@
 xosd (0.7.0-1) unstable; urgency=low
 
   * New upstream release
+  * Added '-s' option to osd_cat to set shadow offset
   
  -- Martijn van de Streek <martijn@foodfight.org>  Mon, 26 Mar 2001 19:49:54 +0200
 
