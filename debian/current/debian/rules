@@ -106,6 +106,15 @@ binary-arch: build install
 	install -m 644 -o root -g root ChangeLog			\
 		debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog
 	
+	install -m 644 -o root -g root README 			\
+		debian/tmp/usr/share/doc/libxosd0/README
+	install -m 644 -o root -g root README			\
+		debian/tmp-dev/usr/share/doc/libxosd-dev/README
+	install -m 644 -o root -g root README			\
+		debian/tmp-bin/usr/share/doc/xosd-bin/README
+	install -m 644 -o root -g root README			\
+		debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/README
+
 	install -m 644 -o root -g root debian/copyright		\
 		debian/tmp/usr/share/doc/libxosd0
 	install -m 644 -o root -g root debian/copyright		\
@@ -136,6 +145,12 @@ binary-arch: build install
 
 	gzip -9f debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog.Debian
 	gzip -9f debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog
+
+# And the READMEs
+	gzip -9f debian/tmp/usr/share/doc/libxosd0/README
+	gzip -9f debian/tmp-dev/usr/share/doc/libxosd-dev/README
+	gzip -9f debian/tmp-bin/usr/share/doc/xosd-bin/README
+	gzip -9f debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/README
 
 # Install postinst/prerm scripts and other assorted stuff
 	sed -e 's/::PKG::/libxosd0/g'         < debian/prerm.template    > debian/tmp/DEBIAN/prerm
