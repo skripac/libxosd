@@ -6,7 +6,7 @@ CFLAGS=-g -Wall -pipe -I. -DXOSD_VERSION=\"$(VERSION)\" -I/usr/X11R6/include -fP
 LFLAGS=-L. -lxosd -fpic
 SOLFLAGS=-L/usr/X11R6/lib -lX11 -lXext -lpthread -lXt -fPIC
 SOURCES=AUTHORS CHANGELOG README LICENSE Makefile testprog.c xosd.c xosd.h \
-	xmms_osd.c osd_cat.c
+	xmms_osd.c osd_cat.c xosd.3
 
 default: testprog libxmms_osd.so osd_cat
 
@@ -44,6 +44,8 @@ install: default
 	rm -f $(HOME)/.xmms/Plugins/Visualization/libxmms_osd.so
 	cp -a libxmms_osd.so $(HOME)/.xmms/Plugins/Visualization
 	cp -a osd_cat $(PREFIX)/bin
+	mkdir -p $(PREFIX)/man/man3
+	cp -a xosd.3 $(PREFIX)/man/man3
 
 clean:
 	rm -f *~ *.o xosd testprog libxosd.so libxmms_osd.so libxosd.a osd_cat
