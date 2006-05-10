@@ -86,6 +86,8 @@ _draw_bar(xosd * osd, int nbars, int on, XRectangle * p, XRectangle * mod,
 {
   int i;
   XRectangle rs[2];
+  FUNCTION_START(Dfunction);
+
   rs[0].x = rs[1].x = mod->x + p->x;
   rs[0].y = (rs[1].y = mod->y + p->y) + p->height / 3;
   rs[0].width = mod->width + p->width * SLIDER_SCALE;
@@ -97,6 +99,7 @@ _draw_bar(xosd * osd, int nbars, int on, XRectangle * p, XRectangle * mod,
     XFillRectangles(osd->display, osd->mask_bitmap, osd->mask_gc, r, 1);
     XFillRectangles(osd->display, osd->line_bitmap, osd->gc, r, 1);
   }
+  FUNCTION_END(Dfunction);
 }
 static void
 draw_bar(xosd * osd, int line)
@@ -140,6 +143,9 @@ draw_bar(xosd * osd, int line)
 
   DEBUG(Dvalue, "percent=%d, nbars=%d, on=%d", l->value, nbars, on);
 
+  /* adjust the y coordinate based on the line number */
+  p.y += line*osd->line_height;
+
   /* Outline */
   if (osd->outline_offset) {
     m.x = m.y = -osd->outline_offset;
@@ -169,10 +175,12 @@ static void                     /*inline */
 _draw_text(xosd * osd, char *string, int x, int y)
 {
   int len = strlen(string);
+  FUNCTION_START(Dfunction);
   XmbDrawString(osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc, x,
                 y, string, len);
   XmbDrawString(osd->display, osd->line_bitmap, osd->fontset, osd->gc, x, y,
                 string, len);
+  FUNCTION_END(Dfunction);
 }
 static void
 draw_text(xosd * osd, int line)
@@ -201,6 +209,9 @@ draw_text(xosd * osd, int line)
   case XOSD_left:
     break;
   }
+
+  /* adjust the y coordinate based on the line number */
+  y += line*osd->line_height;
 
   if (osd->shadow_offset) {
     XSetForeground(osd->display, osd->gc, osd->shadow_pixel);
