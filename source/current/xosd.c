@@ -26,7 +26,6 @@
 #include <signal.h>
 
 #include <assert.h>
-
 #include <pthread.h>
 
 #include <X11/Xlib.h>
@@ -314,6 +313,10 @@ static int set_font (xosd *osd, char *font)
    osd->height = extents->max_logical_extent.height * NLINES + 10;
 
    XResizeWindow (osd->display, osd->window, osd->width, osd->height);
+   XFreePixmap (osd->display, osd->bitmap);
+   osd->bitmap = XCreatePixmap (osd->display, osd->window,
+				osd->width, osd->height,
+				1);
    
    MUTEX_RELEASE ();
    
