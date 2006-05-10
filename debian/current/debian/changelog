@@ -1,3 +1,11 @@
+xosd (2.2.4-1) unstable; urgency=low
+
+  * New upstream version.
+    - patches/01_update_pos.patch
+    - patches/02_xinerama_pic.patch
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue,  8 Jul 2003 08:30:30 +0200
+
 xosd (2.2.2-2) unstable; urgency=low
 
   * "Happy birthday release".
