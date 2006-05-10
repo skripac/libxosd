@@ -92,6 +92,7 @@ GeneralPlugin *get_gplugin_info(void)
   return &gp;
 }
 
+
 /*
  * Initialize plugin.
  */
@@ -145,7 +146,7 @@ static void cleanup(void)
     colour=NULL;
   }
 
-  save_previous_title( 0 );
+  save_previous_title(NULL);
 
   xosd_hide (osd);
   xosd_uninit (osd);
@@ -209,10 +210,12 @@ static gboolean isactive(GtkToggleButton *item) {
   return gtk_toggle_button_get_active (item)? 1 : 0;
 }
 
+
 /*
  * Apply changed from configuration dialog.
  */
 static void configure_apply_cb (gpointer data)
+
 {
 
   ConfigFile *cfgfile;
@@ -308,7 +311,7 @@ static int font_dialog_ok (GtkButton *button, gpointer user_data)
 }
 
 /*
- * Apply changes to font selection.
+ * Apply font change and close dialog.
  */
 static int font_dialog_apply (GtkButton *button, gpointer user_data)
 {
@@ -648,13 +651,14 @@ static void save_previous_title ( gchar * title ) {
  */
 static void replace_hexcodes (gchar *text)
 {
+
   gchar hex_number[] = "FF";
   gchar *tmp, *tmp2;
   DEBUG("replace_hexcodes");
 
   while ((tmp = strchr(text, '%')) != NULL)
     {
-      /* Make sure we're not at the end of the string */
+      // Make sure we're not at the end of the string
       if ((tmp+1) && (tmp+2))
 	{
 	  tmp2 = tmp + 3;
@@ -708,22 +712,21 @@ static gint timeout_func(gpointer data)
 	{
 
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
-	  if (text) {
+	  if (text)
 	    replace_hexcodes (text);
 
-	    /**
-	     * Check to see if the title of the song has changed.
-	     */
-	    if ( !previous_title ||
-		 g_strcasecmp(text, previous_title) != 0 ) {
-	      if (show_stop) {
-		xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
-		xosd_display (osd, 1, XOSD_string, text);
-	      }
+	  /**
+	   * Check to see if the title of the song has changed.
+	   */
+	  if ( !previous_title ||
+	       g_strcasecmp(text, previous_title) != 0 ) {
+	    if (show_stop) {
+	      xosd_display (osd, 0, XOSD_string, playing ? "Play" : "Stopped");
+	      xosd_display (osd, 1, XOSD_string, text);
 	    }
-
 	    save_previous_title( text );
 	  }
+
 	} else {
 	  /** No song titles available. */
 	  if (show_stop) {
@@ -815,7 +818,7 @@ static gint timeout_func(gpointer data)
 /*
  * Add item to configuration dialog.
  */
-static show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on)
+show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButton** on)
 {
   //GtkWidget  *hbox, *label;
   //GSList *group = NULL;
@@ -840,4 +843,6 @@ static show_item(GtkWidget* vbox, const char* description, int selected, GtkTogg
   */
 
   gtk_toggle_button_set_active (*on, selected);
+
+
 }
