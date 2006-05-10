@@ -1,7 +1,7 @@
 LIBRARY_VERSION=0
 PREFIX=/usr/local
 CC=gcc
-VERSION=0.4.0
+VERSION=0.5.0
 CFLAGS=-g -Wall -pipe -I. -DXOSD_VERSION=\"$(VERSION)\" -I/usr/X11R6/include -fPIC
 LFLAGS=-L. -lxosd -fpic
 SOLFLAGS=-L/usr/X11R6/lib -lX11 -lXext -lpthread -lXt -fPIC
