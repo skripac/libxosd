@@ -1,10 +1,12 @@
+LIBRARY_VERSION=0
 PREFIX=/usr/local
 CC=gcc
 VERSION=0.3.0
-CFLAGS=-g -Wall -pipe -I. -DXOSD_VERSION=\"$(VERSION)\" -I/usr/X11R6/include
-LFLAGS=-L. -lxosd
-SOLFLAGS=-L/usr/X11R6/lib -lX11 -lXext -lpthread -lXt
-SOURCES=AUTHORS CHANGELOG README LICENSE Makefile testprog.c xosd.c xosd.h xmms_osd.c
+CFLAGS=-g -Wall -pipe -I. -DXOSD_VERSION=\"$(VERSION)\" -I/usr/X11R6/include -fPIC
+LFLAGS=-L. -lxosd -fpic
+SOLFLAGS=-L/usr/X11R6/lib -lX11 -lXext -lpthread -lXt -fPIC
+SOURCES=AUTHORS CHANGELOG README LICENSE Makefile testprog.c xosd.c xosd.h \
+	xmms_osd.c osd_cat.c
 
 default: testprog libxmms_osd.so osd_cat
 
@@ -12,7 +14,8 @@ default: testprog libxmms_osd.so osd_cat
 	$(CC) -c -o $@ $< $(CFLAGS)
 	
 libxosd.so: xosd.o
-	$(CC) -shared -o $@ xosd.o $(SOLFLAGS)
+	$(CC) -shared -o $@ xosd.o $(SOLFLAGS) \
+		-Wl,-soname,libxosd.so.$(LIBRARY_VERSION)
 	
 testprog: testprog.o libxosd.so
 	$(CC) -o $@ testprog.o $(LFLAGS)
@@ -34,10 +37,12 @@ xosd-$(VERSION).tar.gz:
 	rm xosd-$(VERSION)
 
 install: default
-	cp -a libxosd.so $(PREFIX)/lib
-	mkdir -p $(HOME)/.xmms/Plugins/General
-	rm -f $(HOME)/.xmms/Plugins/General/libxmms_osd.so
-	cp -a libxmms_osd.so $(HOME)/.xmms/Plugins/General
+	cp -a libxosd.so $(PREFIX)/lib/libxosd.so.$(LIBRARY_VERSION)
+	rm $(PREFIX)/lib/libxosd.so
+	ln -s $(PREFIX)/lib/libxosd.so.$(LIBRARY_VERSION) $(PREFIX)/lib/libxosd.so
+	mkdir -p $(HOME)/.xmms/Plugins/Visualization
+	rm -f $(HOME)/.xmms/Plugins/Visualization/libxmms_osd.so
+	cp -a libxmms_osd.so $(HOME)/.xmms/Plugins/Visualization
 	cp -a osd_cat $(PREFIX)/bin
 
 clean:
