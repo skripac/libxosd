@@ -59,6 +59,13 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strtol)
 
+# nicked from the irmix project...
+disable_xinerama="no"
+AC_ARG_ENABLE(xinerama,
+              [  --disable-xinerama       disable use of Xinerama extension],
+              disable_xinerama="yes")
+
+
 dnl Override where to place libxmms_xosd.so
 AC_ARG_WITH(plugindir,
   [  --with-plugindir=<DIR>        Set the xmms plugin directory ],
@@ -138,6 +145,18 @@ else
 	SELECTED_PLUGINS="$SELECTED_PLUGINS xmms_plugin_oldplugin"
 fi
 fi
+
+if test x$disable_xinerama = "xno"
+then
+dnl Replace `main' with a function in -lXinerama:
+	AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
+	    [X_LIBS="$X_LIBS -lXinerama"
+        AC_DEFINE(HAVE_XINERAMA,1,[Define this if you have libXinerama installed])
+        ac_have_xinerama="yes"],,
+        [$X_LIBS $X_PRE_LIBS -lXext $X_EXTRA_LIBS])
+    AM_CONDITIONAL(HAVE_XINERAMA, test x$ac_have_xinerama = "xyes")
+fi
+
 
 dnl Plugin selection ends
 AC_SUBST(SELECTED_PLUGINS)

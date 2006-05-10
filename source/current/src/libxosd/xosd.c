@@ -34,6 +34,9 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/shape.h>
 #include <X11/Xatom.h>
+#ifdef HAVE_XINERAMA
+#  include <X11/extensions/Xinerama.h>
+#endif
 
 #include "xosd.h"
 
@@ -94,7 +97,8 @@ struct xosd
   GC mask_gc;
   GC mask_gc_back;
 
-  int width;
+	int screen_width;
+	int screen_height;
   int height;
   int line_height;
   int x;
@@ -143,7 +147,7 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
 
   //check how to behave
   if (osd->bar_length == -1) {
-    nbars = (osd->width * SLIDER_WIDTH) / barw;
+		nbars = (osd->screen_width * SLIDER_WIDTH) / barw;
     on    = nbars * percent / 100;
   } else {
     nbars = osd->bar_length;
@@ -156,10 +160,10 @@ static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
       case XOSD_left:
         break;
       case XOSD_center:
-        x = (osd->width - (nbars*barw)) / 2;
+				x = (osd->screen_width - (nbars*barw)) / 2;
         break;
       case XOSD_right:
-        x = osd->width - (nbars*barw) - x;
+				x = osd->screen_width - (nbars*barw) - x;
         break;
       default:
         break;
@@ -199,7 +203,7 @@ static void expose_line(xosd *osd, int line)
   /* don't need to lock here because functions that call expose_line should
      have already locked the mutex */
   XFillRectangle (osd->display, osd->mask_bitmap, osd->mask_gc_back,
-                  0, y, osd->width, osd->line_height);
+					0, y, osd->screen_width, osd->line_height);
 
   switch (l->type) {
     case LINE_blank:
@@ -213,10 +217,10 @@ static void expose_line(xosd *osd, int line)
         case XOSD_left:
           break;
         case XOSD_center:
-          x = (osd->width - l->width) / 2;
+					x = (osd->screen_width - l->width) / 2;
           break;
         case XOSD_right:
-          x = osd->width - l->width - x;
+					x = osd->screen_width - l->width - x;
           break;
         default:
           break;
@@ -236,7 +240,7 @@ static void expose_line(xosd *osd, int line)
           x, -osd->extent->y, l->text, l->length);
 
       XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
-          osd->width, osd->line_height, 0, y);
+					  osd->screen_width, osd->line_height, 0, y);
       break;
 
     case LINE_percentage:
@@ -246,10 +250,10 @@ static void expose_line(xosd *osd, int line)
         case XOSD_left:
           break;
         case XOSD_center:
-          x=osd->width*((1-SLIDER_WIDTH)/2);
+					x=osd->screen_width*((1-SLIDER_WIDTH)/2);
           break;
         case XOSD_right:
-          x=osd->width*(1-SLIDER_WIDTH);
+					x=osd->screen_width*(1-SLIDER_WIDTH);
           break;
         default:
           break;
@@ -400,11 +404,11 @@ static int display_slider (xosd *osd, xosd_line *l, int percentage)
 static void resize(xosd *osd) /* Requires mutex lock. */
 {
   assert (osd);
-  XResizeWindow (osd->display, osd->window, osd->width, osd->height);
+	XResizeWindow (osd->display, osd->window, osd->screen_width, osd->height);
   XFreePixmap (osd->display, osd->mask_bitmap);
-  osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, osd->height, 1);
+	osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->screen_width, osd->height, 1);
   XFreePixmap (osd->display, osd->line_bitmap);
-  osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->width,
+	osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->screen_width,
                                     osd->line_height, osd->depth);
 }
 
@@ -448,7 +452,6 @@ static int set_font (xosd *osd, const char *font) /* Requires mutex lock. */
   extents = XExtentsOfFontSet(osd->fontset);
   osd->extent = &extents->max_logical_extent;
 
-  osd->width = XDisplayWidth (osd->display, osd->screen);
   osd->line_height = osd->extent->height + osd->shadow_offset;
   osd->height = osd->line_height * osd->number_lines;
   for (line = 0; line < osd->number_lines; line++) {
@@ -626,6 +629,11 @@ xosd *xosd_create (int number_lines)
   int event_basep, error_basep, i;
   char *display;
   XSetWindowAttributes setwinattr;
+#ifdef HAVE_XINERAMA
+	int screens;
+	int dummy_a, dummy_b;
+	XineramaScreenInfo *screeninfo = NULL;
+#endif
 
   DEBUG("X11 thread support");
   if (!XInitThreads ()) {
@@ -707,7 +715,21 @@ xosd *xosd_create (int number_lines)
   }
 
   DEBUG("width and height initialization"); 
-  osd->width = XDisplayWidth (osd->display, osd->screen); 
+#ifdef HAVE_XINERAMA
+	if (XineramaQueryExtension(osd->display, &dummy_a, &dummy_b) &&
+		(screeninfo = XineramaQueryScreens(osd->display, &screens)) &&
+		XineramaIsActive(osd->display)) {
+		osd->screen_width = screeninfo[0].width;
+		osd->screen_height = screeninfo[0].height;
+	} else
+#endif
+	{
+		osd->screen_width = XDisplayWidth (osd->display, osd->screen); 
+		osd->screen_height = XDisplayHeight (osd->display, osd->screen); 
+	}
+#ifdef HAVE_XINERAMA
+	if (screeninfo) XFree(screeninfo);
+#endif
   osd->height = osd->line_height * osd->number_lines;
   osd->bar_length = -1; //init bar_length with -1: draw_bar behaves like unpached
 
@@ -717,7 +739,7 @@ xosd *xosd_create (int number_lines)
   osd->window = XCreateWindow (osd->display, 
       XRootWindow (osd->display, osd->screen), 
       0, 0,
-      osd->width, osd->height,
+								 osd->screen_width, osd->height,
       0,
       osd->depth,
       CopyFromParent,
@@ -726,8 +748,8 @@ xosd *xosd_create (int number_lines)
       &setwinattr);
   XStoreName (osd->display, osd->window, "XOSD");
 
-  osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, osd->height, 1);
-  osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->width,
+	osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->screen_width, osd->height, 1);
+	osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->screen_width,
      osd->line_height, osd->depth);
 
   osd->gc = XCreateGC (osd->display, osd->window, 0, NULL);
@@ -982,10 +1004,10 @@ static void update_pos (xosd *osd) /* Requires mutex lock. */
   assert (osd);
   switch (osd->pos) {
     case XOSD_bottom:
-      osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->voffset;
+			osd->y = osd->screen_height - osd->height - osd->voffset;
       break;
     case XOSD_middle:
-      osd->y = XDisplayHeight (osd->display, osd->screen)/2 - osd->height - osd->voffset;
+			osd->y = osd->screen_height/2 - osd->height - osd->voffset;
       break;
     case XOSD_top:
     default:
