@@ -1,3 +1,11 @@
+xosd (2.2.4-1.2) unstable; urgency=low
+
+  * NMU to fix some RC bugs.
+  * debian/control
+    + make libxosd-dev depends on libxosd2 (closes: #210298).
+
+ -- Sebastien Bacher <seb128@debian.org>  Wed, 10 Sep 2003 19:13:07 +0200
+
 xosd (2.2.4-1.1) unstable; urgency=low
 
   * debian/control

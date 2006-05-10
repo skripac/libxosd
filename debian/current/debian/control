@@ -20,7 +20,7 @@ Description: X On-Screen Display library - runtime
 Package: libxosd-dev
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends}, xlibs-dev, xlibs-pic
+Depends: ${shlibs:Depends}, xlibs-dev, xlibs-pic, libxosd2 (= ${Source-Version})
 Conflicts: libxosd
 Description: X On-Screen Display library - development
  A library for displaying a TV-like on-screen display in X.
