@@ -396,6 +396,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    
    if (!XShapeQueryExtension (osd->display, &event_basep, &error_basep))
       {
+      fprintf (stderr, "X-Server does not support shape extension\n");
       free(osd);
       return NULL;
       }
