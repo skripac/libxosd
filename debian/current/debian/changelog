@@ -1,3 +1,10 @@
+xosd (2.2.8-3) unstable; urgency=medium
+
+  * Reupload to unstable after successful testing in experimental.
+  * Urgency medium because of grave #252170.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue, 10 Aug 2004 08:10:39 +0200
+
 xosd (2.2.8-2) experimental; urgency=low
 
   * Rewrite xosd to use only one thread calling X11 (closes: #252170).
