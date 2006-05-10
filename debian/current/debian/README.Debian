@@ -15,7 +15,7 @@ depends on your locale setting, which specified which glyphs must be available
 for a FontSet to be complete.
 
 Therefor you should use wildcards in your font-specification, else X11 might
-not be able to find all required glyphs and doen't create a font at all. It's
+not be able to find all required glyphs and doesn't create a font at all. It's
 a good idea to install additional fonts with other encodings, for example, the
 xfonts-{75dpi,100dpi,base}-transcoded are a good idea.
 

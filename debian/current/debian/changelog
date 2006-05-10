@@ -1,3 +1,13 @@
+xosd (2.2.9-pre3-1) experimental; urgency=low
+
+  * New upstream version.
+    - 32_osd_cat_age.diff: Work on "osd_cat --age" functionality.
+    - 33_automake.diff: Update autoconf files.
+    - 34_docs.diff: Update package documentation.
+  * Fix spelling in README.Debian (Thanks to Markus Braun)
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 20 Aug 2004 10:54:48 +0200
+
 xosd (2.2.9-pre1-1) experimental; urgency=low
 
   * New upstream version.
