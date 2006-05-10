@@ -3,6 +3,7 @@
 	Applied segfault fix:unknown font (unknown author)
 	Applied showstreamname patch (unknown author)
 	Applied shadow and offset patch   (Malcolm Valentine <farkit@iprimus.com.au>)
+	Applied Concurrency Control patch (Tim Wright)
 
 0.7.0:  Added "XOSD_Slider" type to possible display types
 	Added balance display to xmms plugin

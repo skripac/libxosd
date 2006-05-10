@@ -22,6 +22,9 @@ xosd *xosd_init (char *font, char *colour, int timeout,
 int xosd_uninit (xosd *osd);
 int xosd_display (xosd *osd, int line, xosd_command command, ...);
 
+int xosd_is_onscreen(xosd* osd);
+int xosd_wait_until_no_display(xosd* osd);
+
 int xosd_hide (xosd *osd);
 int xosd_show (xosd *osd);
 

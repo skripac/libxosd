@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <semaphore.h>
 #include <signal.h>
 
 #include <assert.h>
@@ -35,8 +34,8 @@
 
 #define NLINES 2 /* The number of lines displayed on the screen */
 
-#define MUTEX_GET() sem_wait (&osd->mutex)
-#define MUTEX_RELEASE() sem_post (&osd->mutex)
+#define MUTEX_GET()  pthread_mutex_lock (&osd->mutex)
+#define MUTEX_RELEASE() pthread_mutex_unlock (&osd->mutex)
 
 #include "xosd.h"
 
@@ -55,7 +54,8 @@ struct xosd
    pthread_t event_thread;
    pthread_t timeout_thread;
    
-   sem_t mutex;
+   pthread_mutex_t mutex;
+   pthread_cond_t cond;
    
    Display *display;
    int screen;
@@ -300,7 +300,9 @@ static void *timeout_loop (void *osdv)
    {
    xosd *osd = osdv;
 
-   assert (osd);
+   if (osdv==NULL) {
+     return NULL;
+   }
    
    while (!osd->done)
       {
@@ -310,6 +312,7 @@ static void *timeout_loop (void *osdv)
 	  osd->mapped && 
 	  osd->timeout_time <= time(NULL))
 	 {
+	   
 	 MUTEX_RELEASE ();
 	 /* printf ("timeout_loop: hiding\n"); */
 	 xosd_hide (osd);
@@ -430,6 +433,11 @@ static int set_font (xosd *osd, char *font)
    osd->bitmap = XCreatePixmap (osd->display, osd->window,
 				osd->width, osd->height,
 				1);
+   if (!osd->bitmap)
+     {
+       MUTEX_RELEASE ();
+       return -1;
+     }
 
    MUTEX_RELEASE ();
    
@@ -503,7 +511,8 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    
    osd = malloc (sizeof (xosd));
    
-   sem_init (&osd->mutex, 0, 1);
+   pthread_mutex_init (&osd->mutex, NULL);
+   pthread_cond_init (&osd->cond, NULL);
    
    osd->display = XOpenDisplay (display);
    osd->screen = XDefaultScreen (osd->display);
@@ -630,7 +639,8 @@ int xosd_uninit (xosd *osd)
 	 free (osd->lines[i].text);
       }
    
-   sem_destroy (&osd->mutex);
+   pthread_cond_destroy (&osd->cond);
+   pthread_mutex_destroy (&osd->mutex);
    
    free (osd);
    
@@ -691,6 +701,24 @@ int xosd_display (xosd *osd, int line, xosd_command command, ...)
    
    return len;
    }
+
+int xosd_is_onscreen(xosd* osd) {
+  fail_if_null_osd(osd);
+  return osd->mapped;
+}
+
+int xosd_wait_until_no_display(xosd* osd) {
+  fail_if_null_osd(osd);
+
+  while (xosd_is_onscreen(osd)) {
+    MUTEX_GET();
+    pthread_cond_wait(&osd->cond, &osd->mutex);
+    MUTEX_RELEASE();
+  }
+
+  return 0;
+}
+
 
 int xosd_set_colour (xosd *osd, char *colour)
    {
@@ -783,10 +811,14 @@ int xosd_hide (xosd *osd)
       osd->mapped = 0;
       XUnmapWindow (osd->display, osd->window);
       XFlush (osd->display);
+      pthread_cond_broadcast(&osd->cond);
       MUTEX_RELEASE ();
+      return 0;
+      } 
+   else {
+     return -1;
       }
    
-   return 0;
    }
 
 int xosd_show (xosd *osd)
@@ -800,7 +832,11 @@ int xosd_show (xosd *osd)
       XMapRaised (osd->display, osd->window);
       XFlush (osd->display);
       MUTEX_RELEASE ();
+      return 0;
       }
+   else 
+     {
+       return -1;
+     }
    
-   return 0;
    }
