@@ -1,3 +1,11 @@
+xosd (0.6.1-1) unstable; urgency=low
+
+  * New upstream version
+  * Upstream applied Shaleh's patch for non-gnome compliant WMs.
+    Closes: #81953
+
+ -- Martijn van de Streek <martijn@foodfight.org>  Thu, 18 Jan 2001 21:52:59 +0100
+
 xosd (0.6.0-1) unstable; urgency=low
 
   * New upstream version
