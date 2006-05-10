@@ -1,5 +1,6 @@
 
 2.0.2:  
+	xosd_init font related segfault bug fix (Damien Elmes)
 	
 2.0.1:  
 	xosd.h header file patch (Tim Wright)

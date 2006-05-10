@@ -568,7 +568,20 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int voffse
 
   xosd *osd = xosd_create(number_lines);
   
-  set_font(osd, font);
+  if (osd == NULL) {
+    return NULL;
+  }
+
+  if (set_font(osd, font) == -1) {
+    if (set_font(osd, osd_default_font) == -1) {
+      xosd_destroy (osd);
+      /* 
+	 we do not set xosd_error, as set_font has already
+	 set it to a sensible error message. 
+      */
+      return NULL;
+    } 
+  }
   set_colour(osd, colour);
   set_timeout(osd, timeout);
   xosd_set_pos(osd, pos);
