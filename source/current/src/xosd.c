@@ -397,24 +397,36 @@ static int set_font (xosd *osd, char *font)
    XFontSetExtents *extents;
 
    assert (osd);
+   XFontSet fontset;
 
    MUTEX_GET ();
 
-   osd->fontset = XCreateFontSet (osd->display, font,
+   /* don't assign directly, so that we still have a good state
+      if the new font is invalid */
+   fontset = XCreateFontSet (osd->display, font,
                                   &missing, &nmissing, &defstr);
-   if (osd->fontset == NULL)
+   if (fontset == NULL)
       {
       fprintf (stderr, "Requested font: `%s' not found\n", font);
+        MUTEX_RELEASE();
       return -1;
       }
 
+   /* free an existing fontset if there was one previously */
+   if (osd->fontset)
+     XFreeFontSet(osd->display, osd->fontset);
+
+   osd->fontset = fontset;
    extents = XExtentsOfFontSet(osd->fontset);
    
    osd->width = XDisplayWidth (osd->display, osd->screen);
    osd->height = extents->max_logical_extent.height * NLINES + 10;
 
    XResizeWindow (osd->display, osd->window, osd->width, osd->height);
+
+   if (osd->bitmap)
    XFreePixmap (osd->display, osd->bitmap);
+
    osd->bitmap = XCreatePixmap (osd->display, osd->window,
 				osd->width, osd->height,
 				1);
@@ -513,12 +525,11 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    osd->visual = DefaultVisual (osd->display, osd->screen);
    osd->depth = DefaultDepth (osd->display, osd->screen);
 
-   osd->fontset = XCreateFontSet (osd->display, font,
-                                  &missing, &nmissing, &defstr);
    extents = XExtentsOfFontSet(osd->fontset);
    
-   osd->width = XDisplayWidth (osd->display, osd->screen);
-   osd->height = extents->max_logical_extent.height * NLINES + 10;
+   /* resized when we select a font */
+   osd->width = 1;
+   osd->height = 1;
    
    setwinattr.override_redirect = 1;
    osd->window = XCreateWindow (osd->display,
@@ -531,13 +542,21 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
 				   osd->visual,
 				   CWOverrideRedirect,
 				   &setwinattr);
+
+   /* make sure set_font doesn't try to free these */
+   osd->fontset = (XFontSet)NULL;
+   osd->bitmap = (Pixmap)NULL;
+   /* it is the caller's responsibility to trap a failed font allocation and
+      try fixed instead - this library should not make that decision */
+   if (set_font(osd, font) == -1)
+     {
+       free(osd);
+       return NULL;
+     }
+
    XStoreName (osd->display, osd->window, "XOSD");
    osd->pos = pos;
    xosd_set_offset (osd, offset);
-   
-   osd->bitmap = XCreatePixmap (osd->display, osd->window,
-				osd->width, osd->height,
-				1);
    
    osd->gc = XCreateGC (osd->display, osd->window, 0, NULL);
    osd->bitmap_gc = XCreateGC (osd->display, osd->bitmap, 0, NULL);
@@ -553,14 +572,12 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
    XSetBackground (osd->display, osd->bitmap_gc,
 		   BlackPixel (osd->display, osd->screen));
    
-   set_font (osd, font);
    set_colour (osd, colour);
    set_timeout (osd, timeout);
 
    inputmask = ExposureMask ;
    XSelectInput (osd->display, osd->window, inputmask);
 
-   
    data = 6;
    a = XInternAtom (osd->display, "_WIN_LAYER", True);
    if (a != None)
