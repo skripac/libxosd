@@ -7,7 +7,8 @@ typedef enum
    {
    XOSD_percentage,
    XOSD_string,
-   XOSD_printf
+   XOSD_printf,
+   XOSD_slider
    } xosd_command;
 
 typedef enum
