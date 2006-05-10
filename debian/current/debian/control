@@ -5,10 +5,12 @@ Maintainer: Martijn van de Streek <martijn@foodfight.org>
 Build-Depends: libgtk1.2-dev, xmms-dev (>= 1.2.0-1)
 Standards-Version: 3.2.1.0
 
-Package: libxosd
+Package: libxosd0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
+Conflicts: libxosd
+Replaces: libxosd
 Description: X On-Screen Display library - runtime
  A library for displaying a TV-like on-screen display in X.
  .
@@ -17,7 +19,7 @@ Description: X On-Screen Display library - runtime
 Package: libxosd-dev
 Section: devel
 Architecture: any
-Depends: libxosd (= ${Source-Version})
+Depends: libxosd0 (= ${Source-Version})
 Description: X On-Screen Display library - development
  A library for displaying a TV-like on-screen display in X.
  .

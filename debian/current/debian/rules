@@ -2,6 +2,9 @@
 # Dummy line to let emacs know this is a -*- Makefile -*-
 # debian/rules for libxosd & friends
 
+# Don't forget to update!
+LIBRARY_VERSION=0
+
 checkdir=test -f debian/control 
 checkroot=test `id -u` -eq 0
 
@@ -30,13 +33,13 @@ install: build
 # Library package
 	install -d -m 755 -o root -g root debian/tmp/DEBIAN
 	install -d -m 755 -o root -g root debian/tmp/usr/lib
-	install -d -m 755 -o root -g root debian/tmp/usr/share/doc/libxosd
+	install -d -m 755 -o root -g root debian/tmp/usr/share/doc/libxosd0
 
 	install -s -o root -g root -m 644 \
 		libxosd.so \
-		debian/tmp/usr/lib/libxosd.so.0.0
-	ln -s libxosd.so.0.0 \
-		debian/tmp/usr/lib/libxosd.so.0
+		debian/tmp/usr/lib/libxosd.so.$(LIBRARY_VERSION).0
+	ln -s libxosd.so.$(LIBRARY_VERSION).0 \
+		debian/tmp/usr/lib/libxosd.so.$(LIBRARY_VERSION)
 
 # Development package
 	install -d -m 755 -o root -g root debian/tmp-dev/DEBIAN
@@ -58,7 +61,7 @@ install: build
 		debian/tmp-dev/usr/share/man/man3/xosd.3xosd
 	gzip -9f debian/tmp-dev/usr/share/man/man3/xosd.3xosd
 
-	ln -s libxosd.so.0		\
+	ln -s libxosd.so.$(LIBRARY_VERSION)		\
 		debian/tmp-dev/usr/lib/libxosd.so
 
 # XMMS plugin package
@@ -84,29 +87,29 @@ binary-arch: build install
 
 # Install the changelog, changelog.Debian and copyright files
 	install -m 644 -o root -g root ChangeLog 			\
-		debian/tmp/usr/share/doc/libxosd/changelog
+		debian/tmp/usr/share/doc/libxosd0/changelog
 	install -m 644 -o root -g root ChangeLog			\
 		debian/tmp-dev/usr/share/doc/libxosd-dev/changelog
 	install -m 644 -o root -g root ChangeLog			\
 		debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog
 	
 	install -m 644 -o root -g root debian/copyright		\
-		debian/tmp/usr/share/doc/libxosd
+		debian/tmp/usr/share/doc/libxosd0
 	install -m 644 -o root -g root debian/copyright		\
 		debian/tmp-dev/usr/share/doc/libxosd-dev
 	install -m 644 -o root -g root debian/copyright		\
 		debian/tmp-xmms/usr/share/doc/xmms-osd-plugin
 
 	install -m 644 -o root -g root debian/changelog			  \
-		debian/tmp/usr/share/doc/libxosd/changelog.Debian
+		debian/tmp/usr/share/doc/libxosd0/changelog.Debian
 	install -m 644 -o root -g root debian/changelog			  \
 		debian/tmp-dev/usr/share/doc/libxosd-dev/changelog.Debian
 	install -m 644 -o root -g root debian/changelog			  \
 		debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog.Debian
 
 # gzip the changelogs
-	gzip -9f debian/tmp/usr/share/doc/libxosd/changelog.Debian
-	gzip -9f debian/tmp/usr/share/doc/libxosd/changelog
+	gzip -9f debian/tmp/usr/share/doc/libxosd0/changelog.Debian
+	gzip -9f debian/tmp/usr/share/doc/libxosd0/changelog
 
 	gzip -9f debian/tmp-dev/usr/share/doc/libxosd-dev/changelog.Debian
 	gzip -9f debian/tmp-dev/usr/share/doc/libxosd-dev/changelog
@@ -115,8 +118,8 @@ binary-arch: build install
 	gzip -9f debian/tmp-xmms/usr/share/doc/xmms-osd-plugin/changelog
 
 # Install postinst/prerm scripts and other assorted stuff
-	sed -e 's/::PKG::/libxosd/g'         < debian/prerm.template    > debian/tmp/DEBIAN/prerm
-	sed -e 's/::PKG::/libxosd/g'         < debian/postinst.template > debian/tmp/DEBIAN/postinst
+	sed -e 's/::PKG::/libxosd0/g'         < debian/prerm.template    > debian/tmp/DEBIAN/prerm
+	sed -e 's/::PKG::/libxosd0/g'         < debian/postinst.template > debian/tmp/DEBIAN/postinst
 	cat debian/postinst.libxosd >> debian/tmp/DEBIAN/postinst
 
 	sed -e 's/::PKG::/libxosd-dev/g'     < debian/prerm.template    > debian/tmp-dev/DEBIAN/prerm
@@ -134,12 +137,12 @@ binary-arch: build install
 
 # Build the packages
 	dpkg-shlibdeps -Tdebian/substvars				\
-		debian/tmp/usr/lib/libxosd.so.0.0
+		debian/tmp/usr/lib/libxosd.so.$(LIBRARY_VERSION).0
 
 	dpkg-shlibdeps -Tdebian/xmms.substvars			\
 		debian/tmp-xmms/usr/lib/xmms/General/libxmms_osd.so
 
-	dpkg-gencontrol -plibxosd -isp -Pdebian/tmp -Tdebian/substvars
+	dpkg-gencontrol -plibxosd0 -isp -Pdebian/tmp -Tdebian/substvars
 	dpkg-gencontrol -plibxosd-dev -isp -Pdebian/tmp-dev
 	dpkg-gencontrol -pxmms-osd-plugin -isp -Pdebian/tmp-xmms 	\
 		-Tdebian/xmms.substvars
