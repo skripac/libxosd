@@ -5,6 +5,8 @@
 	Fixed a bug in set_font which caused it to crash if the font was 
 		non-existant
 	Added GPL to the top of xmms_osd.c
+	Moved some files around to be more GNU style compliant (Added empty
+		file NEWS)
 
 0.6.1:  Fixed bug on non-Gnome compliant window managers
 
