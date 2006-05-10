@@ -2,14 +2,14 @@
 %define	aclocaldir	%(aclocal --print-ac-dir)
 
 Name:		xosd
-Version:	2.2.5
+Version:	2.2.6
 Release:	1
 Vendor:		Andre Renaud <andre@ignavus.net>
 Copyright:	GPL
 Group:		System Environment/Libraries
 Packager:	Oron Peled <oron@actcom.co.il>
 Summary:	X On-Screen Display library
-Source:		%name-2.2.5.tar.gz
+Source:		%name-2.2.6.tar.gz
 
 URL:		http://www.ignavus.net/software.html
 Buildroot:	%{_tmppath}/%{name}-%{version}-root
@@ -37,7 +37,7 @@ Requires: xosd = %{version}, xmms
 A plugin for XMMS
 
 %prep
-%setup -n %{name}-2.2.5
+%setup -n %{name}-2.2.6
 
 %build
 
