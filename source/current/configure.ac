@@ -41,7 +41,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
-AC_PATH_XTRA([X11],[X11/Xlib.h],[XrmInitialize()])
+AC_PATH_XTRA([X11],[X11/Xlib.h],[XOpenDisplay(NULL)])
 # We need two libtools, one that builds both shared and static, and
 # one that builds only static.  This is because the resulting libtool
 # does not allow us to choose which to build at runtime.
