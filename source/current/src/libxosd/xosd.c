@@ -253,7 +253,7 @@ event_loop(void *osdv)
   pthread_mutex_lock(&osd->mutex);
   DEBUG(Dtrace, "Request exposure events");
   XSelectInput(osd->display, osd->window, ExposureMask);
-  osd->update = UPD_size | UPD_pos | UPD_mask;
+  osd->update |= UPD_size | UPD_pos | UPD_mask;
   while (!osd->done) {
     int retval, line;
     fd_set readfds;
@@ -460,6 +460,18 @@ event_loop(void *osdv)
   return NULL;
 }
 
+/* }}} */
+
+/* Wait until display is update and in specific state. {{{ */
+static void _wait_until_state(xosd *osd, int state)
+{
+  pthread_mutex_lock(&osd->mutex_sync);
+  while (osd->mapped != state) {
+    DEBUG(Dtrace, "waiting %d", osd->mapped);
+    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
+  }
+  pthread_mutex_unlock(&osd->mutex_sync);
+}
 /* }}} */
 
 /* Parse textual colour value. {{{ */
@@ -944,14 +956,7 @@ union xosd_line newline = { type:LINE_blank };
   osd->lines[line] = newline;
   osd->update |= UPD_content | UPD_timer | UPD_show;
   _xosd_unlock(osd);
-
-  /* Wait for update */
-  pthread_mutex_lock(&osd->mutex_sync);
-  while (!osd->mapped) {
-    DEBUG(Dtrace, "waiting %d", osd->mapped);
-    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
-  }
-  pthread_mutex_unlock(&osd->mutex_sync);
+  _wait_until_state(osd, 1);
 
 error:
   va_end(a);
@@ -980,12 +985,7 @@ xosd_wait_until_no_display(xosd * osd)
   if (osd == NULL)
     return -1;
 
-  pthread_mutex_lock(&osd->mutex_sync);
-  while (osd->mapped) {
-    DEBUG(Dtrace, "waiting %d", osd->mapped);
-    pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
-  }
-  pthread_mutex_unlock(&osd->mutex_sync);
+  _wait_until_state(osd, 0);
 
   FUNCTION_END(Dfunction);
   return 0;
@@ -1270,13 +1270,7 @@ xosd_show(xosd * osd)
     osd->update |= (osd->update & ~UPD_hide) | UPD_show | UPD_timer;
     _xosd_unlock(osd);
 
-    /* Wait for update */
-    pthread_mutex_lock(&osd->mutex_sync);
-    while (!osd->mapped) {
-      DEBUG(Dtrace, "waiting %d", osd->mapped);
-      pthread_cond_wait(&osd->cond_sync, &osd->mutex_sync);
-    }
-    pthread_mutex_unlock(&osd->mutex_sync);
+    _wait_until_state(osd, 1);
     return 0;
   }
   return -1;
