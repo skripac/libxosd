@@ -660,6 +660,7 @@ static gint timeout_func(gpointer data)
 	{
 	   
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
+	  if (text) {
 	  replace_hexcodes (text);
 	   
 	  /** 
@@ -674,6 +675,8 @@ static gint timeout_func(gpointer data)
 	  }
 
 	  save_previous_title( text );
+	  g_free (text);
+	  }
 	} else { 
 	  /** No song titles available. */
 	  if (show_stop) {
@@ -691,9 +694,12 @@ static gint timeout_func(gpointer data)
 	{
 	  xosd_display (osd, 0, XOSD_string, "Play");
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
+	  if (text) {
 	  replace_hexcodes (text);
 	  xosd_display (osd, 1, XOSD_string, text);
 	  save_previous_title ( text );
+	  g_free (text);
+	  }
 	}
       else if (!playing && show_stop )
 	{
@@ -715,9 +721,12 @@ static gint timeout_func(gpointer data)
 	{
 	  xosd_display (osd, 0, XOSD_string, "Unpaused");
 	  text = xmms_remote_get_playlist_title (gp.xmms_session, pos);
+	  if (text) {
 	  replace_hexcodes (text);
 	  xosd_display (osd, 1, XOSD_string, text);
 	  save_previous_title( text );
+	  g_free (text);
+	  }
 	}
       previous_paused = paused;
     }

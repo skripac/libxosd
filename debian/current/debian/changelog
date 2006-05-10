@@ -1,6 +1,7 @@
 xosd (1.0.1-1) unstable; urgency=low
 
   * New upstream version. (closes: #154847,#143901)
+  * Fix memory leak (closes: #145356)
   * Drop patches because upstream includes them:
     - fontset
     - shadow
