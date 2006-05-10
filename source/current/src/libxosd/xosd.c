@@ -104,6 +104,10 @@ struct xosd
 
 char* xosd_error;
 
+const char* osd_default_font="-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
+//const char* osd_default_font="adobe-helvetica-bold-r-*-*-10-*";
+//const char* osd_default_font="-adobe-helvetica-bold-r-*-*-10-*";
+
 static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
                      int percent, int is_slider, int set_color)
 {
@@ -329,6 +333,7 @@ static int set_font (xosd *osd, char *font)
   int nmissing;
   char *defstr;
   int line;
+
   XFontSetExtents *extents;
 
   if (osd == NULL) return -1;
@@ -338,7 +343,7 @@ static int set_font (xosd *osd, char *font)
   osd->fontset = XCreateFontSet (osd->display, font, &missing, &nmissing, &defstr);
   if (osd->fontset == NULL) {
     pthread_mutex_unlock (&osd->mutex);
-    xosd_error="Requested font: `%s' not found";
+    xosd_error="Requested font not found";
     return -1;
   }
 
@@ -473,8 +478,8 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->depth = DefaultDepth (osd->display, osd->screen);
 
   if (set_font (osd, font)) {
-    /* If we didn't get a fontset, default to "fixed" */
-    font = "fixed";
+    /* If we didn't get a fontset, default to default font */
+    font = osd_default_font;
     set_font(osd, font);
   }
 
