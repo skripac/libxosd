@@ -2,6 +2,7 @@ xosd (0.5.0-2) unstable; urgency=low
 
   * New binary package: xosd-bin which closes: #80803 
     (thanks Philipp Matthias Hahn <pmhahn@titan.lahn.de>)
+  * Makefile and manpage cleanups (thanks again :)
 
  -- Martijn van de Streek <martijn@foodfight.org>  Wed, 10 Jan 2001 19:50:08 +0100
 
