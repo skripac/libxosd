@@ -1,6 +1,7 @@
 0.7.0:  Added "XOSD_Slider" type to possible display types
 	Added balance display to xmms plugin
 	Fixed spelling mistake in osd_cat man page
+	Added "Apply" button to xmms plugin config dialog
 
 0.6.1:  Fixed bug on non-Gnome compliant window managers
 

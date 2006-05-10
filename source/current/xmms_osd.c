@@ -113,7 +113,7 @@ static void read_config (void)
       colour = g_strdup ("green");
    }
 
-static void configure_ok_cb (gpointer data)
+static void configure_apply_cb (gpointer data)
    {
    ConfigFile *cfgfile;
 
@@ -148,8 +148,14 @@ static void configure_ok_cb (gpointer data)
    xmms_cfg_write_int(cfgfile, "osd", "pos", pos);
    xmms_cfg_write_default_file(cfgfile);
    xmms_cfg_free(cfgfile);
+   }
+
+static void configure_ok_cb (gpointer data)
+   {
+   configure_apply_cb (data);
    
    gtk_widget_destroy (configure_win);
+   configure_win = NULL;
    }
 
 static int font_dialog_ok (GtkButton *button, gpointer user_data)
@@ -390,6 +396,12 @@ static void configure (void)
    GTK_WIDGET_SET_FLAGS (ok, GTK_CAN_DEFAULT);
    gtk_box_pack_start (GTK_BOX (bbox), ok, TRUE, TRUE, 0);
    gtk_widget_grab_default (ok);
+   
+   apply = gtk_button_new_with_label ("Apply");
+   gtk_signal_connect (GTK_OBJECT (apply), "clicked", 
+		       GTK_SIGNAL_FUNC (configure_apply_cb), NULL);
+   GTK_WIDGET_SET_FLAGS (apply, GTK_CAN_DEFAULT);
+   gtk_box_pack_start (GTK_BOX (bbox), apply, TRUE, TRUE, 0);
    
    cancel = gtk_button_new_with_label ("Cancel");
    gtk_signal_connect_object (GTK_OBJECT (cancel), "clicked",
