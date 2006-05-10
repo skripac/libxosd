@@ -1,8 +1,9 @@
 #
-# Makefile for X-on-screen-display
+# Makefile for X-on-screen display
 #
+
 LIBRARY_VERSION=0
-VERSION=0.5.0
+VERSION=0.6.0
 
 PREFIX=/usr/local
 EXEC_PREFIX=$(PREFIX)
@@ -13,8 +14,8 @@ INCLUDEDIR=$(PREFIX)/include
 XMMS_PLUGINDIR=$(HOME)/.xmms
 
 CC=gcc
-INSTALL = /usr/bin/install -c
-INSTALL_DATA = ${INSTALL} -m 644
+INSTALL=/usr/bin/install -c
+INSTALL_DATA=${INSTALL} -m 644
 
 CFLAGS=-g -Wall -pipe -I. -DXOSD_VERSION=\"$(VERSION)\" -I/usr/X11R6/include -fPIC
 LDFLAGS=-L. -lxosd -fpic
