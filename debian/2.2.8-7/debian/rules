@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+# debian/rules that uses cdbs and debhelper. 
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/rules/simple-patchsys.mk
+include /usr/share/cdbs/1/class/autotools.mk
+
+DEB_CONFIGURE_EXTRA_FLAGS := --with-pixmapdir=/usr/share/pixmaps/xmms-osd-plugin
+DEB_DH_INSTALL_SOURCEDIR := debian/tmp
+DEB_INSTALL_CHANGELOGS_ALL := ChangeLog
+DEB_INSTALL_DOCS_ALL := debian/README.Debian
+DEB_SHLIBDEPS_INCLUDE := debian/libxosd2/usr/lib

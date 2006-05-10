@@ -1,0 +1,44 @@
+#DPATCHLEVEL=0
+# Document bug: outline is no outline!
+--- src/libxosd/xosd.c~	2004-07-29 22:02:32.000000000 +0200
++++ src/libxosd/xosd.c	2004-07-29 22:17:25.000000000 +0200
+@@ -373,30 +373,16 @@ expose_line(xosd * osd, int line)
+       XSetForeground(osd->display, osd->gc, osd->outline_pixel);
+       int draw_line_bitmap = !(osd->fill_mask & FILL_OUTLINE);
+ 
++      /* FIXME: echo . | osd_cat -O 50 -p middle -A center */
+       for (i = 1; i <= osd->outline_offset; i++) {
+-        draw_with_mask(osd, l, x + i, y, i - osd->extent->y,
+-                       draw_line_bitmap);
+-
+-        draw_with_mask(osd, l, x + i, y, -i - osd->extent->y,
+-                       draw_line_bitmap);
+-
+-
+-        draw_with_mask(osd, l, x - i, y, -i - osd->extent->y,
+-                       draw_line_bitmap);
+-
+-        draw_with_mask(osd, l, x - i, y, i - osd->extent->y,
+-                       draw_line_bitmap);
+-
+-
+-
+-        draw_with_mask(osd, l, x, y, i - osd->extent->y, draw_line_bitmap);
+-
+-        draw_with_mask(osd, l, x, y, -i - osd->extent->y, draw_line_bitmap);
+-
+-
+-        draw_with_mask(osd, l, x + i, y, -osd->extent->y, draw_line_bitmap);
+-
+-        draw_with_mask(osd, l, x - i, y, -osd->extent->y, draw_line_bitmap);
++        draw_with_mask(osd, l, x - i, y, -i - osd->extent->y, draw_line_bitmap);
++        draw_with_mask(osd, l, x    , y, -i - osd->extent->y, draw_line_bitmap);
++        draw_with_mask(osd, l, x + i, y, -i - osd->extent->y, draw_line_bitmap);
++        draw_with_mask(osd, l, x - i, y,     -osd->extent->y, draw_line_bitmap);
++        draw_with_mask(osd, l, x + i, y,     -osd->extent->y, draw_line_bitmap);
++        draw_with_mask(osd, l, x - i, y,  i - osd->extent->y, draw_line_bitmap);
++        draw_with_mask(osd, l, x    , y,  i - osd->extent->y, draw_line_bitmap);
++        draw_with_mask(osd, l, x + i, y,  i - osd->extent->y, draw_line_bitmap);
+       }
+     }
+ 

@@ -1,0 +1,13 @@
+#DPATCHLEVEL=0
+# Fix flicker on first display
+--- src/libxosd/xosd.c~	2004-08-12 22:20:59.000000000 +0200
++++ src/libxosd/xosd.c	2004-08-12 22:23:12.000000000 +0200
+@@ -240,7 +240,7 @@ event_loop(void *osdv)
+   pthread_mutex_lock(&osd->mutex);
+   DEBUG(Dtrace, "Request exposure events");
+   XSelectInput(osd->display, osd->window, ExposureMask);
+-  osd->update = UPD_size | UPD_pos;
++  osd->update = UPD_size | UPD_pos | UPD_mask;
+   while (!osd->done) {
+     int retval, line;
+     fd_set readfds;
