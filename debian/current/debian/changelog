@@ -1,3 +1,11 @@
+xosd (2.2.11-1) unstable; urgency=medium
+
+  * New upstream version.
+    - Applied my 38_one_line.diff and 39_reorder.diff.
+  * Urgency medium because of #269345 and closes: #269671
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri,  3 Sep 2004 09:08:30 +0200
+
 xosd (2.2.10-2) unstable; urgency=medium
 
   * Urgency medium because of #269345.
