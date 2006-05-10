@@ -1,3 +1,11 @@
+xosd (1.0.3-1) unstable; urgency=low
+
+  * New upstream version.
+    - Fix more memory leaks.
+    - Plugin segfault fix on disable.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Fri, 30 Aug 2002 09:21:49 +0200
+
 xosd (1.0.2-1) unstable; urgency=low
 
   * New upstream version.
