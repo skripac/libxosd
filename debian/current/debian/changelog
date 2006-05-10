@@ -1,3 +1,12 @@
+xosd (2.1.3-1) unstable; urgency=low
+
+  * New upstream version.
+    - Includes old xmms plugin again.
+    - Includes my patches from 2.1.2-1
+    - automake-1.7 transition
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Mon,  3 Mar 2003 14:01:10 +0100
+
 xosd (2.1.2-1) unstable; urgency=low
 
   * New upstream version.
