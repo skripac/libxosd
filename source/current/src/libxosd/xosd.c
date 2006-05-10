@@ -23,9 +23,6 @@
 #define SLIDER_SCALE_ON 0.7
 #define XOFFSET 10
 
-#define DEBUG_XSHAPE
-#undef DEBUG_XSHAPE
-
 const char *osd_default_font =
   "-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
 #if 0
@@ -108,7 +105,7 @@ draw_bar(xosd * osd, int line)
   int is_slider = l->type == LINE_slider, nbars, on;
   XRectangle p, m;
   p.x = XOFFSET;
-  p.y = 0;
+  p.y = osd->line_height * line;
   p.width = -osd->extent->y / 2;
   p.height = -osd->extent->y;
 
@@ -182,7 +179,7 @@ _draw_text(xosd * osd, char *string, int x, int y)
 static void
 draw_text(xosd * osd, int line)
 {
-  int x = XOFFSET, y = -osd->extent->y;
+  int x = XOFFSET, y = osd->line_height * line - osd->extent->y;
   struct xosd_text *l = &osd->lines[line].text;
 
   assert(osd);
@@ -306,11 +303,11 @@ event_loop(void *osdv)
 #ifdef DEBUG_XSHAPE
         XSetForeground(osd->display, osd->gc, osd->outline_pixel);
         XFillRectangle(osd->display, osd->line_bitmap, osd->gc, 0,
-                       0, osd->screen_width, osd->line_height);
+                       y, osd->screen_width, osd->line_height);
 #endif
         if (osd->update & UPD_mask) {
           XFillRectangle(osd->display, osd->mask_bitmap, osd->mask_gc_back, 0,
-                         0, osd->screen_width, osd->line_height);
+                         y, osd->screen_width, osd->line_height);
         }
         switch (osd->lines[line].type) {
         case LINE_text:
@@ -322,26 +319,17 @@ event_loop(void *osdv)
         case LINE_blank:
           break;
         }
-#ifndef DEBUG_XSHAPE
-        /* More than colours was changed, update XShape. */
-        if (osd->update & UPD_mask) {
-          DEBUG(Dupdate, "UPD_mask");
-          XShapeCombineMask(osd->display, osd->window, ShapeBounding, 0, y,
-                            osd->mask_bitmap, ShapeUnion);
-        }
-#endif
-        XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
-                  osd->screen_width, osd->line_height, 0, y);
-#ifndef DEBUG_XSHAPE
-        if (osd->update & UPD_mask) {
-          XCopyPlane(osd->display, osd->mask_bitmap, osd->mask_bitmap,
-                     osd->mask_gc_back, 0, 0, osd->screen_width,
-                     osd->line_height, 0, 0, (1 << 0));
-          XShapeCombineMask(osd->display, osd->window, ShapeBounding, 0, y,
-                            osd->mask_bitmap, ShapeSubtract);
-        }
-#endif
       }
+#ifndef DEBUG_XSHAPE
+      /* More than colours was changed, update XShape. */
+      if (osd->update & UPD_mask) {
+        DEBUG(Dupdate, "UPD_mask");
+        XShapeCombineMask(osd->display, osd->window, ShapeBounding, 0, 0,
+                          osd->mask_bitmap, ShapeSet);
+      }
+#endif
+      XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, 0, 0,
+                osd->screen_width, osd->height, 0, 0);
     }
     /* H/V offset or vertical positon was changed. Horizontal alignment is
      * handles internally as line realignment with UPD_content. */
@@ -440,17 +428,17 @@ event_loop(void *osdv)
         DEBUG(Dvalue, "expose %d: x=%d y=%d w=%d h=%d", report.xexpose.count,
               report.xexpose.x, report.xexpose.y, report.xexpose.width,
               report.xexpose.height);
+#if 0
         if (report.xexpose.count == 0) {
-          /*
-             int ytop, ybot;
-             ytop = report.xexpose.y / osd->line_height;
-             ybot = (report.xexpose.y + report.xexpose.height) / osd->line_height;
-             do {
-             osd->lines[ytop].width = -1;
-             } while (ytop++ < ybot);
-           */
-          osd->update |= UPD_lines;
+          int ytop, ybot;
+          ytop = report.xexpose.y / osd->line_height;
+          ybot = (report.xexpose.y + report.xexpose.height) / osd->line_height;
+          do {
+            osd->lines[ytop].width = -1;
+          } while (ytop++ < ybot);
         }
+#endif
+        XCopyArea(osd->display, osd->line_bitmap, osd->window, osd->gc, report.xexpose.x, report.xexpose.y, report.xexpose.width, report.xexpose.height, report.xexpose.x, report.xexpose.y);
         break;
       case NoExpose:
       default:
