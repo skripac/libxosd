@@ -107,7 +107,7 @@ static void init(void)
 
   if (osd) {
     DEBUG("uniniting osd");
-    xosd_uninit(osd);
+    xosd_destroy(osd);
     osd=NULL;
   }
 
@@ -121,7 +121,13 @@ static void init(void)
 
   DEBUG("calling osd init function");
 
-  osd = xosd_init (font, colour, timeout, pos, offset, shadow_offset, 2);
+  osd = xosd_create (2);
+  xosd_set_font(osd, font);
+  xosd_set_colour(osd, colour);
+  xosd_set_timeout(osd, timeout);
+  xosd_set_pos(osd, pos);
+  xosd_set_offset(osd, offset);
+  xosd_set_shadow_offset(osd, shadow_offset);
 
  DEBUG("osd initialized");
   if (osd)
@@ -154,7 +160,7 @@ static void cleanup(void)
     DEBUG("hide");
     xosd_hide (osd);
     DEBUG("uninit");
-    xosd_uninit (osd);
+    xosd_destroy (osd);
     DEBUG("done with osd");
     osd=NULL;
   }

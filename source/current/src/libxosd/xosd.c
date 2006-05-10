@@ -36,13 +36,21 @@
 
 #include "xosd.h"
 
-#define DEBUG(args...) /*fprintf (stderr, "%s: %s: %d: "__FILE__, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, args); fprintf(stderr, "\n") */
+#define DEBUG(args...) /* fprintf (stderr, "%s: %s: %d: ", __FILE__, __PRETTY_FUNCTION__, __LINE__); fprintf(stderr, args); fprintf(stderr, "\n") */
 
 //#ifdef X_HAVE_UTF8_STRING
 //#define XDRAWSTRING Xutf8DrawString
 //#else
 #define XDRAWSTRING XmbDrawString
 //#endif
+
+const char* osd_default_font="-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
+static const char* osd_default_colour="green";
+
+//const char* osd_default_font="adobe-helvetica-bold-r-*-*-10-*";
+//const char* osd_default_font="-adobe-helvetica-bold-r-*-*-10-*";
+
+
 
 typedef enum {LINE_blank, LINE_text, LINE_percentage, LINE_slider} line_type;
 
@@ -105,9 +113,6 @@ struct xosd
 
 char* xosd_error;
 
-const char* osd_default_font="-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
-//const char* osd_default_font="adobe-helvetica-bold-r-*-*-10-*";
-//const char* osd_default_font="-adobe-helvetica-bold-r-*-*-10-*";
 
 static void draw_bar(xosd *osd, Drawable d, GC gc, int x, int y,
                      int percent, int is_slider, int set_color)
@@ -361,7 +366,7 @@ static int force_redraw (xosd *osd, int line)
   return 0;
 }
 
-static int set_font (xosd *osd, char *font)
+static int set_font (xosd *osd, const char *font)
 {
   char **missing;
   int nmissing;
@@ -420,7 +425,7 @@ static void resize(xosd *osd)
   pthread_mutex_unlock (&osd->mutex);
 }
 
-static int set_colour (xosd *osd, char *colour)
+static int set_colour (xosd *osd, const char *colour)
 {
   int retval = 0;
 
@@ -428,25 +433,35 @@ static int set_colour (xosd *osd, char *colour)
 
   pthread_mutex_lock (&osd->mutex);
 
+  DEBUG("getting colourmap");
   osd->colourmap = DefaultColormap (osd->display, osd->screen);
 
+  DEBUG("parsing colour");
   if (XParseColor (osd->display, osd->colourmap, colour, &osd->colour)) {
+
+    DEBUG("attempting to allocate colour");
     if (XAllocColor(osd->display, osd->colourmap, &osd->colour)) {
+      DEBUG("allocation sucessful");
       osd->pixel = osd->colour.pixel;
     }
     else {
+      DEBUG("defaulting to white. could not allocate colour");
       osd->pixel = WhitePixel(osd->display, osd->screen);
       retval = -1;
     }
   }
   else {
+    DEBUG("could not poarse colour. defaulting to white");
     osd->pixel = WhitePixel(osd->display, osd->screen);
     retval = -1;
   }
 
+  DEBUG("setting foreground");
   XSetForeground (osd->display, osd->gc, osd->pixel);
+  DEBUG("setting background");
   XSetBackground (osd->display, osd->gc, WhitePixel (osd->display, osd->screen));
 
+  DEBUG("done");
   pthread_mutex_unlock (&osd->mutex);
 
   return retval;
@@ -546,6 +561,21 @@ static void stay_on_top(Display *dpy, Window win)
 
 xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset, int shadow_offset, int number_lines)
 {
+
+  xosd *osd = xosd_create(number_lines);
+  
+  set_font(osd, font);
+  set_colour(osd, colour);
+  set_timeout(osd, timeout);
+  xosd_set_pos(osd, pos);
+  xosd_set_offset(osd, offset);
+  xosd_set_shadow_offset(osd, shadow_offset);
+
+  return osd;
+}
+
+xosd *xosd_create (int number_lines) 
+{
   xosd *osd;
   int event_basep, error_basep, inputmask, i;
   char *display;
@@ -556,7 +586,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   DEBUG("getting display");
   display = getenv ("DISPLAY");
   if (!display) {
-    xosd_error = "No display";
+    xosd_error= "No display";
     return NULL;
   }
 
@@ -577,6 +607,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   DEBUG("initializing condition");
   pthread_cond_init (&osd->cond, NULL);
 
+
   DEBUG("initializing number lines");
   osd->number_lines=number_lines;
   osd->lines=malloc(sizeof(xosd_line) * osd->number_lines);
@@ -585,6 +616,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
       xosd_error = "Out of memory";
       goto error1;
     }
+
   for (i = 0; i < osd->number_lines; i++) {
     osd->lines[i].type = LINE_text;
     osd->lines[i].text = NULL;
@@ -594,9 +626,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->mapped = 0;
   osd->done = 0;
   osd->align = XOSD_left;
-  osd->shadow_offset = shadow_offset;
   osd->display = XOpenDisplay (display);
-
   DEBUG("Display query");
   if (!osd->display) {
     xosd_error = "Cannot open display";
@@ -604,6 +634,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   }
 
   osd->screen = XDefaultScreen (osd->display);
+
 
   DEBUG("x shape extension query");
   if (!XShapeQueryExtension (osd->display, &event_basep, &error_basep)) {
@@ -615,27 +646,27 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->depth = DefaultDepth (osd->display, osd->screen);
 
   DEBUG("font selection info");
-  osd->fontset = NULL;
-  if (set_font (osd, font)) {
-    /* If we didn't get a fontset, default to default font */
-    font = osd_default_font;
-    set_font(osd, font);
-  }
+  osd->fontset=NULL;
+  set_font(osd, osd_default_font);
 
   if (osd->fontset == NULL) {
     /* if we still don't have a fontset, then abort */
-    xosd_error = "Requested font not found";
+    xosd_error="Default font not found";
     goto error3;
   }
 
-  DEBUG("width and height initialization");
-  osd->width = XDisplayWidth (osd->display, osd->screen);
+  DEBUG("setting pos");
+
+
+  DEBUG("width and height initialization"); 
+  osd->width = XDisplayWidth (osd->display, osd->screen); 
   osd->height = osd->line_height * osd->number_lines;
 
-  DEBUG("creating X Window");
-  setwinattr.override_redirect = 1;
-  osd->window = XCreateWindow (osd->display,
-      XRootWindow (osd->display, osd->screen),
+  DEBUG("creating X Window"); 
+  setwinattr.override_redirect = 1; 
+
+  osd->window = XCreateWindow (osd->display, 
+      XRootWindow (osd->display, osd->screen), 
       0, 0,
       osd->width, osd->height,
       0,
@@ -645,8 +676,10 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
       CWOverrideRedirect,
       &setwinattr);
   XStoreName (osd->display, osd->window, "XOSD");
-  osd->pos = pos;
-  xosd_set_offset (osd, offset);
+
+  xosd_set_pos(osd, 0);
+  DEBUG("setting vertical offset");
+  xosd_set_offset (osd, 0);
 
   osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, osd->height, 1);
   osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->width,
@@ -655,20 +688,29 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   osd->gc = XCreateGC (osd->display, osd->window, 0, NULL);
   osd->mask_gc = XCreateGC (osd->display, osd->mask_bitmap, 0, NULL);
   osd->mask_gc_back = XCreateGC (osd->display, osd->mask_bitmap, 0, NULL);
+
   XSetForeground (osd->display, osd->mask_gc_back, BlackPixel (osd->display, osd->screen));
   XSetBackground (osd->display, osd->mask_gc_back, WhitePixel (osd->display, osd->screen));
 
   XSetForeground (osd->display, osd->mask_gc, WhitePixel (osd->display, osd->screen));
   XSetBackground (osd->display, osd->mask_gc, BlackPixel (osd->display, osd->screen));
 
-  set_colour (osd, colour);
-  set_timeout (osd, timeout);
+
+  DEBUG("setting colour");
+  set_colour (osd, osd_default_colour); 
+
+  DEBUG("setting timeout");
+  set_timeout (osd, -1); 
 
   inputmask = ExposureMask ;
   XSelectInput (osd->display, osd->window, inputmask);
 
+
   DEBUG("stay on top");
   stay_on_top(osd->display, osd->window);
+
+
+ 
 
   DEBUG("initializing event thread");
   pthread_create (&osd->event_thread, NULL, event_loop, osd);
@@ -688,7 +730,11 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   return NULL;
 }
 
-int xosd_uninit (xosd *osd)
+int xosd_uninit (xosd *osd) {
+  return xosd_destroy(osd);
+}
+
+int xosd_destroy (xosd *osd)
 {
   int i;
   
@@ -820,7 +866,7 @@ int xosd_wait_until_no_display(xosd* osd)
 }
 
 
-int xosd_set_colour (xosd *osd, char *colour)
+int xosd_set_colour (xosd *osd, const char *colour)
 {
   int retval = 0;
 
@@ -833,7 +879,7 @@ int xosd_set_colour (xosd *osd, char *colour)
 }
 
 
-int xosd_set_font (xosd *osd, char *font)
+int xosd_set_font (xosd *osd, const char *font)
 {
   int ret = 0;
 
@@ -879,6 +925,8 @@ int xosd_set_offset (xosd *osd, int offset)
 
   return 0;
 }
+
+
 
 int xosd_set_pos (xosd *osd, xosd_pos pos)
 {

@@ -127,12 +127,21 @@ int main (int argc, char *argv[])
   else
     fp = stdin;
 
-  osd = xosd_init (font, color, delay, pos, offset, shadow, lines);
+  osd = xosd_create (lines);
   if (!osd)
     {
       fprintf (stderr, "Error initializing osd: %s\n", xosd_error);
       return EXIT_FAILURE;
     }
+
+  xosd_set_font(osd, font);
+  xosd_set_colour(osd, colour);
+  xosd_set_timeout(osd, delay);
+  xosd_set_pos(osd, pos);
+  xosd_set_offset(osd, offset);
+  xosd_set_shadow_offset(osd, shadow);
+
+
   xosd_set_align (osd, align);
   /* Not really needed, but at least we aren't throwing around an unknown value */
   old_age.tv_sec=0;
@@ -186,7 +195,7 @@ int main (int argc, char *argv[])
     xosd_wait_until_no_display(osd);
   }
 
-  xosd_uninit (osd);
+  xosd_destroy (osd);
 
   return EXIT_SUCCESS;
 }

@@ -49,11 +49,15 @@ typedef enum
  * RETURNS
  *     A new xosd structure.
  */
+
+xosd *xosd_create(int number_lines);
+
+/* deprecated */
 xosd *xosd_init (char *font, char *colour, int timeout,
 		 xosd_pos pos, int offset, int shadow_offset,
 		 int number_lines);
 
-/* xosd_uninit -- Destroy a xosd "object"
+/* xosd_destroy -- Destroy a xosd "object"
  *
  * ARGUMENTS
  *     osd  The xosd "object" to destroy.
@@ -62,6 +66,9 @@ xosd *xosd_init (char *font, char *colour, int timeout,
  *   0 on success
  *  -1 on failure
  */
+int xosd_destroy (xosd *osd);
+
+/* deprecated */
 int xosd_uninit (xosd *osd);
 
 /* xosd_display -- Display information
@@ -208,7 +215,7 @@ int xosd_set_timeout (xosd *osd, int timeout);
  *   0 on success
  *  -1 on failure, and colour is set to white
  */
-int xosd_set_colour (xosd *osd, char *colour);
+int xosd_set_colour (xosd *osd, const char *colour);
 
 /* xosd_set_font -- Change the text-display font
  *
@@ -220,7 +227,7 @@ int xosd_set_colour (xosd *osd, char *colour);
  *     0 on success
  *    -1 on failure
 */
-int xosd_set_font (xosd *osd, char *font);
+int xosd_set_font (xosd *osd, const char *font);
 
 /* xosd_get_colour -- Gets the RGB value of the display's colour
  *
