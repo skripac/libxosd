@@ -31,7 +31,7 @@
 
 #include <xosd.h>
 
-#define DEBUG(a) fprintf (stderr, "%s: %d: %s\n", __FILE__, __LINE__, a)
+#define DEBUG(a) /* fprintf (stderr, "%s: %d: %s\n", __FILE__, __LINE__, a) */
 
 static void init(void);
 static void cleanup(void);
@@ -79,6 +79,14 @@ static void init(void)
    /* font = "-misc-fixed-*-*-*-*-40-*-*-*-*-*-*-*"; */
    /* colour = "green"; */
 
+  DEBUG("init");
+     
+  if (osd) {
+    DEBUG("uniniting osd");
+    xosd_uninit(osd);
+    osd=NULL;
+  }
+
    read_config ();
    
    previous_repeat = previous_shuffle = previous_paused = previous_playing = 
@@ -95,6 +103,8 @@ static void init(void)
 
 static void cleanup(void)
    {
+  DEBUG("cleanup");
+  assert(osd);
    if (timeout_tag)
       gtk_timeout_remove(timeout_tag);
 
@@ -124,6 +134,7 @@ static void read_config (void)
    shadow_offset = 1;
    pos = XOSD_bottom;
    
+  DEBUG("read config");
    if ((cfgfile = xmms_cfg_open_default_file ()) != NULL)
       {
       xmms_cfg_read_int (cfgfile, "osd", "vol", &vol);
@@ -148,6 +159,7 @@ static void configure_apply_cb (gpointer data)
 
    ConfigFile *cfgfile;
 
+  DEBUG("configure_apply_cb");
    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (vol_on)))
       vol = 1;
    else
@@ -172,7 +184,10 @@ static void configure_apply_cb (gpointer data)
    if (osd)
       {
       xosd_set_colour (osd, colour);
-      xosd_set_font (osd, font);
+      if (xosd_set_font (osd, font) == -1) {
+	DEBUG("invalid font");
+	DEBUG(font);
+      }
       xosd_set_timeout (osd, timeout);
       xosd_set_offset (osd, offset);
       xosd_set_shadow_offset (osd, shadow_offset);
@@ -193,6 +208,7 @@ static void configure_apply_cb (gpointer data)
 
 static void configure_ok_cb (gpointer data)
    {
+  DEBUG("configure_ok_cb");
    configure_apply_cb (data);
    
    gtk_widget_destroy (configure_win);
@@ -203,6 +219,7 @@ static int font_dialog_ok (GtkButton *button, gpointer user_data)
    {
    GtkWidget *font_dialog = user_data;
    char *tmp_font;
+  DEBUG("font_dialog_ok");
    
    assert (GTK_IS_FONT_SELECTION_DIALOG (font_dialog));
    
@@ -220,6 +237,7 @@ static int font_dialog_apply (GtkButton *button, gpointer user_data)
    {
    GtkWidget *font_dialog = user_data;
    char *tmp_font;
+  DEBUG("font_dialog_apply");
    
    assert (GTK_IS_FONT_SELECTION_DIALOG (font_dialog));
    
@@ -238,6 +256,7 @@ static int font_dialog_window (GtkButton *button, gpointer user_data)
    GtkWidget *cancel_button, *apply_button, *ok_button;
    GList *children;
 
+  DEBUG("font_dialog_window");
    font_dialog = gtk_font_selection_dialog_new ("XOSD Font");
    
    assert (font_dialog);
@@ -280,6 +299,7 @@ static int colour_dialog_ok (GtkButton *button, gpointer user_data)
    char tmp_colour[8];
    double colour[4];
    
+  DEBUG("colour_dialog_ok");
    assert (GTK_IS_COLOR_SELECTION_DIALOG (colour_dialog));
    
    gtk_color_selection_get_color
@@ -303,6 +323,7 @@ static int colour_dialog_window (GtkButton *button, gpointer user_data)
    gdouble colour[4];
    int red, green, blue;
 
+  DEBUG("colour_dialog_window");
    colour_dialog = gtk_color_selection_dialog_new ("XOSD Colour");
    
    assert (colour_dialog);
@@ -341,6 +362,7 @@ static void configure (void)
       *button, *unit_label;
    GSList *group = NULL;
    
+  DEBUG("configure");
    if (configure_win)
       return;
    
@@ -494,6 +516,7 @@ static void configure (void)
  * gotten through glib allocations.
  */
 static void save_previous_title ( gchar * title ) { 
+  DEBUG("save_previous_title");
   if ( previous_title )
     g_free( previous_title );
   previous_title = title;
@@ -503,6 +526,7 @@ static void replace_hexcodes (gchar *text)
    {
    gchar hex_number[] = "FF";
    gchar *tmp, *tmp2;
+  DEBUG("replace_hexcodes");
 
    while ((tmp = strchr(text, '%')) != NULL)
       {
