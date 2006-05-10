@@ -133,6 +133,22 @@ AC_MSG_RESULT($enable_new_plugin)
 AM_CONDITIONAL([BUILD_NEW_PLUGIN],
 	       [test x"$enable_new_plugin" = "xyes" -a x"$no_xmms" != "xyes" -a x"$no_gdk_pixbuf" != "xyes"])
 
+
+dnl Check for Beep Media player
+AC_ARG_ENABLE([beep_media_player_plugin],
+		AC_HELP_STRING([--enable-beep_media_player_plugin],
+			     [Enable beep media plugin (enabled by default)]),
+              [beep_media_player_plugin="$enableval"],
+              [beep_media_player_plugin="yes"])
+AC_MSG_CHECKING([whether beep media plugin was requested])
+AC_MSG_RESULT($beep_media_player_plugin)
+
+AM_CONDITIONAL([BUILD_BEEP_MEDIA_PLUGIN],
+	       [test x"$beep_media_player_plugin" = "xyes"])
+
+		
+
+
 dnl OLD plugin
 AC_ARG_ENABLE([old-plugin],
 	      AC_HELP_STRING([--enable-old-plugin],
@@ -143,6 +159,7 @@ AC_MSG_CHECKING([whether old xmms plugin was requested])
 AC_MSG_RESULT($enable_old_plugin)
 AM_CONDITIONAL([BUILD_OLD_PLUGIN],
 	       [test x"$enable_old_plugin" = "xyes" -a x"$no_xmms" != "xyes"])
+
 
 dnl Define XOSD_VERSION
 AC_DEFINE_UNQUOTED(XOSD_VERSION, "${VERSION}")
@@ -155,6 +172,7 @@ Makefile
 src/Makefile
 src/libxosd/Makefile
 src/xmms_plugin/Makefile
+src/bmp_plugin/Makefile
 macros/Makefile
 man/Makefile
 pixmaps/Makefile

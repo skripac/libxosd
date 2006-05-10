@@ -20,7 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-#include "xmms_osd.h"
+#include "bmp_osd.h"
 
 #include <xmms/configfile.h>
 
@@ -182,6 +182,7 @@ position_icons_new(void)
   GdkPixmap *icon_pixmap = NULL;
   GdkBitmap *icon_mask = NULL;
   GtkWidget *icon_widget = NULL;
+  GError **pixbuferror = NULL;
 
   DEBUG("creating icons...");
 
@@ -211,7 +212,7 @@ position_icons_new(void)
       DEBUG("Icon file name %s", icon_file_name);
 
       // Load the file, render it, and create the widget.
-      icon_pixbuf = gdk_pixbuf_new_from_file(icon_file_name);
+      icon_pixbuf = gdk_pixbuf_new_from_file(icon_file_name,pixbuferror);
       gdk_pixbuf_render_pixmap_and_mask(icon_pixbuf,
                                         &icon_pixmap, &icon_mask, 128);
       icon_widget = gtk_pixmap_new(icon_pixmap, icon_mask);
@@ -278,7 +279,7 @@ configure(void)
 
   read_config();
 
-  configure_win = gtk_window_new(GTK_WINDOW_DIALOG);
+  configure_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
   gtk_signal_connect(GTK_OBJECT(configure_win), "destroy",
                      GTK_SIGNAL_FUNC(gtk_widget_destroyed), &configure_win);

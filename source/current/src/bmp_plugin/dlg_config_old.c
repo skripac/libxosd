@@ -19,7 +19,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <gtk/gtk.h>
 
-#include "xmms_osd.h"
+#include "bmp_osd.h"
 
 #include <xmms/configfile.h>
 
@@ -154,7 +154,7 @@ configure(void)
 
   read_config();
 
-  configure_win = gtk_window_new(GTK_WINDOW_DIALOG);
+  configure_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
   gtk_signal_connect(GTK_OBJECT(configure_win), "destroy",
                      GTK_SIGNAL_FUNC(gtk_widget_destroyed), &configure_win);
