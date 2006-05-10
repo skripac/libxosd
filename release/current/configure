@@ -709,10 +709,10 @@ fi
 # version crud for libraries
 LT_CURRENT=2
 LT_AGE=0
-LT_REVISION=0
+LT_REVISION=1
 
 # version for tar file
-VERSION=2.0.0
+VERSION=2.0.1
 
 
 
@@ -6321,7 +6321,7 @@ sed -e 's/^build_old_libs=yes/build_old_libs=no/' libtool > libtool-disable-stat
 chmod +x libtool-disable-static
 
 LIBS="$LIBS $X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS"
-CFLAGS="$CFLAGS $X_CFLAGS"
+CFLAGS="$CFLAGS $X_CFLAGS -Wall"
 M4DATADIR="$datadir/aclocal"
 
 
@@ -7076,9 +7076,53 @@ fi
 
 
 
+# Extract the first word of "gdk-pixbuf-config", so it can be a program name with args.
+set dummy gdk-pixbuf-config; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+echo "configure:7083: checking for $ac_word" >&5
+if eval "test \"`echo '$''{'ac_cv_path_gdk_pixbuf_config_script'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  case "$gdk_pixbuf_config_script" in
+  /*)
+  ac_cv_path_gdk_pixbuf_config_script="$gdk_pixbuf_config_script" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_gdk_pixbuf_config_script="$gdk_pixbuf_config_script" # Let the user override the test with a dos path.
+  ;;
+  *)
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+  ac_dummy="$PATH"
+  for ac_dir in $ac_dummy; do 
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_path_gdk_pixbuf_config_script="$ac_dir/$ac_word"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+  test -z "$ac_cv_path_gdk_pixbuf_config_script" && ac_cv_path_gdk_pixbuf_config_script=""none""
+  ;;
+esac
+fi
+gdk_pixbuf_config_script="$ac_cv_path_gdk_pixbuf_config_script"
+if test -n "$gdk_pixbuf_config_script"; then
+  echo "$ac_t""$gdk_pixbuf_config_script" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+GDK_PIXBUF_CFLAGS=`$gdk_pixbuf_config_script --cflags`
+GDK_PIXBUF_LIBS=`$gdk_pixbuf_config_script --libs`
+
+
+
 cat >> confdefs.h <<EOF
 #define XOSD_VERSION "${VERSION}"
 EOF
+
+
+CFLAGS="${CFLAGS} -DPIXMAPDIR=\\\"\$(datadir)/xosd\\\""
 
 
 trap '' 1 2 15
@@ -7201,6 +7245,7 @@ src/libxosd/Makefile
 src/xmms_plugin/Makefile
 macros/Makefile
 man/Makefile
+pixmaps/Makefile
 script/Makefile
 script/xosd-config
 xosd.spec
@@ -7285,6 +7330,9 @@ s%@XMMS_CFLAGS@%$XMMS_CFLAGS%g
 s%@XMMS_LIBS@%$XMMS_LIBS%g
 s%@XMMS_PLUGIN_DIR@%$XMMS_PLUGIN_DIR%g
 s%@SELECTED_PLUGINS@%$SELECTED_PLUGINS%g
+s%@gdk_pixbuf_config_script@%$gdk_pixbuf_config_script%g
+s%@GDK_PIXBUF_CFLAGS@%$GDK_PIXBUF_CFLAGS%g
+s%@GDK_PIXBUF_LIBS@%$GDK_PIXBUF_LIBS%g
 
 CEOF
 EOF
@@ -7332,6 +7380,7 @@ src/libxosd/Makefile
 src/xmms_plugin/Makefile
 macros/Makefile
 man/Makefile
+pixmaps/Makefile
 script/Makefile
 script/xosd-config
 xosd.spec

@@ -2,14 +2,14 @@
 %define	aclocaldir	%(aclocal --print-ac-dir)
 
 Name:		xosd
-Version:	2.0.0
+Version:	2.0.1
 Release:	1
 Vendor:		Andre Renaud <andre@ignavus.net>
 Copyright:	GPL
 Group:		System Environment/Libraries
 Packager:	Oron Peled <oron@actcom.co.il>
 Summary:	X On-Screen Display libray
-Source:		%name-2.0.0.tar.gz
+Source:		%name-2.0.1.tar.gz
 
 # Oron Peled - Remove after adding to the distribution
 Source1:	xosd-config.in
@@ -41,7 +41,7 @@ Requires: xosd = %{version}, xmms
 A plugin for XMMS
 
 %prep
-%setup -n %{name}-2.0.0
+%setup -n %{name}-2.0.1
 
 # Oron Peled - should be part of the main distribution
 cp $RPM_SOURCE_DIR/libxosd.m4 .
@@ -69,7 +69,7 @@ ldconfig
 
 %files
 %defattr(-, root, root)
-%{_libdir}/libxosd.so.2.0.0
+%{_libdir}/libxosd.so.2.0.1
 %{_libdir}/libxosd.so.2
 %{_libdir}/libxosd.so
 %{_bindir}/osd_cat

@@ -64,6 +64,8 @@ CC = @CC@
 DLLTOOL = @DLLTOOL@
 ECHO = @ECHO@
 EXEEXT = @EXEEXT@
+GDK_PIXBUF_CFLAGS = @GDK_PIXBUF_CFLAGS@
+GDK_PIXBUF_LIBS = @GDK_PIXBUF_LIBS@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
@@ -85,9 +87,10 @@ VERSION = @VERSION@
 XMMS_CFLAGS = @XMMS_CFLAGS@
 XMMS_LIBS = @XMMS_LIBS@
 XMMS_PLUGIN_DIR = @XMMS_PLUGIN_DIR@
+gdk_pixbuf_config_script = @gdk_pixbuf_config_script@
 xmms_config_script = @xmms_config_script@
 
-SUBDIRS = macros man src script
+SUBDIRS = macros man pixmaps src script
 
 DISTCLEANFILES = libtool-disable-static
 
