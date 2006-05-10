@@ -69,7 +69,6 @@ EXEEXT = @EXEEXT@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
-LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LT_AGE = @LT_AGE@
 LT_CURRENT = @LT_CURRENT@
@@ -89,13 +88,16 @@ XMMS_LIBS = @XMMS_LIBS@
 XMMS_PLUGIN_DIR = @XMMS_PLUGIN_DIR@
 xmms_config_script = @xmms_config_script@
 
-CFLAGS = @CFLAGS@ ${GTK_CFLAGS} -I..
+CFLAGS = @CFLAGS@ @XMMS_CFLAGS@ @GTK_CFLAGS@ -I..
 
-xmmsplugindir = ${XMMS_PLUGIN_DIR}/General/
+xmmsplugindir = ${XMMS_PLUGIN_DIR}
+
+# Don't build a static library
+LIBTOOL = $(top_builddir)/libtool-disable-static
 
 xmmsplugin_LTLIBRARIES = libxmms_osd.la
 libxmms_osd_la_SOURCES = xmms_osd.c
-libxmms_osd_la_LIBADD = ${XMMS_LIBS} ${GTK_LIBS} ../libxosd/libxosd.la
+libxmms_osd_la_LIBADD = $(top_builddir)/src/libxosd/libxosd.la
 libxmms_osd_la_LDFLAGS = -module -avoid-version
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
@@ -110,7 +112,7 @@ X_CFLAGS = @X_CFLAGS@
 X_LIBS = @X_LIBS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
-libxmms_osd_la_DEPENDENCIES =  ../libxosd/libxosd.la
+libxmms_osd_la_DEPENDENCIES =  $(top_builddir)/src/libxosd/libxosd.la
 libxmms_osd_la_OBJECTS =  xmms_osd.lo
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -253,7 +255,6 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-xmms_osd.lo xmms_osd.o : xmms_osd.c ../xosd.h
 
 info-am:
 info: info-am

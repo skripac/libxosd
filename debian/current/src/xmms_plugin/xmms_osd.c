@@ -31,7 +31,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <xosd.h>
 
-#define DEBUG(a) /* fprintf (stderr, "%s: %d: %s\n", __FILE__, __LINE__, a) */
+#define DEBUG(a) /* fprintf (stderr, "%s: %s: %d: %s\n", __FILE__, __PRETTY_FUNCTION__, __LINE__, a) */
 
 static void init(void);
 static void cleanup(void);
@@ -131,8 +131,7 @@ static void init(void)
 static void cleanup(void)
 {
   DEBUG("cleanup");
-  assert(osd);
-  if (timeout_tag)
+  if (osd && timeout_tag)
     gtk_timeout_remove(timeout_tag);
   timeout_tag = 0;
 
@@ -148,8 +147,10 @@ static void cleanup(void)
 
   save_previous_title(NULL);
 
-  xosd_hide (osd);
-  xosd_uninit (osd);
+  if (osd) {
+    xosd_hide (osd);
+    xosd_uninit (osd);
+  }
   osd=NULL;
 }
 
@@ -158,7 +159,6 @@ static void cleanup(void)
  */
 static void read_config (void)
 {
-
   ConfigFile *cfgfile;
 
   show_volume = 1;
@@ -168,6 +168,8 @@ static void read_config (void)
   show_stop = 1;
   show_repeat = 1;
   show_shuffle = 1;
+
+  DEBUG("read_config");
 
   g_free (colour);
   g_free (font);
@@ -207,6 +209,7 @@ static void read_config (void)
  * Return state of check button.
  */
 static gboolean isactive(GtkToggleButton *item) {
+  DEBUG("is active");
   return gtk_toggle_button_get_active (item)? 1 : 0;
 }
 
@@ -468,7 +471,7 @@ static void configure (void)
 		      GTK_SIGNAL_FUNC (gtk_widget_destroyed), &configure_win);
 
   gtk_window_set_title (GTK_WINDOW (configure_win),
-			"On Screen Display Configuration - " XOSD_VERSION);
+			"OSD " XOSD_VERSION " Configuration");
 
   vbox = gtk_vbox_new (FALSE, 10);
   gtk_container_add (GTK_CONTAINER (configure_win), vbox);
@@ -658,6 +661,7 @@ static void replace_hexcodes (gchar *text)
 
   while ((tmp = strchr(text, '%')) != NULL)
     {
+      DEBUG("replace_hexcodes loop");
       // Make sure we're not at the end of the string
       if ((tmp+1) && (tmp+2))
 	{
@@ -686,6 +690,8 @@ static gint timeout_func(gpointer data)
   gint pos, volume, balance;
   gboolean playing, paused, repeat, shuffle;
   gchar *text;
+
+  DEBUG("timeout func");
 
   if (!osd)
     return FALSE;
@@ -826,6 +832,8 @@ show_item(GtkWidget* vbox, const char* description, int selected, GtkToggleButto
   //hbox = gtk_hbox_new (FALSE, 5);
 
   //gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+
+  DEBUG("show_item");
 
   *on = (GtkToggleButton*) gtk_check_button_new_with_label(description);
   gtk_box_pack_start (GTK_BOX (vbox), (GtkWidget*)*on, FALSE, FALSE, 0);

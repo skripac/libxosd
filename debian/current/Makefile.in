@@ -89,6 +89,8 @@ xmms_config_script = @xmms_config_script@
 
 SUBDIRS = macros man src script
 
+DISTCLEANFILES = libtool-disable-static
+
 m4datadir = @M4DATADIR@
 m4data_DATA = libxosd.m4
 
@@ -328,6 +330,7 @@ clean-generic:
 distclean-generic:
 	-rm -f Makefile $(CONFIG_CLEAN_FILES)
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-tags mostlyclean-generic
