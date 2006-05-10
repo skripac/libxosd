@@ -99,8 +99,8 @@ GeneralPlugin *get_gplugin_info(void)
 static void init(void)
 {
   /* font = "-ttf-lucida console-*-r-*-*-60-*-*-*-*-*-*-*"; */
-  /* font = "fixed"; */
-  /* font = "-misc-fixed-*-*-*-*-40-*-*-*-*-*-*-*"; */
+  // font = osd_default_font;
+  // font = "-misc-fixed-*-*-*-*-40-*-*-*-*-*-*-*";
   /* colour = "green"; */
 
   DEBUG("init");
@@ -200,7 +200,7 @@ static void read_config (void)
     }
 
   if (font == NULL)
-    font = g_strdup ("-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*");
+    font = g_strdup (osd_default_font);
   if (colour == NULL)
     colour = g_strdup ("green");
 }

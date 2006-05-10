@@ -255,6 +255,7 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
+xmms_osd.lo xmms_osd.o : xmms_osd.c ../xosd.h
 
 info-am:
 info: info-am
