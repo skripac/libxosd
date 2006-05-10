@@ -1,3 +1,10 @@
+xosd (1.0.1-2) unstable; urgency=low
+
+  * Applied the wrong memory-leak-fix. Now fixed.
+  * Hide output on disable. (closes: #128537)
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 14 Aug 2002 21:31:25 +0200
+
 xosd (1.0.1-1) unstable; urgency=low
 
   * New upstream version. (closes: #154847,#143901)
