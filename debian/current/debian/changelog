@@ -4,6 +4,8 @@ xosd (2.1.2-1) unstable; urgency=low
     - Fix wrong deprecation.
     - Small manual page fix.
   * Also update last_pause on stop in xmms plugin (closes: #170643)
+  * Move pixmaps for new xmms plugin to /usr/share/pixmaps/xmms-osd-plugin.
+    Add configure option and rerun auto* stuff.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed, 26 Feb 2003 20:53:25 +0100
 
@@ -12,6 +14,7 @@ xosd (2.1.1-1) unstable; urgency=low
   * New upstream version.
     - Includes my patches from 2.1.0-1
     - New configure options for xmms plugin selection.
+  * Include pixmaps.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue, 18 Feb 2003 08:37:52 +0100
 

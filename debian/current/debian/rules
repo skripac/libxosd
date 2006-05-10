@@ -24,7 +24,8 @@ endif
 
 config.status: configure
 	dh_testdir
-	./configure $(CONFFLAGS) --prefix=/usr --mandir=\$${prefix}/share/man
+	./configure $(CONFFLAGS) --prefix=/usr --mandir=/usr/share/man \
+		--with-pixmapdir=/usr/share/pixmaps/xmms-osd-plugin
 
 
 build:  config.status build-stamp

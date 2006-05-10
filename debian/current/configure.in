@@ -65,6 +65,14 @@ AC_ARG_WITH(plugindir,
   [ XMMS_PLUGIN_DIR="$withval" ],
   [ XMMS_PLUGIN_DIR="" ])
 
+dnl Override where to place pixmaps for libxmms_xosd.so
+AC_ARG_WITH(pixmapdir,
+  [  --with-pixmapdir=<DIR>        Set the directory for xmms plugin pixmaps ],
+  [ XMMS_PIXMAPDIR="$withval" ],
+  [ XMMS_PIXMAPDIR="${datadir}/xosd" ])
+AC_SUBST(XMMS_PIXMAPDIR)
+AC_DEFINE_UNQUOTED(XMMS_PIXMAPDIR, "$XMMS_PIXMAPDIR")
+
 dnl Plugin selection starts
 SELECTED_PLUGINS=
 NEW_PLUGIN="yes"
@@ -138,10 +146,6 @@ AC_SUBST(SELECTED_PLUGINS)
 dnl Define XOSD_VERSION
 dnl XOSD_VERSION=${VERSION}
 AC_DEFINE_UNQUOTED(XOSD_VERSION, "${VERSION}")
-
-dnl Pass the "data" ditectory as a #define symbol, so we can find the 
-dnl pixmaps (--=mjs=-- thanks Julien Blache).
-CFLAGS="${CFLAGS} -DPIXMAPDIR=\\\"\$(datadir)/xosd\\\""
 
 EXTRA_DIST=xosd.spec
 
