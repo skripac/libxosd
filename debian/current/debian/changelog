@@ -2,6 +2,7 @@ xosd (2.2.12-3) unstable; urgency=medium
 
   * Official upload to unstable.
   * Ungency medium because of important bug fixes.
+  * Tighten dependencies in debian/shlibs.
 
  -- Philipp Matthias Hahn <pmhahn@debian.org>  Thu,  4 Nov 2004 09:12:29 +0100
 
