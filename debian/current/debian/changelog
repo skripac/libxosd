@@ -1,3 +1,13 @@
+xosd (2.0.1-1) unstable; urgency=low
+
+  * New upstream version (never packaged). (closes: #170343)
+  * Fix build of xmms plugin.
+    - Conflict with older versions of libxosd-dev during build to workaround
+    broken libtool behaviour. Better workarounds are welcomed.
+  * Standards-Version 3.5.8.
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Wed,  4 Dec 2002 16:39:16 +0100
+
 xosd (1.1.1-1) unstable; urgency=low
 
   * New upstream version:
