@@ -94,7 +94,8 @@ struct xosd
   int y;
   xosd_pos pos;
   xosd_align align;
-  int offset;
+  int hoffset;
+  int voffset;
   int shadow_offset;
 
   int mapped;
@@ -161,14 +162,7 @@ static void expose_line(xosd *osd, int line)
                   0, y, osd->width, osd->line_height);
 
 
-  if (osd->align) {
-    if (osd->align == XOSD_right) {
-      x = osd->width - l->width - x;
-    } else {
-      x = (osd->width - l->width) / 2;
-    }
-  }
-  
+   
   switch (l->type) {
     case LINE_blank:
       break;
@@ -176,7 +170,15 @@ static void expose_line(xosd *osd, int line)
     case LINE_text:
       if (!l->text || !l->length) break;
 
-      if (osd->shadow_offset) {
+      if (osd->align) {
+	if (osd->align == XOSD_right) {
+	  x = osd->width - l->width - x;
+	} else {
+	  x = (osd->width - l->width) / 2;
+	}
+      }
+
+     if (osd->shadow_offset) {
         XDRAWSTRING (osd->display, osd->mask_bitmap, osd->fontset, osd->mask_gc,
             x + osd->shadow_offset, y - osd->extent->y + osd->shadow_offset, l->text, l->length);
         XSetForeground (osd->display, osd->gc, BlackPixel(osd->display, osd->screen));
@@ -559,7 +561,7 @@ static void stay_on_top(Display *dpy, Window win)
   XRaiseWindow(dpy, win);
 }
 
-xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset, int shadow_offset, int number_lines)
+xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int voffset, int shadow_offset, int number_lines)
 {
 
   xosd *osd = xosd_create(number_lines);
@@ -568,7 +570,7 @@ xosd *xosd_init (char *font, char *colour, int timeout, xosd_pos pos, int offset
   set_colour(osd, colour);
   set_timeout(osd, timeout);
   xosd_set_pos(osd, pos);
-  xosd_set_offset(osd, offset);
+  xosd_set_vertical_offset(osd, voffset);
   xosd_set_shadow_offset(osd, shadow_offset);
 
   return osd;
@@ -679,7 +681,9 @@ xosd *xosd_create (int number_lines)
 
   xosd_set_pos(osd, 0);
   DEBUG("setting vertical offset");
-  xosd_set_offset (osd, 0);
+  xosd_set_vertical_offset (osd, 0);
+  DEBUG("setting horizontal offset");
+  xosd_set_horizontal_offset (osd, 0); 
 
   osd->mask_bitmap = XCreatePixmap (osd->display, osd->window, osd->width, osd->height, 1);
   osd->line_bitmap = XCreatePixmap (osd->display, osd->window, osd->width,
@@ -898,9 +902,18 @@ static void xosd_update_pos (xosd *osd)
   osd->x = 0;
   pthread_mutex_lock (&osd->mutex);
   if (osd->pos == XOSD_bottom)
-    osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->offset;
+    osd->y = XDisplayHeight (osd->display, osd->screen) - osd->height - osd->voffset;
   else
-    osd->y = osd->offset;
+    osd->y = osd->voffset;
+
+  if (osd->align == XOSD_left)
+    osd->x = osd->hoffset;
+  else if (osd->align == XOSD_center)
+    osd->x = osd->hoffset; /* which direction should this default to, left or right offset */
+  else if (osd->align = XOSD_right)
+    /*  		osd->x = XDisplayWidth (osd->display, osd->screen) - osd->width - osd->hoffset; */
+    osd->x = (osd->hoffset); /* neither of these work right, I want the offset to flip so
+			     * +offset is to the left instead of to the right when aligned right */
 
   XMoveWindow (osd->display, osd->window, osd->x, osd->y);
   pthread_mutex_unlock (&osd->mutex);
@@ -916,11 +929,21 @@ int xosd_set_shadow_offset (xosd *osd, int shadow_offset)
   return 0;
 }
 
-int xosd_set_offset (xosd *osd, int offset)
+int xosd_set_vertical_offset (xosd *osd, int voffset)
 {
   if (osd == NULL) return -1;
 
-  osd->offset = offset;
+  osd->voffset = voffset;
+  xosd_update_pos (osd);
+
+  return 0;
+}
+
+int xosd_set_horizontal_offset (xosd *osd, int hoffset)
+{
+  if (osd == NULL) return -1;
+
+  osd->hoffset = hoffset;
   xosd_update_pos (osd);
 
   return 0;

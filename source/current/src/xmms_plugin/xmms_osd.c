@@ -65,6 +65,7 @@ static gint timeout;
 static gint offset;
 static gint shadow_offset;
 static gint pos;
+static gint align;
 
 static gboolean show_volume;
 static gboolean show_balance;
@@ -76,7 +77,8 @@ static gboolean show_shuffle;
 
 static GtkObject *timeout_obj, *offset_obj, *shadow_obj;
 static GtkWidget *configure_win, *font_entry, *colour_entry,
-  *timeout_spin, *offset_spin, *pos_top, *pos_bottom, *shadow_spin;
+  *timeout_spin, *offset_spin, *pos_top, *pos_bottom, *pos_middle,
+  *align_left, *align_right, *align_center, *shadow_spin;
 
 static GtkToggleButton
   *vol_on, *bal_on,
@@ -126,7 +128,8 @@ static void init(void)
   xosd_set_colour(osd, colour);
   xosd_set_timeout(osd, timeout);
   xosd_set_pos(osd, pos);
-  xosd_set_offset(osd, offset);
+  xosd_set_align(osd, align);
+  xosd_set_vertical_offset(osd, offset);
   xosd_set_shadow_offset(osd, shadow_offset);
 
  DEBUG("osd initialized");
@@ -191,6 +194,7 @@ static void read_config (void)
   offset = 50;
   shadow_offset = 1;
   pos = XOSD_bottom;
+  align = XOSD_left;
 
   DEBUG("read config");
 
@@ -202,6 +206,7 @@ static void read_config (void)
       xmms_cfg_read_int (cfgfile, "osd", "timeout", &timeout);
       xmms_cfg_read_int (cfgfile, "osd", "offset", &offset);
       xmms_cfg_read_int (cfgfile, "osd", "pos", &pos);
+      xmms_cfg_read_int (cfgfile, "osd", "align", &align);
       xmms_cfg_read_int (cfgfile, "osd", "shadow_offset", &shadow_offset);
       xmms_cfg_read_int (cfgfile, "osd", "show_volume", &show_volume );
       xmms_cfg_read_int (cfgfile, "osd", "show_balance", &show_balance );
@@ -267,6 +272,13 @@ static void configure_apply_cb (gpointer data)
   else
     pos = XOSD_bottom;
 
+  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (align_left)))
+    align = XOSD_left;
+  else if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (align_center)))
+    align = XOSD_center;
+  else
+    align = XOSD_right;
+
   if (osd)
     {
       xosd_set_colour (osd, colour);
@@ -275,9 +287,10 @@ static void configure_apply_cb (gpointer data)
 	DEBUG(font);
       }
       xosd_set_timeout (osd, timeout);
-      xosd_set_offset (osd, offset);
+      xosd_set_vertical_offset (osd, offset);
       xosd_set_shadow_offset (osd, shadow_offset);
       xosd_set_pos (osd, pos);
+      xosd_set_align(osd, align);
     }
 
   cfgfile = xmms_cfg_open_default_file();
@@ -287,6 +300,7 @@ static void configure_apply_cb (gpointer data)
   xmms_cfg_write_int(cfgfile, "osd", "offset", offset);
   xmms_cfg_write_int(cfgfile, "osd", "shadow_offset", shadow_offset);
   xmms_cfg_write_int(cfgfile, "osd", "pos", pos);
+  xmms_cfg_write_int(cfgfile, "osd", "align", align);
 
   xmms_cfg_write_int (cfgfile, "osd", "show_volume", show_volume );
   xmms_cfg_write_int (cfgfile, "osd", "show_balance", show_balance );
@@ -619,6 +633,25 @@ static void configure (void)
   else 
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pos_bottom), TRUE);
 
+  hbox = gtk_hbox_new (FALSE, 5);
+  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+  label = gtk_label_new ("Alginment:");
+  gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
+  align_left = gtk_radio_button_new_with_label (NULL, "Left");
+  group2 = gtk_radio_button_group (GTK_RADIO_BUTTON (align_left));
+  align_center = gtk_radio_button_new_with_label (group2, "Center");
+  align_right = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (align_left), "Right");
+  gtk_box_pack_start (GTK_BOX (hbox), align_left, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox), align_center, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox), align_right, FALSE, FALSE, 0);
+
+  if (align == XOSD_left)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (align_left), TRUE);
+  else if(align == XOSD_center)
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (align_center), TRUE);
+  else
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (align_right), TRUE);
+ 
 
   /*
   hbox = gtk_hbox_new (FALSE, 5);

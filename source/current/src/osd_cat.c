@@ -10,6 +10,7 @@
 static struct option long_options[] = {
   {"font",   1, NULL, 'f'},
   {"color",  1, NULL, 'c'},
+  {"indent",  1, NULL, 'i'},
   {"delay",  1, NULL, 'd'},
   {"offset", 1, NULL, 'o'},
   {"top",    0, NULL, 't'},
@@ -34,7 +35,8 @@ int main (int argc, char *argv[])
   int delay = 5;
   int forcewait=0;
   xosd_pos pos = XOSD_top;
-  int offset = 0;
+  int voffset = 0;
+  int hoffset = 0;
   int shadow = 0;
   int scroll_age = 0;
   struct timeval old_age,new_age;
@@ -45,7 +47,7 @@ int main (int argc, char *argv[])
   while (1)
     {
       int option_index = 0;
-      int c = getopt_long (argc, argv, "l:A:a:f:c:d:o:s:tbhw", long_options, &option_index);
+      int c = getopt_long (argc, argv, "l:A:a:f:c:d:o:i:s:tbhw", long_options, &option_index);
       if (c == -1) break;
       switch (c)
 	{
@@ -79,7 +81,10 @@ int main (int argc, char *argv[])
 	  delay = atoi(optarg);
 	  break;
 	case 'o':
-	  offset = atoi(optarg);
+	  voffset = atoi(optarg);
+	  break;
+	case 'i':
+	  hoffset = atoi(optarg);
 	  break;
 	case 's':
 	  shadow=atoi(optarg);
@@ -106,7 +111,8 @@ int main (int argc, char *argv[])
 	  fprintf (stderr, "  -f, --font=FONT     Use font (default: %s)\n", osd_default_font);
 	  fprintf (stderr, "  -c, --color=COLOR   Use color\n");
 	  fprintf (stderr, "  -d, --delay=TIME    Show for specified time\n");
-	  fprintf (stderr, "  -o, --offset=OFFSET Display Offset\n");
+	  fprintf (stderr, "  -o, --offset=OFFSET Vertical Offset\n");
+	  fprintf (stderr, "  -i, --indent=OFFSET Horizontal Offset\n");
 	  fprintf (stderr, "  -h, --help          Show this help\n");
 	  fprintf (stderr, "  -s, --shadow=SHADOW Offset of shadow, default is 0 which is no shadow\n");
 	  fprintf (stderr, "  -w, --wait          Delay display even when new lines are ready\n");
@@ -138,8 +144,10 @@ int main (int argc, char *argv[])
   xosd_set_colour(osd, colour);
   xosd_set_timeout(osd, delay);
   xosd_set_pos(osd, pos);
-  xosd_set_offset(osd, offset);
+  xosd_set_vertical_offset(osd, voffset);
+  xosd_set_horizontal_offset(osd, hoffset);
   xosd_set_shadow_offset(osd, shadow);
+  xosd_set_align(osd, align);
 
 
   xosd_set_align (osd, align);
