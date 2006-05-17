@@ -5,7 +5,7 @@ Name:		xosd
 Version:	@VERSION@
 Release:	1
 Vendor:		Philipp Hahn <pmhahn@debian.org>
-License:	GPL
+License:	GPL/LGPL
 Group:		System Environment/Libraries
 Packager:	Oron Peled <oron@actcom.co.il>
 Summary:	X On-Screen Display library
@@ -60,7 +60,7 @@ ldconfig
 %{_libdir}/libxosd.so
 %{_bindir}/osd_cat
 %doc %{_mandir}/man1/osd_cat.1*
-%doc AUTHORS ChangeLog COPYING NEWS README TODO
+%doc AUTHORS ChangeLog COPYING.LIB COPYING NEWS README TODO
 
 %files devel
 %defattr(-, root, root)
