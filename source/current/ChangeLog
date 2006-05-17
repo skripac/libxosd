@@ -2,6 +2,7 @@
 	Fix quotation in configure.ac
 	New maintainer: Philipp Hahn <pmhahn@debian.org>
 	Check for XOpenDisplay() in AC_PATH_EXTRA to get rid of libxt-dev
+	Fix outline (Erik Wasser)
 
 2.2.14:
 	Timeout Bigfix Patch (P Hahn)

@@ -227,14 +227,12 @@ draw_text(xosd * osd, int line)
                y + osd->shadow_offset);
   }
   if (osd->outline_offset) {
-    int i, j;
+    int xd,yd;
     XSetForeground(osd->display, osd->gc, osd->outline_pixel);
-    /* FIXME: echo . | osd_cat -O 50 -p middle -A center */
-    for (i = 1; i <= osd->outline_offset; i++)
-      for (j = 0; j < 9; j++)
-        if (j != 4)
-          _draw_text(osd, l->string, x + (j / 3 - 1) * i,
-                     y + (j % 3 - 1) * i);
+    for (xd = -osd->outline_offset; xd <= osd->outline_offset; xd++)
+      for (yd = -osd->outline_offset; yd <= osd->outline_offset; yd++)
+        if (xd || yd)
+          _draw_text(osd, l->string, x + xd, y + yd);
   }
   if (1) {
     XSetForeground(osd->display, osd->gc, osd->pixel);
