@@ -4,6 +4,8 @@
 	Check for XOpenDisplay() in AC_PATH_EXTRA to get rid of libxt-dev
 	Fix outline (Erik Wasser)
 	Add new options of osd_cat to manual page (Jameson Rollins)
+	Fix xosd.spec.in: no LT_CURRENT, include man pages and pixmaps,
+	  License replaces Copyright
 
 2.2.14:
 	Timeout Bigfix Patch (P Hahn)
