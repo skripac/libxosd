@@ -3,6 +3,7 @@
 	New maintainer: Philipp Hahn <pmhahn@debian.org>
 	Check for XOpenDisplay() in AC_PATH_EXTRA to get rid of libxt-dev
 	Fix outline (Erik Wasser)
+	Add new options of osd_cat to manual page (Jameson Rollins)
 
 2.2.14:
 	Timeout Bigfix Patch (P Hahn)
