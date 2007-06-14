@@ -25,15 +25,15 @@
 #define SLIDER_SCALE_ON 0.7
 #define XOFFSET 10
 
-const char *osd_default_font =
+const char * const osd_default_font =
   "-misc-fixed-medium-r-semicondensed--*-*-*-*-c-*-*-*";
 #if 0
 "-adobe-helvetica-bold-r-*-*-10-*";
 #endif
-const char *osd_default_colour = "green";
+const char * const osd_default_colour = "green";
 
 /** Global error string. */
-char *xosd_error;
+const char *xosd_error;
 
 /* Wait until display is in next state. {{{ */
 static void

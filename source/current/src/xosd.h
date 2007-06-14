@@ -16,9 +16,9 @@ extern "C"
 #endif
 
 /* Error message when a routine returns failure */
-  extern char *xosd_error;
-  extern const char *osd_default_font;
-  extern const char *osd_default_colour;
+  extern const char *xosd_error;
+  extern const char * const osd_default_font;
+  extern const char * const osd_default_colour;
 
 /* The XOSD display "object" */
   typedef struct xosd xosd;

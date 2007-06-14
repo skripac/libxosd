@@ -2,6 +2,7 @@
 	Remove macros-option from xosd-config
 	Tiny changes to formatting, typos in comments, etc.
 	Xinerama screen selection support (Tim Burrell, Jean-Matthieu BARBIER)
+	Make xosd_error, osd_default_font, osd_default_colour even more const.
 
 2.2.15:
 	Fix quotation in configure.ac
