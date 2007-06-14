@@ -1,6 +1,7 @@
-2.2.16:
+2.3.0:
 	Remove macros-option from xosd-config
 	Tiny changes to formatting, typos in comments, etc.
+	Xinerama screen selection support (Tim Burrell, Jean-Matthieu BARBIER)
 
 2.2.15:
 	Fix quotation in configure.ac

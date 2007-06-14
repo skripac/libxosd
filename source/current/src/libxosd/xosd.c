@@ -648,6 +648,14 @@ xosd_init(const char *font, const char *colour, int timeout, xosd_pos pos,
 xosd *
 xosd_create(int number_lines)
 {
+  return xosd_create_xinerama(number_lines, -1);
+}
+
+
+/* xosd_create_xinerama -- Create a new xosd "object" allowing display selection  */
+xosd *
+xosd_create_xinerama(int number_lines, int xinerama_screen)
+{
   xosd *osd;
   int event_basep, error_basep, i;
   char *display;
@@ -742,10 +750,11 @@ xosd_create(int number_lines)
 #ifdef HAVE_XINERAMA
   if (XineramaQueryExtension(osd->display, &dummy_a, &dummy_b) &&
       (screeninfo = XineramaQueryScreens(osd->display, &screens)) &&
-      XineramaIsActive(osd->display)) {
-    osd->screen_width = screeninfo[0].width;
-    osd->screen_height = screeninfo[0].height;
-    osd->screen_xpos = screeninfo[0].x_org;
+      XineramaIsActive(osd->display) && xinerama_screen >= 0 &&
+      xinerama_screen < screens) {
+    osd->screen_width = screeninfo[xinerama_screen].width;
+    osd->screen_height = screeninfo[xinerama_screen].height;
+    osd->screen_xpos = screeninfo[xinerama_screen].x_org;
   } else
 #endif
   {

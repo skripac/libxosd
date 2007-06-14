@@ -58,6 +58,18 @@ extern "C"
  */
   xosd *xosd_create(int number_lines);
 
+/*
+ * xosd_create_xinerama -- Create a new xosd "object" choosing xinerama screen
+ *
+ * ARGUMENTS
+ *     number_lines     Number of lines of the display.
+ *     xinerama_screen  # of xinerama screen to be used, -1 for all screens.
+ *
+ * RETURNS
+ *     A new xosd structure
+ */
+  xosd *xosd_create_xinerama(int number_lines, int xinerama_screen);
+
 /* xosd_init -- Create a new xosd "object" -- deprecated by xosd_create
  *
  * ARGUMENTS

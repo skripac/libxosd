@@ -26,9 +26,9 @@ dnl       AGE ++;
 dnl    if (any interfaces have been _removed_ or _incompatibly changed_)
 dnl       AGE = 0;
 dnl }
-LT_CURRENT=4
-LT_AGE=2
-LT_REVISION=16
+LT_CURRENT=5
+LT_AGE=3
+LT_REVISION=0
 
 AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_AGE)

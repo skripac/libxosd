@@ -3,7 +3,7 @@
    Original code by:
    Andre Renaud <andre@ignavus.net>
    Tim Wright <tim@ignavus.net>
-   
+
    Modified without permission.
 */
 
@@ -27,6 +27,7 @@ static struct option long_options[] = {
   {"delay", 1, NULL, 'd'},
   {"offset", 1, NULL, 'o'},
   {"pos", 1, NULL, 'p'},
+  {"xscreen", 1, NULL, 'n'},
   {"align", 1, NULL, 'A'},
   {"shadow", 1, NULL, 's'},
   {"shadowcolour", 1, NULL, 'S'},
@@ -59,6 +60,7 @@ xosd_pos pos = XOSD_top;
 int voffset = 0;
 int hoffset = 0;
 int shadow = 0;
+int xscreen = -1;
 int scroll_age = 0;
 struct timeval old_age, new_age;
 int screen_line = 0;
@@ -74,7 +76,7 @@ main(int argc, char *argv[])
   while (1) {
     int option_index = 0;
     int c =
-      getopt_long(argc, argv, "l:A:a::f:c:d:o:i:s:p:O:S:u:b:P:T:hw",
+      getopt_long(argc, argv, "l:A:a::f:c:d:o:i:s:p:n:O:S:u:b:P:T:hw",
                   long_options,
                   &option_index);
     if (c == -1)
@@ -120,6 +122,9 @@ main(int argc, char *argv[])
       break;
     case 'd':
       delay = atoi(optarg);
+      break;
+    case 'n':
+      xscreen = atoi(optarg);
       break;
     case 'o':
       voffset = atoi(optarg);
@@ -179,7 +184,9 @@ main(int argc, char *argv[])
           "                      Display at top/middle/bottom of screen. Top is default\n"
           "  -o, --offset=OFFSET Vertical Offset\n"
           "  -A, --align=(left|right|center)\n"
-          "                      Display at left/right/center of screen.Left is default\n"
+          "                      Display at left/right/center of screen. Left is default\n"
+          "  -n, --xscreen=SCREEN\n"
+	  "                      Xinerama screen to be used. Default -1 for all screens\n"
           "  -i, --indent=OFFSET Horizontal Offset\n"
           "  -f, --font=FONT     Use font (default: %s)\n",
           osd_default_font);
@@ -212,7 +219,7 @@ main(int argc, char *argv[])
   }
 
   if (barmode) {
-    osd = xosd_create( (text && *text) ? 2 : 1);
+    osd = xosd_create_xinerama( (text && *text) ? 2 : 1, xscreen);
   } else {
     if ((optind < argc) && strncmp(argv[optind], "-", 2)) {
       if ((fp = fopen(argv[optind], "r")) == NULL) {
@@ -222,7 +229,7 @@ main(int argc, char *argv[])
     } else
       fp = stdin;
 
-    osd = xosd_create(lines);
+    osd = xosd_create_xinerama(lines, xscreen);
   }
 
   if (!osd) {
