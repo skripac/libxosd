@@ -5,6 +5,7 @@
 	Make xosd_error, osd_default_font, osd_default_colour even more const.
 	Include X11/Xlib.h in src/testprog.c for XSupportsLocale()
 	Draw outline above shadow in bar (David Reiss)
+	Add MAX()
 
 2.2.15:
 	Fix quotation in configure.ac

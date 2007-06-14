@@ -35,6 +35,9 @@ const char * const osd_default_colour = "green";
 /** Global error string. */
 const char *xosd_error;
 
+/** Helper function. */
+static int MAX(const int a, const int b) { return a > b ? a : b; }
+
 /* Wait until display is in next state. {{{ */
 static void
 _wait_until_update(xosd * osd, int generation)
@@ -268,7 +271,7 @@ event_loop(void *osdv)
   assert(osd);
 
   xfd = ConnectionNumber(osd->display);
-  max = (osd->pipefd[0] > xfd) ? osd->pipefd[0] : xfd;
+  max = MAX(osd->pipefd[0], xfd);
 
   pthread_mutex_lock(&osd->mutex);
   DEBUG(Dtrace, "Request exposure events");
@@ -973,7 +976,7 @@ union xosd_line newline = { type:LINE_blank };
     {
       struct xosd_bar *l = &newline.bar;
       ret = va_arg(a, int);
-      ret = (ret < 0) ? 0 : (ret > 100) ? 100 : ret;
+      ret = (ret < 0) ? 0 : MAX(ret, 100);
       l->type = (command == XOSD_percentage) ? LINE_percentage : LINE_slider;
       l->value = ret;
       break;
