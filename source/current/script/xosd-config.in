@@ -22,10 +22,9 @@ Options:
   --libs-dirs   only print the -L/-R part of --libs
   --libs-names  only print the -l part of --libs
   --help        display this help and exit
-  --macros      print the path to m4 macros
 
-  --prefix[=DIR] 
-  --exec_prefix[=DIR] 
+  --prefix[=DIR]
+  --exec_prefix[=DIR]
   --version     output version information
 Libraries:
   @PACKAGE@
@@ -76,10 +75,6 @@ while test $# -gt 0; do
       ;;
     --libs-names)
       af_echo_libs_l=yes
-      ;;
-    --macros*)
-      echo -I @M4DATADIR@
-      exit
       ;;
     --prefix=*)
       prefix=$af_optarg
@@ -157,7 +152,7 @@ for i in $af_all_flags; do
             case " $af_lib_L_flags " in
             *\ $i\ *) ;;                              # already there
             *) af_lib_L_flags="$af_lib_L_flags $i" ;; # add it to output
-            esac 
+            esac
         fi;;
     *)
         case " $af_other_flags " in
@@ -218,4 +213,3 @@ af_libs="$libs -l$LIB_NAME $af_libs"
 print_result
 
 exit 0
-

@@ -1,3 +1,6 @@
+2.2.16:
+	Remove macros-option from xosd-config
+
 2.2.15:
 	Fix quotation in configure.ac
 	New maintainer: Philipp Hahn <pmhahn@debian.org>
@@ -9,6 +12,7 @@
 	Install pixmaps only for new xmms plugin or bmp plugin
 	Update COPYING: the FSF has relocated
 	Licence change from GPL to LGPL for libxosd only
+	Document need to call setlocale() in README, man/xosd.3
 
 2.2.14:
 	Timeout Bigfix Patch (P Hahn)

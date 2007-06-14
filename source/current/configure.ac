@@ -3,7 +3,7 @@ dnl Configure.ac for xosd
 dnl
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(xosd, 2.2.15)
+AC_INIT(xosd, 2.2.16)
 AC_CONFIG_SRCDIR(src/testprog.c)
 AM_INIT_AUTOMAKE([no-define])
 
@@ -28,7 +28,7 @@ dnl       AGE = 0;
 dnl }
 LT_CURRENT=4
 LT_AGE=2
-LT_REVISION=15
+LT_REVISION=16
 
 AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_AGE)
@@ -50,8 +50,6 @@ chmod +x libtool-disable-static
 
 LIBS="$LIBS $X_LIBS $X_EXTRA_LIBS"
 CFLAGS="$CFLAGS $X_CFLAGS -Wall"
-M4DATADIR="$datadir/aclocal"
-AC_SUBST(M4DATADIR)
 
 dnl Checks for libraries.
 AM_PATH_GTK(1.2.2,,
