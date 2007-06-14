@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <locale.h>
+#include <X11/Xlib.h>
 
 #include "xosd.h"
 

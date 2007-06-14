@@ -3,6 +3,7 @@
 	Tiny changes to formatting, typos in comments, etc.
 	Xinerama screen selection support (Tim Burrell, Jean-Matthieu BARBIER)
 	Make xosd_error, osd_default_font, osd_default_colour even more const.
+	Include X11/Xlib.h in src/testprog.c for XSupportsLocale()
 
 2.2.15:
 	Fix quotation in configure.ac
