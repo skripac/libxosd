@@ -36,6 +36,7 @@ const char * const osd_default_colour = "green";
 const char *xosd_error;
 
 /** Helper function. */
+static int MIN(const int a, const int b) { return a < b ? a : b; }
 static int MAX(const int a, const int b) { return a > b ? a : b; }
 
 /* Wait until display is in next state. {{{ */
@@ -976,7 +977,7 @@ union xosd_line newline = { type:LINE_blank };
     {
       struct xosd_bar *l = &newline.bar;
       ret = va_arg(a, int);
-      ret = (ret < 0) ? 0 : MAX(ret, 100);
+      ret = MAX(0, MIN(ret, 100));
       l->type = (command == XOSD_percentage) ? LINE_percentage : LINE_slider;
       l->value = ret;
       break;
