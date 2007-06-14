@@ -128,7 +128,7 @@ draw_bar(xosd * osd, int line)
   int is_slider = l->type == LINE_slider, nbars, on;
   XRectangle p, m;
   p.x = XOFFSET;
-  p.y = osd->line_height * line;
+  p.y = osd->line_height * line + osd->margin;
   p.width = -osd->extent->y / 2;
   p.height = -osd->extent->y;
 
@@ -163,6 +163,15 @@ draw_bar(xosd * osd, int line)
 
   DEBUG(Dvalue, "percent=%d, nbars=%d, on=%d", l->value, nbars, on);
 
+  /* Bounding Box */
+  if (osd->bbox_offset) {
+    /* We fake the bounding box by pretending this is a percentage set to 100%
+     * and just drawing an outline. */
+    m.x = m.y = -osd->bbox_offset;
+    m.width = m.height = 2 * osd->bbox_offset;
+    XSetForeground(osd->display, osd->gc, osd->bbox_pixel);
+    _draw_bar(osd, nbars, nbars, &p, &m, 0);
+  }
   /* Shadow */
   if (osd->shadow_offset) {
     m.x = m.y = osd->shadow_offset;
@@ -202,7 +211,7 @@ _draw_text(xosd * osd, char *string, int x, int y)
 static void
 draw_text(xosd * osd, int line)
 {
-  int x = XOFFSET, y = osd->line_height * line - osd->extent->y;
+  int x = XOFFSET, y = osd->line_height * line - osd->extent->y + osd->margin;
   struct xosd_text *l = &osd->lines[line].text;
 
   assert(osd);
@@ -213,7 +222,13 @@ draw_text(xosd * osd, int line)
 
   if (l->width < 0) {
     XRectangle rect;
-    XmbTextExtents(osd->fontset, l->string, strlen(l->string), NULL, &rect);
+    XmbTextExtents(osd->fontset, l->string, strlen(l->string),
+        &l->bbox_extents, &rect);
+    // Define this to draw the bounding box around the physical (ink) extent
+    // of the text.  By default, draw around the logical extent.
+#ifndef BBOX_USES_INK_EXTENTS
+    l->bbox_extents = rect;
+#endif
     l->width = rect.width;
   }
 
@@ -227,6 +242,20 @@ draw_text(xosd * osd, int line)
     break;
   }
 
+  /* Bounding Box */
+  if (osd->bbox_offset) {
+    XSetForeground(osd->display, osd->gc, osd->bbox_pixel);
+    XFillRectangle(osd->display, osd->mask_bitmap, osd->mask_gc,
+        x + l->bbox_extents.x - osd->bbox_offset,
+        y + l->bbox_extents.y - osd->bbox_offset,
+        l->bbox_extents.width  + 2*(osd->bbox_offset),
+        l->bbox_extents.height + 2*(osd->bbox_offset));
+    XFillRectangle(osd->display, osd->line_bitmap, osd->gc,
+        x + l->bbox_extents.x - osd->bbox_offset,
+        y + l->bbox_extents.y - osd->bbox_offset,
+        l->bbox_extents.width  + 2*(osd->bbox_offset),
+        l->bbox_extents.height + 2*(osd->bbox_offset));
+  }
   /* Shadow */
   if (osd->shadow_offset) {
     XSetForeground(osd->display, osd->gc, osd->shadow_pixel);
@@ -302,7 +331,7 @@ event_loop(void *osdv)
       DEBUG(Dupdate, "UPD_size");
       osd->extent = &extents->max_logical_extent;
       osd->line_height = osd->extent->height + osd->shadow_offset + 2 *
-        osd->outline_offset;
+        osd->margin;
       osd->height = osd->line_height * osd->number_lines;
       for (line = 0; line < osd->number_lines; line++)
         if (osd->lines[line].type == LINE_text)
@@ -1102,6 +1131,27 @@ xosd_set_outline_colour(xosd * osd, const char *colour)
 
 /* }}} */
 
+/* xosd_set_bbox_colour -- Change the colour of the bounding box {{{ */
+int
+xosd_set_bbox_colour(xosd * osd, const char *colour)
+{
+  int retval = 0;
+
+  FUNCTION_START(Dfunction);
+  if (osd == NULL)
+    return -1;
+
+  _xosd_lock(osd);
+  retval =
+    parse_colour(osd, &osd->bbox_colour, &osd->bbox_pixel, colour);
+  osd->update |= UPD_lines;
+  _xosd_unlock(osd);
+
+  return retval;
+}
+
+/* }}} */
+
 /* xosd_set_font -- Change the text-display font {{{
  * Might return error if fontset can't be created. **/
 int
@@ -1173,6 +1223,28 @@ xosd_set_outline_offset(xosd * osd, int outline_offset)
 
   _xosd_lock(osd);
   osd->outline_offset = outline_offset;
+  osd->margin = MAX(osd->outline_offset, osd->bbox_offset);
+  osd->update |= UPD_font;
+  _xosd_unlock(osd);
+
+  return 0;
+}
+
+/* }}} */
+
+/* xosd_set_bbox_offset -- Change the offset of the bounding box {{{ */
+int
+xosd_set_bbox_offset(xosd * osd, int bbox_offset)
+{
+  FUNCTION_START(Dfunction);
+  if (osd == NULL)
+    return -1;
+  if (bbox_offset < 0)
+    return -1;
+
+  _xosd_lock(osd);
+  osd->bbox_offset = bbox_offset;
+  osd->margin = MAX(osd->outline_offset, osd->bbox_offset);
   osd->update |= UPD_font;
   _xosd_unlock(osd);
 

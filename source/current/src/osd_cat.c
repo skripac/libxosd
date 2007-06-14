@@ -36,6 +36,8 @@ static struct option long_options[] = {
   {"wait", 0, NULL, 'w'},
   {"outline", 1, NULL, 'O'},
   {"outlinecolour", 1, NULL, 'u'},
+  {"bbox", 1, NULL, 'x'},
+  {"bboxcolour", 1, NULL, 'X'},
   {"barmode", 1, NULL, 'b'},
   {"percentage", 1, NULL, 'P'},
   {"text", 1, NULL, 'T'},
@@ -52,7 +54,9 @@ char *text = NULL;
 enum { bar_none=0, bar_percentage, bar_slider } barmode = bar_none;
 int percentage = 50;
 int outline_offset = 0;
+int bbox_offset = 0;
 char *outline_colour = NULL;
+char *bbox_colour = NULL;
 char *shadow_colour = NULL;
 int delay = 5;
 int forcewait = 0;
@@ -76,7 +80,7 @@ main(int argc, char *argv[])
   while (1) {
     int option_index = 0;
     int c =
-      getopt_long(argc, argv, "l:A:a::f:c:d:o:i:s:p:n:O:S:u:b:P:T:hw",
+      getopt_long(argc, argv, "l:A:a::f:c:d:o:i:s:p:n:O:x:S:u:X:b:P:T:hw",
                   long_options,
                   &option_index);
     if (c == -1)
@@ -132,12 +136,18 @@ main(int argc, char *argv[])
     case 'O':
       outline_offset = atoi(optarg);
       break;
+    case 'x':
+      bbox_offset = atoi(optarg);
+      break;
 
     case 'S':
       shadow_colour = optarg;
       break;
     case 'u':
       outline_colour = optarg;
+      break;
+    case 'X':
+      bbox_colour = optarg;
       break;
 
     case 'i':
@@ -198,6 +208,10 @@ main(int argc, char *argv[])
           "                      Offset of outline, default is 0 which is no outline\n"
           "  -u, --outlinecolour=COLOUR\n"
           "                      Colour of outline, default is black\n"
+          "  -x, --bbox=WIDTH\n"
+          "                      Width of the bounding box, default is 0 (none)\n"
+          "  -X, --bboxcolour=COLOUR\n"
+          "                      Colour of bounding box, default is black\n"
           "  -a, --age[=TIME]    Time in seconds before old scroll lines are discarded\n"
           "                      If no time is given, the current DELAY is used.\n"
           "  -l, --lines=N       Scroll using n lines. Default is 5.\n"
@@ -240,6 +254,8 @@ main(int argc, char *argv[])
   if (shadow_colour) xosd_set_shadow_colour(osd, shadow_colour);
   xosd_set_outline_offset(osd, outline_offset);
   if (outline_colour) xosd_set_outline_colour(osd, outline_colour);
+  xosd_set_bbox_offset(osd, bbox_offset);
+  if (bbox_colour) xosd_set_bbox_colour(osd, bbox_colour);
   if (colour) xosd_set_colour(osd, colour);
   xosd_set_timeout(osd, delay);
   xosd_set_pos(osd, pos);

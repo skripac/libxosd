@@ -71,6 +71,7 @@ union xosd_line
     enum LINE type;
     int width;
     char *string;
+    XRectangle bbox_extents;
   } text;
   struct xosd_bar {
     enum LINE type;
@@ -119,6 +120,10 @@ struct xosd
   int outline_offset;           /* CONF */
   XColor outline_colour;        /* CONF */
   unsigned long outline_pixel;  /* CACHE (outline_colour) */
+  int bbox_offset;              /* CONF */
+  XColor bbox_colour;           /* CONF */
+  unsigned long bbox_pixel;     /* CACHE (bbox_colour) */
+  int margin;                   /* CACHE (outline_offset,bbox_offset) */
   int bar_length;               /* CONF */
 
   int generation;               /* DYN count of map/unmap */

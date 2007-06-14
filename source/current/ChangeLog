@@ -5,7 +5,13 @@
 	Make xosd_error, osd_default_font, osd_default_colour even more const.
 	Include X11/Xlib.h in src/testprog.c for XSupportsLocale()
 	Draw outline above shadow in bar (David Reiss)
-	Add MAX()
+	Add MIN(), MAX()
+	Added bounding box feature to libxosd and osd_cat.
+	Moved xosd_set_shadow_colour above xosd_set_outline_colour in xosd.h
+	Corrected vertical text and bar positioning within window.  This fixes
+	  cutoff that was happening with large borders.  This is still a
+	  problem on the left (the solution is to drop XOFFSET and use
+	  osd->margin instead).
 
 2.2.15:
 	Fix quotation in configure.ac

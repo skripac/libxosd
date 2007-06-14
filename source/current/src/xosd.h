@@ -240,18 +240,20 @@ extern "C"
  */
   int xosd_set_outline_offset(xosd * osd, int outline_offset);
 
-/* xosd_set_outline_colour -- Change the colour of the outline
+/* xosd_set_bbox_offset -- Change the offset of the text bounding box
  *
  * ARGUMENTS
- *     osd      The xosd "object".
- *     colour   The new colour of the display.  (See "rgb.txt" in the
- *              X11 distribution of a list of colours.)
+ *     osd            The xosd "object".
+ *     bbox_offset    The new bounding box offset in pixels.
+ *
+ *  The outline is drawn over the shadow.  The bounding box is drawn
+ *  under the outline and shadow.
  *
  * RETURNS
  *   0 on success
- *  -1 on failure, and colour is set to black
+ *  -1 on failure
  */
-  int xosd_set_outline_colour(xosd * osd, const char *colour);
+  int xosd_set_bbox_offset(xosd * osd, int bbox_offset);
 
 /* xosd_set_shadow_colour -- Change the colour of the shadow
  *
@@ -265,6 +267,32 @@ extern "C"
  *  -1 on failure, and colour is set to black
  */
   int xosd_set_shadow_colour(xosd * osd, const char *colour);
+
+/* xosd_set_outline_colour -- Change the colour of the outline
+ *
+ * ARGUMENTS
+ *     osd      The xosd "object".
+ *     colour   The new colour of the display.  (See "rgb.txt" in the
+ *              X11 distribution of a list of colours.)
+ *
+ * RETURNS
+ *   0 on success
+ *  -1 on failure, and colour is set to black
+ */
+  int xosd_set_outline_colour(xosd * osd, const char *colour);
+
+/* xosd_set_bbox_colour -- Change the colour of the bounding box
+ *
+ * ARGUMENTS
+ *     osd      The xosd "object".
+ *     colour   The new colour of the display.  (See "rgb.txt" in the
+ *              X11 distribution of a list of colours.)
+ *
+ * RETURNS
+ *   0 on success
+ *  -1 on failure, and colour is set to black
+ */
+  int xosd_set_bbox_colour(xosd * osd, const char *colour);
 
 /* xosd_set_horizontal_offset -- Change the number of pixels the display is
  *                    offset from the position

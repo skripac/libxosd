@@ -20,7 +20,7 @@ This option tells \fBosd_cat\fP where to display the text. \fIPOS\fP can be \fBt
 default is \fBtop\fP.
 .TP
 \fB\-o\fP, \fB\-\-offset\fP=\fIOFFSET\fP
-This option specifies the \fIoffset\fP from the top or bottom of screen the text is 
+This option specifies the \fIOFFSET\fP from the top or bottom of screen the text is 
 displayed. The default is \fB0\fP.
 .TP
 \fB\-A\fP, \fB\-\-align\fP=\fIALIGN\fP
@@ -28,16 +28,16 @@ This option tells \fBosd_cat\fP where to display the text. \fIALIGN\fP can be \f
 default is \fBleft\fP.
 .TP
 \fB\-n\fP, \fB\-\-xscreen\fP=\fISCREEN\fP
-This option specifies which Xinerama-Screen should be used. The default is \fB\-1\fP which uses all screens.
+This option specifies which Xinerama-\fISCREEN\fP should be used. The default is \fB\-1\fP which uses all screens.
 .TP
 \fB\-i\fP, \fB\-\-indent\fP=\fIOFFSET\fP
-This option specifies the \fIINDENT\fP from the left of screen the text is displayed. The default is \fB0\fP.
+This option specifies the \fIOFFSET\fP from the left of screen the text is displayed. The default is \fB0\fP.
 .TP
 \fB\-f\fP, \fB\-\-font\fP=\fIFONT\fP
 This option specifies the \fIFONT\fP to be used for displaying the text. The default is \fBfixed\fP.
 .TP
-\fB\-c\fP, \fB\-\-color\fP=\fICOLOR\fP
-This option specifies the \fICOLOR\fP to be used for displaying the text. The default is \fBred\fP. 
+\fB\-c\fP, \fB\-\-colour\fP=\fICOLOUR\fP
+This option specifies the \fICOLOUR\fP to be used for displaying the text. The default is \fBred\fP.
 .TP
 \fB\-d\fP, \fB\-\-delay\fP=\fITIME\fP
 This option specifies the number of seconds the text is displayed. The default is \fB5\fP seconds.
@@ -57,6 +57,12 @@ This option specifies the \fIWIDTH\fP of the text outline.  The default is \fB0\
 \fB\-u\fP, \fB\-\-outlinecolour\fP=\fICOLOUR\fP
 This option specifies the \fICOLOUR\fP of the text outline.  The default is \fBblack\fP.
 .TP
+\fB\-x\fP, \fB\-\-bbox\fP=\fIWIDTH\fP
+This option specifies the \fIWIDTH\fP of the text bounding box.  The default is \fB0\fP, which is no box.
+.TP
+\fB\-X\fP, \fB\-\-bboxcolour\fP=\fICOLOUR\fP
+This option specifies the \fICOLOUR\fP of the text bounding box.  The default is \fBblack\fP.
+.TP
 \fB\-a\fP, \fB\-\-age\fP[=\fISCROLL_AGE\fP]
 This option affects screen redrawing. If \fISCROLL_AGE\fP seconds pass
 before a new line is ready (for example, you're reading from a pipe),
@@ -66,7 +72,7 @@ replace old lines. The default is \fB0\fP.
 When no \fISCROLL_AGE\fP is explicitly given, the current value from
 \fIDELAY\fP is used.
 .TP
-\fB\-w\fP, \fB\-\-wait 
+\fB\-w\fP, \fB\-\-wait
 This option also affects screen redrawing. When there is data ready to
 be put on screen, this option will cause \fBosd_cat\fP to wait until the
 display is clear. An alternative to scrolling.
