@@ -111,7 +111,7 @@ extern "C"
  * RETURNS
  *     -1 on error (invalid xosd object).
  *      0 on success
-*/
+ */
   int xosd_set_bar_length(xosd * osd, int length);
 
 /* xosd_display -- Display information
@@ -211,21 +211,21 @@ extern "C"
  * RETURNS
  *   0 on success
  *  -1 on failure
-*/
+ */
   int xosd_set_shadow_offset(xosd * osd, int shadow_offset);
 
 /* xosd_set_outline_offset -- Change the offset of the text outline
  *
  * ARGUMENTS
- *     osd            The xosd "object".
- *     shadow_offset  The new outline offset in pixels.
+ *     osd             The xosd "object".
+ *     outline_offset  The new outline offset in pixels.
  *
  *  The outline is drawn over the shadow.
  *
  * RETURNS
  *   0 on success
  *  -1 on failure
-*/
+ */
   int xosd_set_outline_offset(xosd * osd, int outline_offset);
 
 /* xosd_set_outline_colour -- Change the colour of the outline
@@ -265,7 +265,7 @@ extern "C"
  * RETURNS
  *   0 on success
  *  -1 on failure
-*/
+ */
   int xosd_set_horizontal_offset(xosd * osd, int offset);
 
 /* xosd_set_vertical_offset -- Change the number of pixels the display is
@@ -279,7 +279,7 @@ extern "C"
  * RETURNS
  *   0 on success
  *  -1 on failure
-*/
+ */
   int xosd_set_vertical_offset(xosd * osd, int offset);
 
 /* xosd_set_timeout -- Change the time before display is hidden.
@@ -291,7 +291,7 @@ extern "C"
  * RETURNS
  *   0 on success
  *  -1 on failure
-*/
+ */
   int xosd_set_timeout(xosd * osd, int timeout);
 
 /* xosd_set_colour -- Change the colour of the display
@@ -316,7 +316,7 @@ extern "C"
  * RETURNS
  *     0 on success
  *    -1 on failure
-*/
+ */
   int xosd_set_font(xosd * osd, const char *font);
 
 /* xosd_get_colour -- Gets the RGB value of the display's colour
@@ -330,7 +330,7 @@ extern "C"
  * RETURNS
  *   0 on success
  *  -1 on failure
-*/
+ */
   int xosd_get_colour(xosd * osd, int *red, int *green, int *blue);
 
 /* xosd_scroll -- Scroll the display
@@ -342,7 +342,7 @@ extern "C"
  * RETURNS
  *   0 on success
  *  -1 on failure
-*/
+ */
   int xosd_scroll(xosd * osd, int lines);
 
 /* xosd_get_number_lines -- Get the maximum number of lines allowed
@@ -353,7 +353,7 @@ extern "C"
  * RETURNS
  *   the number of lines on success
  *  -1 on failure
-*/
+ */
   int xosd_get_number_lines(xosd * osd);
 
 #ifdef __cplusplus

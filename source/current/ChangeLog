@@ -1,5 +1,6 @@
 2.2.16:
 	Remove macros-option from xosd-config
+	Tiny changes to formatting, typos in comments, etc.
 
 2.2.15:
 	Fix quotation in configure.ac
