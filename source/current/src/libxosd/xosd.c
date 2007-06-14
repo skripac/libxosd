@@ -159,18 +159,18 @@ draw_bar(xosd * osd, int line)
 
   DEBUG(Dvalue, "percent=%d, nbars=%d, on=%d", l->value, nbars, on);
 
-  /* Outline */
-  if (osd->outline_offset) {
-    m.x = m.y = -osd->outline_offset;
-    m.width = m.height = 2 * osd->outline_offset;
-    XSetForeground(osd->display, osd->gc, osd->outline_pixel);
-    _draw_bar(osd, nbars, on, &p, &m, is_slider);
-  }
   /* Shadow */
   if (osd->shadow_offset) {
     m.x = m.y = osd->shadow_offset;
     m.width = m.height = 0;
     XSetForeground(osd->display, osd->gc, osd->shadow_pixel);
+    _draw_bar(osd, nbars, on, &p, &m, is_slider);
+  }
+  /* Outline */
+  if (osd->outline_offset) {
+    m.x = m.y = -osd->outline_offset;
+    m.width = m.height = 2 * osd->outline_offset;
+    XSetForeground(osd->display, osd->gc, osd->outline_pixel);
     _draw_bar(osd, nbars, on, &p, &m, is_slider);
   }
   /* Bar/Slider */
@@ -223,11 +223,13 @@ draw_text(xosd * osd, int line)
     break;
   }
 
+  /* Shadow */
   if (osd->shadow_offset) {
     XSetForeground(osd->display, osd->gc, osd->shadow_pixel);
     _draw_text(osd, l->string, x + osd->shadow_offset,
                y + osd->shadow_offset);
   }
+  /* Outline */
   if (osd->outline_offset) {
     int xd,yd;
     XSetForeground(osd->display, osd->gc, osd->outline_pixel);
@@ -236,6 +238,7 @@ draw_text(xosd * osd, int line)
         if (xd || yd)
           _draw_text(osd, l->string, x + xd, y + yd);
   }
+  /* Text */
   if (1) {
     XSetForeground(osd->display, osd->gc, osd->pixel);
     _draw_text(osd, l->string, x, y);
