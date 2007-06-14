@@ -1,26 +1,29 @@
 Author:
-Andre Renaud <andre@ignavus.net>
+Andre Renaud <andre ignavus net>
 
 Maintainer:
-Philipp Hahn <pmhahn@debian.org>
+Philipp Hahn <pmhahn debian org>
 
 Source Contributions:
-Tim Wright <tim@ignavus.net>
-Martynas Kunigelis <martynas@nm3.ktu.lt>
+Tim Wright <tim ignavus net>
+Martynas Kunigelis <martynas nm3 ktu lt>
 Harvey Chapman
 JR Boyens
 Alex Shinn
-Martijn van de Streek <martijn@foodfight.org>
-Philipp Hahn <pmhahn@titan.lahn.de>
+Martijn van de Streek <martijn foodfight org>
+Philipp Hahn <pmhahn titan lahn de>
 Adrian Brewt
-Andre Renaud <andre@ignavus.net>
-Michael JasonSmith <mpj17@student.canterbury.ac.nz>
-Götz Waschk <waschk@informatik.uni-rostock.de>
+Andre Renaud <andre ignavus net>
+Michael JasonSmith <mpj17 student canterbury ac nz>
+Götz Waschk <waschk informatik uni-rostock de>
+Jean-Matthieu BARBIER <jm.barbier solidev org>
+Tim Burrell <tim.burrell gmail com>
+David Reiss <dreiss cs stanford edu>
 + others listed in the ChangeLog
 
 
 Autoconf packaging:
-Chris Weyl <cweyl@hotmail.com>
+Chris Weyl <cweyl hotmail com>
 
 Thanks:
 Tim Wright (intial beta testing... ha!)
