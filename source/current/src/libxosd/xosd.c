@@ -575,7 +575,7 @@ parse_colour(xosd * osd, XColor * col, unsigned long *pixel,
 /* }}} */
 
 /* Tell window manager to put window topmost. {{{ */
-void
+static void
 stay_on_top(Display * dpy, Window win)
 {
   Atom gnome, net_wm, type;
