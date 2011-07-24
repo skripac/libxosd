@@ -2,7 +2,7 @@ Source: xosd
 Section: x11
 Priority: optional
 Maintainer: Philipp Matthias Hahn <pmhahn@debian.org>
-Build-Depends: libgtk1.2-dev, libtool, debhelper (>= 4.1.0), libgdk-pixbuf-dev, libx11-dev, libxext-dev, x11proto-core-dev, x11proto-xinerama-dev, x11proto-xext-dev, libxinerama-dev, cdbs
+Build-Depends: libtool, debhelper (>= 4.1.0), libx11-dev, libxext-dev, x11proto-core-dev, x11proto-xinerama-dev, x11proto-xext-dev, libxinerama-dev, cdbs
 Build-Conflicts: libxosd-dev (<< 2.2.14)
 Standards-Version: 3.6.1.1
 Homepage: http://libxosd.sourceforge.net
