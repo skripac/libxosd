@@ -1,3 +1,23 @@
+xosd (2.2.14-1.6) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Replace pseudo dynamic Build-Conflict on libxosd-dev with an explicit
+    one on libxosd-dev << 2.2.14 which is the current source:Version.
+    Closes: #495246
+  * Replace Source-Version with binary:Version for libxosd-dev Depends.
+  * Replace the pseudo Homepage field with the real one.
+  * Change the Homepage from http://www.ignavus.net/software.html to
+    http://libxosd.sourceforge.net which offers a link for the current
+    source download and the old website.
+  * Remove Suggests: xfonts-base-transcoded from libxosd2. Closes: #370034
+  * Updated the copyright file to reflect the website where you can obtain
+    the source code and the license used.
+  * Relibtoolized and autoreconfed to resolve
+    the binary-or-shlib-defines-rpath warning on amd64.
+    Thanks to Thomas Viehmann
+
+ -- Sven Hoexter <sven@timegate.de>  Thu, 28 Aug 2008 21:49:40 +0200
+
 xosd (2.2.14-1.5) unstable; urgency=low
 
   * Non-maintainer upload.

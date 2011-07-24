@@ -3,8 +3,9 @@ Section: x11
 Priority: optional
 Maintainer: Philipp Matthias Hahn <pmhahn@debian.org>
 Build-Depends: libgtk1.2-dev, libtool, debhelper (>= 4.1.0), libgdk-pixbuf-dev, libx11-dev, libxext-dev, x11proto-core-dev, x11proto-xinerama-dev, x11proto-xext-dev, libxinerama-dev, cdbs
-Build-Conflicts: libxosd-dev (<< ${Source-Version})
+Build-Conflicts: libxosd-dev (<< 2.2.14)
 Standards-Version: 3.6.1.1
+Homepage: http://libxosd.sourceforge.net
 
 Package: libxosd2
 Section: libs
@@ -12,16 +13,13 @@ Architecture: any
 Depends: ${shlibs:Depends}
 Conflicts: libxosd
 Replaces: libxosd, libxosd0
-Suggests: xfonts-base-transcoded
 Description: X On-Screen Display library - runtime
  A library for displaying a TV-like on-screen display in X.
- .
- Homepage: http://libxosd.sourceforge.net/
 
 Package: libxosd-dev
 Section: libdevel
 Architecture: any
-Depends: libxosd2 (= ${Source-Version}), libx11-dev, libxext-dev, ${shlibs:Depends}, libxinerama-dev
+Depends: libxosd2 (= ${binary:Version}), libx11-dev, libxext-dev, ${shlibs:Depends}, libxinerama-dev
 Conflicts: libxosd
 Description: X On-Screen Display library - development
  A library for displaying a TV-like on-screen display in X.
@@ -36,5 +34,3 @@ Description: X On-Screen Display library - binary files
  This package contains binary files shipped with the X OSD library:
  osd_cat - a 'cat' like program which will display its output in an
  OSD-like window
- .
- Homepage: http://libxosd.sourceforge.net/
