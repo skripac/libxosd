@@ -1,3 +1,16 @@
+xosd (2.2.14-2) unstable; urgency=low
+
+  * Acknowledge NMUs by jmm, sven, luk, sam, porridge: Thanks.
+  * debian/copyright: Fix upstream to me.
+  * debian/source/format: Switch to 3.0 (quilt)
+  * debian/rules: Switch from cdbs to debhelper.
+  * debian/control: Standards-Version 3.9.2.
+  * debian/libxosd2.symbols: Add symbol versioning.
+  * Drop libxosd.la
+  * debian/patches/328676.diff: Document osd_cat options (Closes: #328676)
+
+ -- Philipp Matthias Hahn <pmhahn@debian.org>  Tue, 26 Jul 2011 14:25:41 +0200
+
 xosd (2.2.14-1.7) unstable; urgency=low
 
   * Non-maintainer upload.

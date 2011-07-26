@@ -1,3 +1,4 @@
+New patch. Fix underquoted definition of AM_PATH_LIBXOSD in libxosd.m4 (Closes: #286156).
 diff -puriN xosd-2.2.14/libxosd.m4 xosd-2.2.14.new/libxosd.m4
 --- xosd-2.2.14/libxosd.m4	2004-08-19 22:39:40.000000000 +0000
 +++ xosd-2.2.14.new/libxosd.m4	2007-10-25 15:52:22.000000000 +0000

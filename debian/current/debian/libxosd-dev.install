@@ -1,6 +1,5 @@
 usr/lib/libxosd.so
 usr/lib/libxosd.a
-usr/lib/libxosd.la
 usr/share/aclocal/libxosd.m4
 usr/include/xosd.h
 usr/bin/xosd-config
